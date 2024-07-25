@@ -1,0 +1,2420 @@
+<!doctype html>
+<html>
+  <head>
+
+<!--
+This was built with https://github.com/lord/slate
+
+© Copyright 2021 Gemini Trust Company, LLC.
+ -->
+
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Gemini FIX Market Data API Reference</title>
+
+    <link href="../stylesheets/screen-5619571e.css" rel="stylesheet" media="screen" />
+    <link href="../stylesheets/print-f82aaaf9.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7630154/729946/css/fonts.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="../javascripts/all-967b56e5.js"></script>
+
+      <script>
+        $(function() {
+          setupLanguages([]);
+        });
+      </script>
+  </head>
+
+  <body class="fix-marketdata fix-marketdata_index" data-languages="[]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="../images/navbar-cad8cdcb.png" alt="" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <a id="logo" href="https://gemini.com"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
+        <div class="lang-selector">
+        </div>
+
+      <div id="menu">
+        <p id="sandbox-message">You are viewing the Gemini sandbox documentation</p>
+        <div class="nav-label">Select an API Document:</div>
+        <ul>
+          <li id="gemini-clearing"><a href="/gemini-clearing/" >Gemini Clearing™</a></li>
+          <li id="rest"><a href="/rest-api/" >REST</a></li>
+          <li id="oauth"><a href="/oauth/" >OAuth</a></li>
+          <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
+          <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
+          <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
+          <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
+          <li id="instant"><a href="/instant/" >Gemini Instant</a></li>
+        </ul>
+      </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li>Trust is Our Product™</li>
+            <li>For trademarks and patents, please <br> see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+            <li>NMLS <span>#1518126</span></li>
+            <li>© Copyright 2022 Gemini Trust <br> Company, LLC.</li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        
+          <h1 id="introduction">Introduction</h1>
+
+<p>These are the messages that can be sent and received for market data.
+For a reference for all FIX tags, see <a href="http://www.fixtradingcommunity.org/FIXimate/FIXimate3.0/">FIXimate</a></p>
+
+<h2 id="survey">Survey</h2>
+
+<p>Please complete our <a href="https://geminiapi.typeform.com/to/Ryq6yl">API Use Survey</a> to help us improve your experience using the Gemini APIs.</p>
+
+          <h1 id="fix-dictionary">FIX Dictionary</h1>
+
+<p>Gemini uses <a href="https://www.fixtrading.org/standards/fix-4-4/">FIX 4.4</a> with the 20030618 errata.</p>
+
+<p>Of particular note if you may be using an older dictionary:</p>
+
+<table><thead>
+<tr>
+<th>Tag</th>
+<th>Field</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>234</td>
+<td><code class="prettyprint">StipulationValue</code></td>
+<td></td>
+<td>FIX enum but should allow other values.  Compatible with Errata 20030618 Vol 6 - see p. 86.</td>
+</tr>
+</tbody></table>
+
+<h2 id="custom-tags">Custom tags</h2>
+
+<table><thead>
+<tr>
+<th>Tag</th>
+<th>Field</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>9000</td>
+<td><code class="prettyprint">RiskLiquidityFlag</code></td>
+<td>Boolean</td>
+<td>Used in <a href="/fix-api/#new-order-single-lt-d-gt-limit">NewOrderSingle &lt;D&gt;</a> Indicates whether or not the order should match against Liquidation Orders sent from the Liquidation Engine. Only allowed from permissioned Market Makers.</td>
+</tr>
+<tr>
+<td>9001</td>
+<td><code class="prettyprint">CancelOnDisconnect</code></td>
+<td>Boolean</td>
+<td>Used in <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> to enable or disable session-level cancel on disconnect.</td>
+</tr>
+<tr>
+<td>9002</td>
+<td><code class="prettyprint">MDEntryMakerSide</code></td>
+<td>Char</td>
+<td>Used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> MDEntry groups when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">2 = Trade</code> to indicate the maker side of a trade.  See <a href="/fix-marketdata/#request-to-enable-maker-side-on-trades">Examples: Request to enable maker side on trades</a>.</td>
+</tr>
+<tr>
+<td>9003</td>
+<td><code class="prettyprint">EnableMDEntryMakerSide</code></td>
+<td>Boolean</td>
+<td>Used in <a href="/fix-marketdata/#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> to optionally enable showing custom field 9002 <code class="prettyprint">MDEntryMakerSide</code> in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> messages when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">2 = Trade</code>.  See <a href="/fix-marketdata/#showing-maker-side-for-trades">Examples: Showing Maker Side For Trades</a>.</td>
+</tr>
+<tr>
+<td>9009</td>
+<td><code class="prettyprint">MDEntryFundingIsRealized</code></td>
+<td>Boolean</td>
+<td>Used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> MDEntry groups when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">S = Funding Amount</code> to indicate the IsRealized field of Funding Amount.</td>
+</tr>
+<tr>
+<td>9008</td>
+<td><code class="prettyprint">EventId</code></td>
+<td>Int</td>
+<td>Used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a>  to specify the event associated with the update. This is for information only and may not be used to form a business logic.  See <a href="/fix-marketdata/#market-data-responses">Examples: market data responses send to clients</a>.</td>
+</tr>
+</tbody></table>
+
+<h2 id="download">Download</h2>
+
+<p>For your convenience, Gemini maintains our custom dictionary in <a href="http://www.quickfixengine.org/">QuickFIX</a> XML form:</p>
+
+<table><thead>
+<tr>
+<th>Environment</th>
+<th>File</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Production</td>
+<td><a href="https://docs.gemini.com/files/gemini-fix-dictionary.xml.zip">https://docs.gemini.com/files/gemini-fix-dictionary.xml.zip</a></td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td><a href="https://docs.sandbox.gemini.com/files/gemini-fix-dictionary.xml.zip">https://docs.sandbox.gemini.com/files/gemini-fix-dictionary.xml.zip</a></td>
+</tr>
+</tbody></table>
+
+          <h1 id="connecting">Connecting</h1>
+
+<p>Gemini&#39;s primary trading platform and network point of presence (PoP) is housed in the Equinix NY5 data center in Secaucus, New Jersey. Customers can cross connect from their NY2/NY4/NY5 infrastructure or leverage an approved extranet provider to access Gemini production Market Data feeds, Drop Copy, and Order Entry sessions.  </p>
+
+<p>We are also nearing completion of a PoP in Equinix CH3 which will be available via cross connects from the Equinix family of data centers in Chicago and approved extranet providers.</p>
+
+<p>Steps to get connected to our FIX infrastructure:</p>
+
+<h2 id="complete-account-verification">Complete Account Verification</h2>
+
+<p>If your firm has not done so already, please complete the <a href="https://exchange.gemini.com/register/institution/admin">Institutional Account Verification Process</a></p>
+
+<h2 id="get-connected">Get connected</h2>
+
+<p>Once on-boarded as a Gemini customer, email <a href="mailto:connectivity@gemini.com">connectivity@gemini.com</a> with a brief description of your business and your preferred connectivity method.  There are 3 options for production FIX connectivity to Gemini:</p>
+
+<h3 id="cross-connect">Cross-connect</h3>
+
+<p>For customers with applications in the same data center as Gemini.  If you would like to cross-connect, please include the legal entity name that we should include in our LOA (letter of authorization).</p>
+
+<h3 id="extranet-connectivity">Extranet connectivity</h3>
+
+<p>Customers who are not in the Equinix family of data centers can leverage an extranet provider to connect to Gemini.  If your firm wishes to leverage an extranet provider or third party to connect, please specify that in your email including the providers name.</p>
+
+<h3 id="third-party-order-management-system-provider">Third Party Order Management System Provider</h3>
+
+<p>There are a number of Service providers that allow Gemini customers to leverage their trading platforms to connect to Gemini for trading. If you would like to cross-connect, please include the legal entity name that we should include in our LOA (letter of authorization).  If your firm wishes to leverage an extranet provider or third party to connect, please specify that in your email including the providers name.</p>
+
+<h2 id="sandbox-and-testing">Sandbox and Testing</h2>
+
+<p>Gemini operates a Sandbox environment which acts as a replica of our production environment.  Gemini strongly recommends that all FIX customers create a Sandbox account to test their workflows.  Please follow these steps to get a FIX Sandbox environment setup:</p>
+
+<h3 id="setup-a-sandbox-account">Setup a Sandbox Account</h3>
+
+<p>Create a Sandbox account by going to: <a href="https://sandbox.gemini.com">https://sandbox.gemini.com</a></p>
+
+<h3 id="permission-your-test-ip">Permission Your Test IP</h3>
+
+<p>E-mail <a href="mailto:connectivity@gemini.com">connectivity@gemini.com</a> and specify the email address used to setup your Sandbox account and the Source IP that you will be using to connect to the FIX Sandbox.  We will respond back once the IP addresses have been enabled. We will also provide you with the Sender and Target CompId that should be used to connect to the test environment.</p>
+
+<h3 id="test-your-workflow-thoroughly">Test Your Workflow Thoroughly</h3>
+
+<p>Test all messaging workflows specified in our FIX API documentation. <em>(Gemini currently only supports FIX 4.4)</em></p>
+
+          <h1 id="workflow">Workflow</h1>
+
+<p>After connecting and logging on, the client can either request a symbol list or subscribe to market data.</p>
+
+<p>Gemini does not resend messages on a market data channel.  Instead, Gemini will send a <a href="#sequence-reset">Sequence Reset &lt;4&gt;</a> message with <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> field set to <code class="prettyprint">Y</code> and the new sequence number in the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> field. </p>
+
+<h2 id="symbol-list">Symbol list</h2>
+
+<p><em>Optional:</em> Gemini offers a symbol list that supplies the definitive list of symbols traded on the exchange.</p>
+
+<ol>
+<li>Client sends a <a href="#symbol-list-request-lt-x-gt">Symbol List Request &lt;x&gt;</a></li>
+<li>Gemini responds with a <a href="#security-list-lt-y-gt">Symbol List &lt;y&gt;</a></li>
+</ol>
+
+<h2 id="market-data-subscription">Market data subscription</h2>
+
+<p>After connecting to the market data channel, the client subscribes to market data by sending a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> message.</p>
+
+<p>When a client disconnects for any reason, the market data subscription is terminated.  Upon reconnecting, the client needs to send another <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> message.</p>
+
+<ol>
+<li>Client sends a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a></li>
+<li>Gemini responds by sending one <a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot/Full Refresh &lt;W&gt;</a></li>
+<li>As bids, offers, and trades happen on the exchange, Gemini sends <a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> messages</li>
+</ol>
+
+          <h2 id="precision-on-the-exchange">Precision on the exchange</h2>
+
+<p>Quantity and price on incoming orders are strictly held to the minimums and increments on the table shown above.</p>
+
+<p>However, once on the exchange, quantities and notional values may exhibit additional precision down to two decimal places past the &quot;minimum order increment&quot; listed above.  For instance, it is possible that a <code class="prettyprint">btcusd</code> trade could execute for a quantity of 0.0000000001 (1e-10) BTC.  This is due to:</p>
+
+<ul>
+<li>incoming market orders that may result in partial fills</li>
+<li>fees</li>
+<li>holds</li>
+</ul>
+
+<p>This additional precision is marketable once on the exchange.</p>
+
+<p>Your account balances are maintained to full fractional precision in each currency.</p>
+
+          <h2 id="understanding-price-and-quantity">Understanding price and quantity</h2>
+
+<p>In a <a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> message, the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_270.html">MDEntryPx &lt;270&gt;</a> field is denominated in USD and the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_271.html">MDEntrySize &lt;271&gt;</a> field is denominated in BTC.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=122|35=X|34=41|49=GEMINI|52=20160217-18:07:26.581|56=CLIENT|262=TestMDReqID_1|268=1|279=0|269=0|55=BTCUSD|270=300.43|271=0.57|10=070|
+
+HEADER
+        8         BeginString: FIX.4.4
+        9          BodyLength: 122
+       34           MsgSeqNum: 41
+       35             MsgType: MarketDataIncrementalRefresh (X)
+       49        SenderCompID: GEMINI
+       52         SendingTime: 20160217-18:07:26.581
+           56        TargetCompID: CLIENT
+BODY
+      262             MDReqID: TestMDReqID_1
+    NoMDEntries: count = 1
+           55              Symbol: BTCUSD
+          269         MDEntryType: BID (0)
+          270           MDEntryPx: 419.02
+          271         MDEntrySize: 9.50
+          279      MDUpdateAction: NEW (0)
+TRAILER
+       10            CheckSum: 070
+</code></pre>
+
+<h2 id="currency-based-messages-and-fields">Currency-based messages and fields</h2>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Message</li>
+<li>Fields denominated in price currency</li>
+<li>Fields denominated in quantity currency</li>
+</ul></li>
+<li>
+
+<ul>
+<li><a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot / Full Refresh &lt;W&gt;</a></li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_270.html">MDEntryPx &lt;270&gt;</a></li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_271.html">MDEntrySize &lt;271&gt;</a> </li>
+</ul></li>
+<li>
+
+<ul>
+<li><a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a></li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_270.html">MDEntryPx &lt;270&gt;</a></li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_271.html">MDEntrySize &lt;271&gt;</a><br></li>
+</ul></li>
+</ul>
+
+          <h1 id="identifiers">Identifiers</h1>
+
+<p>Client supplied FIX identifier field values must contain between at least one and up to one hundred allowed characters.</p>
+
+<p>Any exchange-bound message containing an invalid identifier will be rejected.</p>
+
+<h2 id="allowed-characters">Allowed characters</h2>
+
+<p>Client supplied identifier values should match against this PCRE regular expression: <code class="prettyprint">[:\-_\.#a-zA-Z0-9]{1,100}</code>.</p>
+
+<table><thead>
+<tr>
+<th>Characters</th>
+<th>Description</th>
+<th>ASCII Codes (Dec)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">A-Z</code></td>
+<td>Uppercase A-Z</td>
+<td>65 - 90</td>
+</tr>
+<tr>
+<td><code class="prettyprint">a-z</code></td>
+<td>Lowercase a-z</td>
+<td>97 - 122</td>
+</tr>
+<tr>
+<td><code class="prettyprint">0-9</code></td>
+<td>Digits</td>
+<td>48 - 57</td>
+</tr>
+<tr>
+<td><code class="prettyprint">#</code></td>
+<td>Hash, octothorpe, number sign</td>
+<td>35</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-</code></td>
+<td>Hyphen</td>
+<td>45</td>
+</tr>
+<tr>
+<td><code class="prettyprint">.</code></td>
+<td>Period</td>
+<td>46</td>
+</tr>
+<tr>
+<td><code class="prettyprint">:</code></td>
+<td>Colon</td>
+<td>58</td>
+</tr>
+<tr>
+<td><code class="prettyprint">_</code></td>
+<td>Underscore</td>
+<td>95</td>
+</tr>
+</tbody></table>
+
+          <h2 id="client-supplied-identifiers">Client supplied identifiers</h2>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Defined in</li>
+<li>Echoed back</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>320</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_320.html">SecurityReqID</a></li>
+<li><a href="#symbol-list-request-lt-x-gt">Symbol List Request &lt;x&gt;</a></li>
+<li><a href="#symbol-list-lt-y-gt">Symbol List &lt;y&gt;</a></li>
+<li>The client&#39;s symbol list request identifier.  Gemini does not enforce uniqueness although the FIX protocol recommends it.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>262</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID</a></li>
+<li><a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a></li>
+<li>
+
+<ul>
+<li><a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot/Full Refresh &lt;W&gt;</a></li>
+<li><a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a></li>
+<li><a href="#market-data-request-reject-lt-y-gt">Market Data Request Reject &lt;Y&gt;</a></li>
+</ul></li>
+<li><span>
+The client&#39;s market data request identifier.  Gemini requires uniqueness per active FIX session.
+<br/>
+A <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> messages with a duplicate <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID &lt;262&gt;</a> value during the current active FIX session will be rejected using a <a href="#market-data-request-reject-lt-y-gt">Market Data Request Reject &lt;Y&gt;</a> with the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_281.html">MDReqRejReason &lt;281&gt;</a> field set to <code class="prettyprint">1</code> = Duplicate <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID &lt;262&gt;</a>.<br>
+</span></li>
+</ul></li>
+</ul>
+
+<h2 id="identifiers-assigned-by-gemini">Identifiers assigned by Gemini</h2>
+
+<p>Market data messages do not have any identifiers assigned by Gemini.</p>
+
+          <h1 id="standard-header">Standard header</h1>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/compBlock_StandardHeader.html"><strong>Standard Header</strong></a> is required on every message.</p>
+
+<p><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_97.html">PossResend <97></a> is not supported.  Gemini will report the last sequence number that the exchange received in the header of the <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message.  The client should assume that any events that the server requests to be replayed have not been acted upon: see <a href="#beginning-a-session">Beginning a session</a> for details.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li> 
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>8</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_8.html">BeginString</a></li>
+<li>Y</li>
+<li>Identifies the beginning of new message and protocol version. Always the first tag in the message.<br/><br/>Valid value:<br/><ul><li>FIX.4.4</li></ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>9</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_9.html">BodyLength</a></li>
+<li>Y</li>
+<li>Message length, in bytes, forward to the CheckSum <10> field. Always the second tag in the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>35</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType</a></li>
+<li>Y</li>
+<li>Defines message type. Always the third tag in the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>34</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum</a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>49</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID</a></li>
+<li>Y</li>
+<li>Assigned value used to identify the firm sending the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>43</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_43.html">PossDupFlag</a></li>
+<li>N*</li>
+<li>Indicates possible retransmission of message with this sequence number.<br/><br/>Valid values:<br/><ul><li>Y = Possible duplicate</li><li>N = Original transmission</li></ul><br/><em>*Required for a re-transmitted message.</em></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>52</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_52.html">SendingTime</a></li>
+<li>Y</li>
+<li>Time of message transmission (always expressed in UTC).</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>56</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_56.html">TargetCompID</a></li>
+<li>Y</li>
+<li>Assigned value used to identify the firm receiving the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>115</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID</a></li>
+<li>N*</li>
+<li>Assigned value used to identify firm originating message if the message was delivered by a third party such as an OMS or OEMS: <em>required</em> when an OMS/OEMS submits or cancels orders on behalf of another Gemini account.<br/> <ul> <li><em>Not used or supported</em> in Market Data or single party Order Entry or Drop Copy</li> <li>Third party order entry header usage as follows: <ul> <li>the customer&#39;s Gemini account identifier is used in the <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID <115></a> field</li> <li>the third party firm identifier is used in the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID <49></a> field</li> <li>See <a href="/fix-api/#third-party-support">Order Entry: Third Party Support</a> for further details.</ul><li>Third party support for Drop Copy does not use <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID <115></a> in the header - see <a href="/fix-dropcopy/#third-party-support">Drop Copy: Third Party Support</a> for details.</li></ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>128</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_128.html">DeliverToCompID</a></li>
+<li>N*</li>
+<li>Used in Execution Reports only. <br/> <ul> <li><em>Not used or supported</em> in Market Data or single party Order Entry or Drop Copy</li> <li>The customer&#39;s Gemini account identifier is returned in the <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_128.html">DeliverToCompID <128></a> field on Execution Reports</li><li>Third party support for Drop Copy does not use <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_128.html">DeliverToCompID <128></a> in the header - see <a href="/fix-dropcopy/#third-party-support">Drop Copy: Third Party Support</a> for details.</li></ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>122</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_122.html">OrigSendingTime</a></li>
+<li>N*</li>
+<li>Original time of message transmission (always expressed in UTC) when transmitting orders as the result of a resend request.<br/><br/><em>*Required for a re-transmitted message.</em></li>
+</ul></li>
+</ul>
+
+          <h1 id="standard-trailer">Standard Trailer</h1>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/compBlock_StandardTrailer.html">Standard Trailer</a> is required on every message.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li> 
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>10</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_10.html">CheckSum</a></li>
+<li>Y</li>
+<li>Three byte, simple checksum. Always the last tag in the message.</li>
+</ul></li>
+</ul>
+
+          <h1 id="session-level-messages">Session-Level Messages</h1>
+
+<h2 id="establishing-a-connection">Establishing a connection</h2>
+
+<ol>
+<li>Client sends server &rarr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message</li>
+<li>Is client <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag &lt;141&gt;</a> to <code class="prettyprint">Y</code>?
+
+<ul>
+<li>Yes, reset sequence numbers and proceed
+
+<ul>
+<li>server resets next expected client sequence number</li>
+<li>server resets its own sequence number</li>
+<li>server responds with &larr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message with reset sequence number</li>
+<li>client sends server &rarr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+<li>No, negotiate sequence numbers on both sides
+
+<ol>
+<li>Is client <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> value what the server is expecting?
+
+<ul>
+<li>No, value is greater than expected
+
+<ul>
+<li>server responds with &larr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message</li>
+<li>server sends client &larr; <a href="#resend-request">Resend Request &lt;2&gt;</a></li>
+<li>client sends server &rarr; <a href="#sequence-reset">Sequence Reset &lt;4&gt;</a> (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> = <code class="prettyprint">Y</code>)</li>
+</ul></li>
+<li>No, value is less than expected
+
+<ul>
+<li>server disconnects</li>
+<li>after checking what happened, client re-sends <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message with <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag &lt;141&gt;</a> field set to <code class="prettyprint">Y</code></li>
+</ul></li>
+<li>Otherwise
+
+<ul>
+<li>server sends client &larr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+</ul></li>
+<li>Is server <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> value what the client is expecting?
+
+<ul>
+<li>No, value is greater than expected
+
+<ul>
+<li>server responds with &larr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message</li>
+<li>client sends server &rarr; <a href="#resend-request">Resend Request &lt;2&gt;</a></li>
+<li>replay from server to client proceeds</li>
+<li>server responds with &larr; message <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_43.html">PossDupFlag &lt;43&gt;</a> = <code class="prettyprint">Y</code></li>
+<li>&hellip;</li>
+<li>server responds with &larr; message <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_43.html">PossDupFlag &lt;43&gt;</a> = <code class="prettyprint">Y</code></li>
+<li>replay from server to client is complete</li>
+<li>server responds with &larr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+<li>No, value is less than expected
+
+<ul>
+<li>client disconnects or sends server &rarr; <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a></li>
+<li>Gemini coordinates with the client to triage so the FIX connection can be re-established</li>
+</ul></li>
+<li>Otherwise
+
+<ul>
+<li>client sends server &rarr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+</ul></li>
+</ol></li>
+</ul></li>
+<li>Success!  Your FIX connection is established.</li>
+</ol>
+
+<h2 id="when-can-sequence-numbers-be-reset">When can sequence numbers be reset?</h2>
+
+<p>Gemini runs the server side of the FIX connection (&quot;acceptor&quot;).  Gemini never resets sequence numbers on the server side during the logon workflow unless the client explicitly requests it.</p>
+
+<p>The client (&quot;initiator&quot;) can reset sequence numbers during <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> by setting <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag &lt;141&gt;</a> to <code class="prettyprint">Y</code>.</p>
+
+<p>Gemini recommends that client consider configuring the FIX initiator to automatically reset sequence numbers under the following conditions:</p>
+
+<ul>
+<li>logon</li>
+<li>logout</li>
+<li>disconnect</li>
+<li>error</li>
+</ul>
+
+<p>While synchronizing sequence numbers after a replay, the client may send a <a href="#sequence-reset">Sequence Reset &lt;4&gt;</a> with <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> = <code class="prettyprint">Y</code> in lieu of a replay.</p>
+
+<h2 id="ending-a-connection">Ending a connection</h2>
+
+          <p>The client may send the server an optional <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a> message but the exchange will not interpret its absence as being an abnormal condition.</p>
+
+<p>Under certain conditions, the server may send the client a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a> message where the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text &lt;58&gt;</a> field contains the reason, such as scheduled maintenance.</p>
+
+          <h2 id="logon-lt-a-gt">Logon &lt;A&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message must be the first message sent by the application requesting to initiate a FIX session.  The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message authenticates an institution establishing a connection to Gemini.</p>
+
+<p>Upon receipt of a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message, Gemini will authenticate the institution requesting connection by validating the source IP Address, <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID &lt;49&gt;</a>, and <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_56.html">TargetCompID &lt;56&gt;</a> identifying the institution. The server will then issue a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message as acknowledgment that the connection request has been accepted. The acknowledgment <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> can also be used by the institution to validate that the connection was established with the correct party. If validation fails, the connection will be dropped without a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_3_3.html">Reject &lt;3&gt;</a>.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = A</li>
+</ul></li>
+<li>
+
+<ul>
+<li>141</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag</a></li>
+<li>N</li>
+<li>Should be set to <code class="prettyprint">Y</code> when the client wants to indicates that the both sides of the FIX session should reset sequence numbers.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>98</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_98.html">EncryptMethod</a></li>
+<li>Y</li>
+<li>Gemini does not support encryption.<br/><br/>Valid value:<ul><li>0 = None</li></ul></li>
+</ul></li>
+<li><ul>
+<li>108</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt</a></li>
+<li>Y</li>
+<li><p>Heartbeat interval in seconds.
+Valid value:</p>
+
+<ul>
+<li>30 = 30 seconds</li>
+</ul></li>
+</ul></li>
+<li><ul>
+<li>9001</li>
+<li><a href="#custom-tags">CancelOnDisconnect</a></li>
+<li>N</li>
+<li><p>Only used for <a href="/fix-api/">Order Entry</a>. When present and true, orders will be cancelled on disconnect.  When present and false, orders will not be cancelled on disconnect. When absent, orders will not be cancelled on disconnect.
+Valid value:</p>
+
+<ul>
+<li>Y = Enable cancel on disconnect for this session</li>
+<li>N = Disable cancel on disconnect for this session</li>
+</ul></li>
+</ul></li>
+<li><ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="heartbeat-lt-0-gt">Heartbeat &lt;0&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> monitors the status of the communication link and identifies when the last of a string of messages was not received.  <em>The only supported heartbeat interval, as specified by the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message, is 30 seconds.</em></p>
+
+<p>When either end of a FIX connection has not sent any data for <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a> seconds, it will transmit a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> message. When either end of the connection has not received any data for (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a> + &quot;some reasonable transmission time&quot;) seconds, it will transmit a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message. If there is still no <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> message received after (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a> + &quot;some reasonable transmission time&quot;) seconds then the connection should be considered lost and corrective action be initiated.</p>
+
+<p>Note that a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message can still be sent independent of the value of the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a>, which will force a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> message.</p>
+
+<p>Heartbeats issued as the result of <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> must contain the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> transmitted in the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message. This is useful to verify that the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> is the result of the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> and not as the result of a regular timeout.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 0</li>
+</ul></li>
+<li>
+
+<ul>
+<li>112</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID</a></li>
+<li>N*</li>
+<li>Required when the heartbeat is the result of a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request (1)</a> message</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="test-request-lt-1-gt">Test Request &lt;1&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message forces a heartbeat from the opposing application. The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message checks sequence numbers or verifies communication line status. The opposite application responds to the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> with a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> containing the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a>.</p>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> verifies that the opposite application is generating the heartbeat as the result of <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> and not a normal timeout. The opposite application includes the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> in the resulting <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a>. Any string can be used as the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> (one suggestion is to use a timestamp string).</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 1</li>
+</ul></li>
+<li><ul>
+<li>112</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID</a></li>
+<li>Y</li>
+<li>Identifier included in <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message to be returned in resulting <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+<li><ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="resend-request-lt-2-gt">Resend Request &lt;2&gt;</h2>
+
+<p>The resend request is sent by the receiving application to initiate the retransmission of messages. This function is utilized if a sequence number gap is detected, if the receiving application lost a message, or as a function of the initialization process.</p>
+
+<p>The resend request can be used to request a single message, a range of messages or all messages subsequent to a particular message.</p>
+
+<p>Note: the sending application may wish to consider the message type when resending messages; e.g. if a new order is in the resend series and a significant time period has elapsed since its original inception, the sender may not wish to retransmit the order given the potential for changed market conditions. (The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_4_4.html">Sequence Reset &lt;4&gt;</a> - Gap Fill message is used to skip messages that a sender does not wish to resend.)</p>
+
+<p>Note: it is imperative that the receiving application process messages in sequence order, e.g. if message number 7 is missed and 8-9 received, the application should ignore 8 and 9 and ask for a resend of 7-9, or, preferably, 7-0 (0 represents infinity). This latter approach is strongly recommended to recover from out of sequence conditions as it allows for faster recovery in the presence of certain race conditions when both sides are simultaneously attempting to recover a gap.</p>
+
+<ul>
+<li>To request a single message: <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo &lt;7&gt;</a> = <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo &lt;16&gt;</a></li>
+<li>To request a range of messages: <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo &lt;7&gt;</a> = first message of range, <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo &lt;16&gt;</a> = last message of range&lt;</li>
+<li>To request all messages subsequent to a particular message: <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo &lt;7&gt;</a> = first message of range, <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo &lt;16&gt;</a> = 0 (represents infinity) .</li>
+</ul>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 2</li>
+</ul></li>
+<li>
+
+<ul>
+<li>7</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo</a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+<li>
+
+<ul>
+<li>16</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo</a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="reject-lt-3-gt">Reject &lt;3&gt;</h2>
+
+<p>Gemini sends a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_3_3.html">Reject &lt;3&gt;</a> message when a message is received but cannot be properly processed due to a session-level rule violation.  A reject is typically a serious error in the trading application&#39;s session logic.
+A session reject would also be generated if client message rate has exceeded the allocated throttle. </p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 3</li>
+</ul></li>
+<li>
+
+<ul>
+<li>45</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_45.html">RefSeqNum</a></li>
+<li>Y</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>58</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text</a></li>
+<li>N</li>
+<li>Explanation for rejection</li>
+</ul></li>
+<li>
+
+<ul>
+<li>371</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_371.html">RefTagID</a> </li>
+<li>N</li>
+<li>The tag number of the FIX field being referenced.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>372</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_372.html">RefMsgType</a></li>
+<li>N</li>
+<li>The <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>373</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_373.html">SessionRejectReason</a></li>
+<li>N</li>
+<li>Code to identify the reason for the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_3_3.html">Reject &lt;3&gt;</a> message.<br/><br/>Valid values:<br/><ul><li>0 = Invalid tag number</li><li>1 = Required tag missing</li><li>2 = Tag not defined for this message type</li><li>3 = Undefined Tag</li><li>4 = Tag specified without a value</li><li>5 = Value is incorrect (out of range) for this tag</li><li>6 = Incorrect data format for value</li><li>10 = <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_52.html">SendingTime &lt;52&gt;</a> accuracy problem</li><li>11 = Invalid <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a></li><li>99 = Other</a></li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="sequence-reset-lt-4-gt">Sequence Reset &lt;4&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_4_4.html">Sequence Reset &lt;4&gt;</a> message is used in response to a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_2_2.html">Resend Request &lt;2&gt;</a> message when one or more messages must be skipped over for the following reasons:</p>
+
+<ul>
+<li>During normal resend processing, the sending application may choose not to send a message (e.g. an aged order).</li>
+<li>During normal resend processing, a number of administrative messages are skipped and not resent (such as <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> and <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a>).</li>
+</ul>
+
+<p>Gemini does not support Reset mode (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> not present or equal to <code class="prettyprint">N</code>).</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 4</li>
+</ul></li>
+<li>
+
+<ul>
+<li>36</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_36.html">NewSeqNo</a></li>
+<li>Y</li>
+<li>New sequence number. The receiver should expect this to be the sequence number of the following message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>123</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag</a></li>
+<li>Y</li>
+<li>Indicates that the sender is skipping messages rather than resending them.<br/><br/>Valid value:<ul><li>Y = Gap Fill message</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="logout-lt-5-gt">Logout &lt;5&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a> message initiates or confirms the termination of a FIX session.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 5</li>
+</ul></li>
+<li>
+
+<ul>
+<li>58</li>
+<li>Text</li>
+<li>N</li>
+<li>Reason for logging out.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="business-message-reject-lt-j-gt">Business Message Reject &lt;j&gt;</h2>
+
+<p>Gemini sends <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_j_106.html">Business Message Reject &lt;j&gt;</a> when the exchange receives a valid FIX message which cannot be processed.</p>
+
+<p>Examples include:</p>
+
+<ul>
+<li>receiving a market data request on an order entry channel, or vice versa</li>
+</ul>
+
+<p>Gemini does not use <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_j_106.html">Business Message Reject &lt;j&gt;</a> to handle invalid <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_D_68.html">New Order Single &lt;D&gt;</a> messages.  Rejected orders are handled with an <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_8_8.html">Execution Report &lt;8&gt;</a> message with an <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_39.html">OrdStatus &lt;39&gt;</a> field with a value of <code class="prettyprint">8 - Rejected</code>.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = j</li>
+</ul></li>
+<li>
+
+<ul>
+<li>45</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_45.html">RefSeqNum</a></li>
+<li>Y</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>58</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text</a></li>
+<li>N</li>
+<li>Explanation for rejection.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>372</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_372.html">RefMsgType</a></li>
+<li>N </li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>379</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_379.html">BusinessRejectRefID</a></li>
+<li>N</li>
+<li>The value of the business level ID field being referenced.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>380</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_380.html">BusinessRejectReason</a></li>
+<li>Y</li>
+<li>Code to identify the reason for the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_j_106.html">Business Message Reject &lt;j&gt;</a> message<br/><br/>Valid values:<br/><ul><li>0 = Other</li><li>1 = Unknown ID</li><li>2 = Unknown Security</li><li>3 = Unsupported Message Type</li><li>4 = Application not available</li><li>5 = Conditionally Required Field Missing</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+          <h1 id="exchange-bound-messages">Exchange-Bound Messages</h1>
+
+<h2 id="symbol-list-request-lt-x-gt">Symbol List Request &lt;x&gt;</h2>
+
+<p>A <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_x_120.html">Symbol List Request &lt;x&gt;</a> returns a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_y_121.html">Symbol List &lt;y&gt;</a> response containing the symbols traded on the exchange.</p>
+
+<p>See <a href="#request-for-the-symbol-list">Examples: Request for the symbol list</a> for sample requests and responses.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = x </li>
+</ul></li>
+<li>
+
+<ul>
+<li>320</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_320.html">SecurityReqID</a></li>
+<li>Y</li>
+<li>Unique identifier of this request.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>559</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_559.html">SecurityListRequestType</a></li>
+<li>Y</li>
+<li>The type/criteria of the request. <br/><br/>Valid value:<ul><li>0 = Symbol</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</h2>
+
+<p>Subscribes the current session to a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_W_87.html">Market Data - Snapshot/Full Refresh &lt;W&gt;</a> followed by zero or more <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_X_88.html">Market Data - Incremental Refresh &lt;X&gt;</a> messages.</p>
+
+<p>See <a href="#market-data-requests">Examples: Market Data Requests</a> for sample requests and responses.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = V </li>
+</ul></li>
+<li>
+
+<ul>
+<li>262</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID</a></li>
+<li>Y</li>
+<li>Unique identifier of the market data request. Uniqueness must be guaranteed by the institution for the duration of the connection to the market data channel.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>263</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.2/tagNum_263.html">SubscriptionRequestType</a></li>
+<li>Y</li>
+<li>Indicates what type of response is expected. <br/><br/>Valid value:<ul><li>1 = Snapshot + Updates (Subscribe)</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>264</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_264.html">MarketDepth</a></li>
+<li>Y</li>
+<li>Depth of the book to receive snapshot and updates for. <br/><br/>Valid values:
+<ul>
+    <li>0 = Full Book</li>
+    <li>1 = Top of Book</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>267</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_267.html">NoMDEntryTypes</a></li>
+<li>Y</li>
+<li>Number of <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType &lt;269&gt;</a> fields requested</li>
+</ul></li>
+<li>
+
+<ul>
+<li><a name="MDEntryType"></a>=&gt; 269</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a></li>
+<li>Y</li>
+<li>Type of market data entry to receive snapshots and updates for. <br/><br/>Valid values:
+<ul>
+    <li>0 = Bid</li>
+    <li>1 = Offer</li>
+    <li>2 = Trade</li>
+    <li>R = MarkPrice</li>
+<li>S = FundingAmount</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>146</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_146.html">NoRelatedSym</a></li>
+<li>Y</li>
+<li>Number of symbols requested.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Market data symbol requested.<br/><br/>See <a href="#security-list-lt-y-gt">Security List &lt;y&gt;</a> for a list of supported symbols.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>9003</li>
+<li><a href="#custom-tags">EnableMDEntryMakerSide</a></li>
+<li>N</li>
+<li>Optional custom field to enable showing <a href="#custom-tags">MDEntryMakerSide &lt;9002&gt;</a> in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh<X\></a> messages when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType &lt;269&gt;</a> had the value <code class="prettyprint">2 = Trade</code>.  See <a href="#request-to-enable-maker-side-on-trades">Examples: Request to enable maker side on trades</a>.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>9009</li>
+<li><a href="#custom-tags">MDEntryFundingIsRealized</a></li>
+<li>N</li>
+<li>Optional custom field used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> MDEntry groups when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">S = Funding Amount</code> to indicate the IsRealized field of Funding Amount.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+          <h1 id="client-bound-messages">Client-Bound Messages</h1>
+
+<h2 id="symbol-list-lt-y-gt">Symbol List &lt;y&gt;</h2>
+
+<p>A <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_y_121.html">Symbol List &lt;y&gt;</a> is the response containing the list of symbols specified in a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_x_120.html">Symbol List Request &lt;x&gt;</a>.</p>
+
+<p>See <a href="#request-for-the-symbol-list">Examples: Request for the symbol list</a> for sample requests and responses.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = y</li>
+</ul></li>
+<li>
+
+<ul>
+<li>320</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_320.html">SecurityReqID</a></li>
+<li>Y</li>
+<li>Unique identifier of the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_x_120.html">Symbol List Request &lt;x&gt;</a> that solicited this response.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>322</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_322.html">SecurityResponseID</a></li>
+<li>Y</li>
+<li>Identifier for this message.</li>
+</ul></li>
+<li><ul>
+<li>560</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_560.html">SecurityRequestResult</a></li>
+<li>Y</li>
+<li><p>The result of this request. 
+Valid values:</p>
+
+<ul>
+<li>0 = Valid Request</li>
+<li>1 = Invalid Request</li>
+</ul></li>
+</ul></li>
+<li><ul>
+<li>146</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_146.html">NoRelatedSym</a></li>
+<li>Y</li>
+<li>Specifies the number of returned symbols.</li>
+</ul></li>
+<li><ul>
+<li>=&gt; 55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Symbol of exchange-traded order book pair.</li>
+</ul></li>
+<li><ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot / Full Refresh &lt;W&gt;</h2>
+
+<p>The initial response to a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> is a full snapshot of current state followed by multiple <a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> messages.</p>
+
+<p>See <a href="#full-snapshot">Examples: Full Snapshot</a>.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = W </li>
+</ul></li>
+<li>
+
+<ul>
+<li>262</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID</a></li>
+<li>Y</li>
+<li>Unique identifier of the <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> this message is in response to.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Symbol of market data entry.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>268</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_268.html">NoMDEntries</a></li>
+<li>Y</li>
+<li>Number of entries in this message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 269</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a></li>
+<li>Y</li>
+<li>Type of market data update. <br/><br/>Valid values:
+<ul>
+<li>0 = Bid</li>
+<li>1 = Offer</li>
+<li>2 = Trade</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 270</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_270.html">MDEntryPx</a></li>
+<li>Y</li>
+<li>Price of market data entry.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 271</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_271.html">MDEntrySize</a></li>
+<li>Y</li>
+<li>Quantity of market data entry.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 273</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_273.html">MDEntryTime</a></li>
+<li>N*</li>
+<li>The time that the most recent indicative price has been published.<br/><br></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</h2>
+
+<p>The initial response to a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> is a full snapshot of current state followed by multiple incremental update messages.</p>
+
+<p>See <a href="#market-data-responses">Examples: Market Data Responses</a> for examples of bids, offers, and trade events.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>X</li>
+<li>MsgType = X</li>
+</ul></li>
+<li>
+
+<ul>
+<li>262</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID</a></li>
+<li>Y</li>
+<li>Unique identifier of the <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> this message is in response to.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>9008</li>
+<li><a href="#custom-tags">EventId</a></li>
+<li>N</li>
+<li>event id of te event causing the generation of update in this message</li>
+</ul></li>
+<li>
+
+<ul>
+<li>268</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_268.html">NoMDEntries</a></li>
+<li>Y</li>
+<li>Number of entries in this message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 279</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_279.html">MDUpdateAction</a></li>
+<li>Y</li>
+<li>Type of market data update. <br/><br/>Valid values:<ul><li>0 = New</li><li>1 = Change</li><li>2 = Delete</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 269</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a></li>
+<li>Y</li>
+<li>Type of market data entry. <br/><br/>Valid values:
+<ul>
+    <li>0 = Bid</li>
+    <li>1 = Offer</li>
+    <li>2 = Trade</li>
+    <li>R = MarkPrice</li>
+    <li>S = FundingAmount</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>N</li>
+<li>Symbol of market data entry.<br/><br/>Required when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> is not <code class="prettyprint">3 = Index Value</code></li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 270</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_270.html">MDEntryPx</a></li>
+<li>Y</li>
+<li>Price of market data entry.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 271</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_271.html">MDEntrySize</a></li>
+<li>N*</li>
+<li>Quantity of market data entry.<br/><br/>* Required when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> is not <code class="prettyprint">3 = Index Value</code></li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 273</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_273.html">MDEntryTime</a></li>
+<li>N*</li>
+<li>The time that the most recent indicative price has been published.<br/><br></li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 9002</li>
+<li><a href="#custom-tags">MDEntryMakerSide</a></li>
+<li>N*</li>
+<li>Custom field indicating the maker side of a trade.  Enabled by sending a <a href="/fix-marketdata/#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a>  with custom field <a href="#custom-tags">EnableMDEntryMakerSide &lt;9003&gt;</a> set to <code class="prettyprint">TRUE</code>.  Appears when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType &lt;269&gt;</a> has value <code class="prettyprint">2 = Trade</code>.<br/><br/>Valid values:
+<ul>
+    <li>1 = Buy</li>
+    <li>2 = Sell</li>
+</ul><br/><br/>See <a href="/fix-marketdata/#showing-maker-side-for-trades">Examples: Showing Maker Side For Trades</a>.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>=&gt; 9009</li>
+<li><a href="#custom-tags">MDEntryFundingIsRealized</a></li>
+<li>N*</li>
+<li>Custom field used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> MDEntry groups when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">S = Funding Amount</code> to indicate the IsRealized field of Funding Amount.<br/><br/>Valid values:
+<ul>
+    <li>Y = Yes</li>
+    <li>N = No</li>
+</ul><br/><br/></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="market-data-request-reject-lt-y-gt">Market Data Request Reject &lt;Y&gt;</h2>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = Y</li>
+</ul></li>
+<li>
+
+<ul>
+<li>262</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID</a></li>
+<li>Y</li>
+<li>Unique identifier of the market data request being rejected.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>281</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_281.html">MDReqRejReason</a></li>
+<li>N</li>
+<li>Reason why <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> was rejected.  <br/><br/>Valid values:<ul><li>0 = Unknown Symbol</li><li>1 = Duplicate <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID &lt;262&gt;</a> <li>4 = Unsupported <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_263.html">SubscriptionRequestType &lt;263&gt;</a><li>5 = Unsupported <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_264.html">MarketDepth &lt;264&gt;</a><li>8 = Unsupported <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType &lt;269&gt;</a></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+          <h1 id="examples">Examples</h1>
+
+<h2 id="market-data-requests">Market Data Requests</h2>
+
+<p>These are some examples of FIX market data requests. These requests only need to be made once per session to setup a FIX connection for market data.</p>
+
+<p><strong>Notes</strong>:</p>
+
+<ul>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_263.html">SubscriptionRequestType &lt;263&gt;</a> = <code class="prettyprint">1 SNAPSHOT_PLUS_UPDATES</code> allows the sender to subscribe to the data feed and receive updates.</li>
+</ul>
+
+<h3 id="request-for-top-of-book-bids">Request for Top of Book (bids)</h3>
+
+<p>This is a request for the Top of Book BTCUSD bids:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=114|35=V|34=2|49=TRADEBOTMD002|52=20180425-17:51:40.000|56=GEMINI|262=2|263=1|264=1|146=1|55=BTCUSD|267=1|269=0|10=016|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 114
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequest (V)
+       49                  SenderCompID: TRADEBOTMD002
+       52                   SendingTime: 20180425-17:51:40.000
+       56                  TargetCompID: GEMINI
+BODY
+      262                       MDReqID: 2
+      263       SubscriptionRequestType: SNAPSHOT_PLUS_UPDATES (1)
+      264                   MarketDepth: TOP_OF_BOOK (1)
+    NoRelatedSym: count = 1
+           55                        Symbol: BTCUSD
+    NoMDEntryTypes: count = 1
+          269                   MDEntryType: BID (0)
+TRAILER
+       10                      CheckSum: 016
+
+</code></pre>
+
+<p>and the corresponding response:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=108|35=W|34=2|49=GEMINI|52=20180425-17:51:40.787|56=TRADEBOTMD002|55=BTCUSD|262=2|268=1|269=0|270=8490.07|271=1|10=075|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 108
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataSnapshotFullRefresh (W)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180425-17:51:40.787
+       56                  TargetCompID: TRADEBOTMD002
+BODY
+       55                        Symbol: BTCUSD
+      262                       MDReqID: 2
+    NoMDEntries: count = 1
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 8490.07
+          271                   MDEntrySize: 1
+TRAILER
+       10                      CheckSum: 075
+
+</code></pre>
+
+<h3 id="request-for-trades">Request for Trades</h3>
+
+<p>This is a request for all ETHBTC trades:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=114|35=V|34=2|49=TRADEBOTMD002|52=20180425-17:55:30.000|56=GEMINI|262=2|263=1|264=0|146=1|55=ETHBTC|267=1|269=2|10=009|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 114
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequest (V)
+       49                  SenderCompID: TRADEBOTMD002
+       52                   SendingTime: 20180425-17:55:30.000
+       56                  TargetCompID: GEMINI
+BODY
+      262                       MDReqID: 2
+      263       SubscriptionRequestType: SNAPSHOT_PLUS_UPDATES (1)
+      264                   MarketDepth: FULL_BOOK (0)
+    NoRelatedSym: count = 1
+           55                        Symbol: ETHBTC
+    NoMDEntryTypes: count = 1
+          269                   MDEntryType: TRADE (2)
+TRAILER
+       10                      CheckSum: 009
+
+</code></pre>
+
+<h3 id="request-for-multiple-symbols">Request for Multiple Symbols</h3>
+
+<p>This is a request for the Top of Book BTCUSD, ETHUSD, and ETHBTC bids:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=134|35=V|34=2|49=TRADEBOTMD002|52=20180425-17:55:38.000|56=GEMINI|262=2|263=1|264=1|146=3|55=BTCUSD|55=ETHUSD|55=ETHBTC|267=1|269=0|10=246|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 134
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequest (V)
+       49                  SenderCompID: TRADEBOTMD002
+       52                   SendingTime: 20180425-17:55:38.000
+       56                  TargetCompID: GEMINI
+BODY
+      262                       MDReqID: 2
+      263       SubscriptionRequestType: SNAPSHOT_PLUS_UPDATES (1)
+      264                   MarketDepth: TOP_OF_BOOK (1)
+    NoRelatedSym: count = 3
+           55                        Symbol: BTCUSD
+        ----
+           55                        Symbol: ETHUSD
+        ----
+           55                        Symbol: ETHBTC
+    NoMDEntryTypes: count = 1
+          269                   MDEntryType: BID (0)
+TRAILER
+       10                      CheckSum: 246
+</code></pre>
+
+<p>and the corresponding responses:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=108|35=W|34=2|49=GEMINI|52=20180425-17:55:39.151|56=TRADEBOTMD002|55=BTCUSD|262=2|268=1|269=0|270=8490.07|271=1|10=072|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 108
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataSnapshotFullRefresh (W)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180425-17:55:39.151
+       56                  TargetCompID: TRADEBOTMD002
+BODY
+       55                        Symbol: BTCUSD
+      262                       MDReqID: 2
+    NoMDEntries: count = 1
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 8490.07
+          271                   MDEntrySize: 1
+TRAILER
+       10                      CheckSum: 072
+</code></pre>
+
+<p>and:</p>
+<pre class="highlight plaintext"><code>RAW
+      8=FIX.4.4|9=107|35=W|34=3|49=GEMINI|52=20180425-17:55:39.151|56=TRADEBOTMD002|55=ETHUSD|262=2|268=1|269=0|270=587.35|271=1|10=032|
+
+      HEADER
+            8                   BeginString: FIX.4.4
+            9                    BodyLength: 107
+           34                     MsgSeqNum: 3
+           35                       MsgType: MarketDataSnapshotFullRefresh (W)
+           49                  SenderCompID: GEMINI
+           52                   SendingTime: 20180425-17:55:39.151
+           56                  TargetCompID: TRADEBOTMD002
+      BODY
+           55                        Symbol: ETHUSD
+          262                       MDReqID: 2
+        NoMDEntries: count = 1
+              269                   MDEntryType: BID (0)
+              270                     MDEntryPx: 587.35
+              271                   MDEntrySize: 1
+      TRAILER
+           10                      CheckSum: 032
+</code></pre>
+
+<p>and:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=115|35=W|34=4|49=GEMINI|52=20180425-17:55:39.152|56=TRADEBOTMD002|55=ETHBTC|262=2|268=1|269=0|270=0.06896|271=0.004008|10=152|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 115
+       34                     MsgSeqNum: 4
+       35                       MsgType: MarketDataSnapshotFullRefresh (W)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180425-17:55:39.152
+       56                  TargetCompID: TRADEBOTMD002
+BODY
+       55                        Symbol: ETHBTC
+      262                       MDReqID: 2
+    NoMDEntries: count = 1
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 0.06896
+          271                   MDEntrySize: 0.004008
+TRAILER
+       10                      CheckSum: 152
+</code></pre>
+
+<h3 id="request-to-enable-maker-side-on-trades">Request to enable Maker Side on Trades</h3>
+
+<p>To enable showing the maker side of trades, create a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> with custom field  <a href="#custom-tags">EnableMDEntryMakerSide &lt;9003&gt;</a> enabled.  </p>
+
+<p>When trades occur, custom field <a href="#custom-tags">MDEntryMakerSide &lt;9002&gt;</a> will appear in the MDEntry group with the market side of the trade.  See <a href="#showing-maker-side-for-trades">Examples: Showing Maker Side For Trades</a>.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=121|35=V|34=2|49=TRADEBOTMD002|52=20180809-15:59:14.000|56=GEMINI|262=2|263=1|264=1|9003=Y|146=1|55=BTCUSD|267=1|269=2|10=128|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 121
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequest (V)
+       49                  SenderCompID: TRADEBOTMD002
+       52                   SendingTime: 20180809-15:59:14.000
+       56                  TargetCompID: GEMINI
+BODY
+      262                       MDReqID: 2
+      263       SubscriptionRequestType: SNAPSHOT_PLUS_UPDATES (1)
+      264                   MarketDepth: TOP_OF_BOOK (1)
+     9003        EnableMDEntryMakerSide: Y
+    NoRelatedSym: count = 1
+           55                        Symbol: BTCUSD
+    NoMDEntryTypes: count = 1
+          269                   MDEntryType: TRADE (2)
+TRAILER
+       10                      CheckSum: 128
+</code></pre>
+
+<h2 id="market-data-responses">Market Data Responses</h2>
+
+<p>These are some examples of FIX market data sent from GEMINIMKT to TESTMKT001 with price, liquidity, and trade information. Note that this is public data, so no assumption about the trade’s counterparty should be made.</p>
+
+<h3 id="full-snapshot">Full snapshot</h3>
+
+<p>The initial response to a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> is a <a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot / Full Refresh &lt;W&gt;</a> message containing a full snapshot of current state.</p>
+<pre class="highlight plaintext"><code>HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 19924
+       34                     MsgSeqNum: 4
+       35                       MsgType: MarketDataSnapshotFullRefresh (W)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180121-03:48:39.102
+       56                  TargetCompID: TESTMKT001
+BODY
+       55                        Symbol: ETHBTC
+      262                       MDReqID: 39
+    NoMDEntries: count = 685
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 0.00001
+          271                   MDEntrySize: 10111
+        ----
+...
+        ----
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 0.08989
+          271                   MDEntrySize: 8.918
+        ----
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 0.0899
+          271                   MDEntrySize: 8.8828
+        ----
+          269                   MDEntryType: OFFER (1)
+          270                     MDEntryPx: 0.09032
+          271                   MDEntrySize: 45.134
+        ----
+          269                   MDEntryType: OFFER (1)
+          270                     MDEntryPx: 0.09049
+          271                   MDEntrySize: 1.2
+        ----
+...
+        ----
+          269                   MDEntryType: OFFER (1)
+          270                     MDEntryPx: 1000.00000
+          271                   MDEntrySize: 3
+TRAILER
+       10                      CheckSum: 084
+</code></pre>
+
+<h3 id="adding-quantity-for-a-given-price">Adding quantity for a given price</h3>
+
+<p>This message shows a new bid for 2.8749 ETH priced at 988.88 USD.</p>
+<pre class="highlight plaintext"><code>HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 125
+       34                     MsgSeqNum: 5696449
+       35                       MsgType: MarketDataIncrementalRefresh (X)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180123-04:07:42.101
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: 40
+      9008                      EventId: 123456789
+    NoMDEntries: count = 1
+           55                        Symbol: ETHUSD
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 988.88
+          271                   MDEntrySize: 2.8749
+          279                MDUpdateAction: NEW (0)
+TRAILER
+       10                      CheckSum: 187
+
+</code></pre>
+
+<h3 id="changing-quantity-for-a-given-price">Changing quantity for a given price</h3>
+
+<p>This message shows a new offer for 0.20503505 BTC available at price 10949.04 USD.</p>
+<pre class="highlight plaintext"><code>HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 131
+       34                     MsgSeqNum: 5696384
+       35                       MsgType: MarketDataIncrementalRefresh (X)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180123-04:07:40.057
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: 38
+      9008                      EventId: 123456789
+    NoMDEntries: count = 1
+           55                        Symbol: BTCUSD
+          269                   MDEntryType: OFFER (1)
+          270                     MDEntryPx: 10949.04
+          271                   MDEntrySize: 0.20503505
+          279                MDUpdateAction: CHANGE (1)
+TRAILER
+       10                      CheckSum: 199
+
+</code></pre>
+
+<h3 id="removing-quantity-for-a-given-price">Removing quantity for a given price</h3>
+
+<p>This message shows an ETHBTC bid priced at 0.09156 BTC being removed.</p>
+<pre class="highlight plaintext"><code>HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 115
+       34                     MsgSeqNum: 5696454
+       35                       MsgType: MarketDataIncrementalRefresh (X)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180123-04:07:42.279
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: 39
+      9008                      EventId: 123456789
+    NoMDEntries: count = 1
+           55                        Symbol: ETHBTC
+          269                   MDEntryType: BID (0)
+          270                     MDEntryPx: 0.09156
+          279                MDUpdateAction: DELETE (2)
+TRAILER
+       10                      CheckSum: 197
+</code></pre>
+
+<h3 id="trades">Trades</h3>
+
+<p>This message provides information about a new trade and a corresponding offer deletion. This message implies that the incoming order was a bid because the standing offer priced at 10907.54 USD was deleted.</p>
+<pre class="highlight plaintext"><code>HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 166
+       34                     MsgSeqNum: 5696411
+       35                       MsgType: MarketDataIncrementalRefresh (X)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180123-04:07:40.740
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: 38
+      9008                      EventId: 123456789
+    NoMDEntries: count = 2
+           55                        Symbol: BTCUSD
+          269                   MDEntryType: TRADE (2)
+          270                     MDEntryPx: 10907.54
+          271                   MDEntrySize: 0.00059578
+          279                MDUpdateAction: NEW (0)
+        ----
+           55                        Symbol: BTCUSD
+          269                   MDEntryType: OFFER (1)
+          270                     MDEntryPx: 10907.54
+          279                MDUpdateAction: DELETE (2)
+TRAILER
+       10                      CheckSum: 209
+</code></pre>
+
+<h3 id="showing-maker-side-for-trades">Showing Maker Side For Trades</h3>
+
+<p>To enable showing the maker side of trades, create a <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> with custom field  <a href="#custom-tags">EnableMDEntryMakerSide &lt;9003&gt;</a> enabled - see <a href="#request-to-enable-maker-side-on-trades">Examples: Request to enable maker side on trades</a>.</p>
+
+<p>This example shows a trade where an incoming offer hit a standing bid at for 0.001 BTC at 7544.94 USD.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=125|35=X|34=3|49=GEMINI|52=20180809-15:59:16.698|56=TRADEBOTMD002|262=2|9008=123456789|268=1|279=0|269=2|55=BTCUSD|270=7544.94|271=0.001|9002=1|10=107|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 125
+       34                     MsgSeqNum: 3
+       35                       MsgType: MarketDataIncrementalRefresh (X)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180809-15:59:16.698
+       56                  TargetCompID: TRADEBOTMD002
+BODY
+      262                       MDReqID: 2
+      9008                      EventId: 123456789
+    NoMDEntries: count = 1
+           55                        Symbol: BTCUSD
+          269                   MDEntryType: TRADE (2)
+          270                     MDEntryPx: 7544.94
+          271                   MDEntrySize: 0.001
+          279                MDUpdateAction: NEW (0)
+         9002              MDEntryMakerSide: BUY (1)
+TRAILER
+       10                      CheckSum: 107
+</code></pre>
+
+<p>This example shows a trade where an incoming bid lifted a standing offer at for 0.001 BTC at 7549.89 USD.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=125|35=X|34=3|49=GEMINI|52=20180809-15:59:22.882|56=TRADEBOTMD002|262=2|9008=123456789|268=1|279=0|269=2|55=BTCUSD|270=7549.89|271=0.001|9002=2|10=109|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 125
+       34                     MsgSeqNum: 3
+       35                       MsgType: MarketDataIncrementalRefresh (X)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180809-15:59:22.882
+       56                  TargetCompID: TRADEBOTMD002
+BODY
+      262                       MDReqID: 2
+      9008                      EventId: 123456789
+    NoMDEntries: count = 1
+           55                        Symbol: BTCUSD
+          269                   MDEntryType: TRADE (2)
+          270                     MDEntryPx: 7549.89
+          271                   MDEntrySize: 0.001
+          279                MDUpdateAction: NEW (0)
+         9002              MDEntryMakerSide: SELL (2)
+TRAILER
+       10                      CheckSum: 109
+</code></pre>
+
+<h3 id="rejected-symbol">Rejected Symbol</h3>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=67|35=Y|34=2|49=GEMINIMKT|52=20180511-21:37:57.971|56=TESTMKT001|262=badsym|281=0|10=038|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 67
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequestReject (Y)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180511-21:37:57.971
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: badsym
+      281                MDReqRejReason: UNKNOWN_SYMBOL (0)
+TRAILER
+       10                      CheckSum: 03
+</code></pre>
+
+<h3 id="rejected-md-entry-type">Rejected MD Entry Type</h3>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=70|35=Y|34=2|49=GEMINIMKT|52=20180511-21:44:14.765|56=TESTMKT001|262=badmd|281=8|10=121|
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 70
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequestReject (Y)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180511-21:44:14.765
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: badmd
+      281                MDReqRejReason: UNSUPPORTED_MDENTRYTYPE (8)
+TRAILER
+       10                      CheckSum: 121       
+</code></pre>
+
+<h3 id="rejected-subscription-request">Rejected Subscription Request</h3>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=67|35=Y|34=2|49=GEMINIMKT|52=20180514-13:59:56.187|56=TESTMKT001|262=badsub|281=4|10=048|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 67
+       34                     MsgSeqNum: 2
+       35                       MsgType: MarketDataRequestReject (Y)
+       49                  SenderCompID: GEMINIMKT
+       52                   SendingTime: 20180514-13:59:56.187
+       56                  TargetCompID: TESTMKT001
+BODY
+      262                       MDReqID: badsub
+      281                MDReqRejReason: UNSUPPORTED_SUBSCRIPTIONREQUESTTYPE (4)
+TRAILER
+       10                      CheckSum: 048
+</code></pre>
+
+<h2 id="request-for-the-symbol-list">Request for the symbol list</h2>
+
+<p>This is a request for the list of symbols:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=74|35=x|34=2|49=TRADEBOTMD002|52=20180425-17:51:27.000|56=GEMINI|320=1|559=0|10=099|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 74
+       34                     MsgSeqNum: 2
+       35                       MsgType: SymbolListRequest (x)
+       49                  SenderCompID: TRADEBOTMD002
+       52                   SendingTime: 20180425-17:51:27.000
+       56                  TargetCompID: GEMINI
+BODY
+      320                 SecurityReqID: 1
+      559       SecurityListRequestType: SYMBOL (0)
+TRAILER
+       10                      CheckSum: 099
+
+
+</code></pre>
+
+<p>and the associated response:</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=146|35=y|34=2|49=GEMINI|52=20200425-17:51:27.544|56=TRADEBOTMD002|320=1|322=1|560=0|146=6|55=BTCUSD|55=ETHBTC|55=ETHUSD|55=BCHUSD|55=BCHBTC|55=BCHETH|55=LTCUSD|55=LTCBTC|55=LTCETH|55=LTCBCH|55=BATUSD|55=DAIUSD|55=LINKUSD|55=OXTUSD|55=LINKBTC|55=LINKETH|10=054|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 146
+       34                     MsgSeqNum: 2
+       35                       MsgType: SecurityList (y)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20200425-17:51:27.544
+       56                  TargetCompID: TRADEBOTMD002
+BODY
+      320                 SecurityReqID: 1
+      322            SecurityResponseID: 1
+      560         SecurityRequestResult: VALID_REQUEST (0)
+    NoRelatedSym: count = 3
+           55                        Symbol: BTCUSD
+        ----
+           55                        Symbol: ETHBTC
+        ----
+           55                        Symbol: ETHUSD
+        ----
+           55                        Symbol: BCHUSD
+        ----
+           55                        Symbol: BCHBTC
+        ----
+           55                        Symbol: BCHETH
+        ----
+           55                        Symbol: LTCUSD
+        ----
+           55                        Symbol: LTCBTC
+        ----
+           55                        Symbol: LTCETH
+        ----
+           55                        Symbol: LTCBCH
+        ----
+           55                        Symbol: BATUSD
+        ----
+           55                        Symbol: DAIUSD
+        ----
+           55                        Symbol: LINKUSD
+        ----
+           55                        Symbol: OXTUSD
+        ----
+           55                        Symbol: LINKBTC
+        ----
+           55                        Symbol: LINKETH
+
+TRAILER
+       10                      CheckSum: 054
+</code></pre>
+
+          <h1 id="revision-history">Revision History</h1>
+
+<table><thead>
+<tr>
+<th>Date</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>2016/03/23</td>
+<td>Initial FIX Market Data API documentation</td>
+</tr>
+<tr>
+<td>2017/07/27</td>
+<td><strong>New Feature</strong> Top of book: <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> adds support for <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_264.html">MarketDepth &lt;264&gt;</a> value of <code class="prettyprint">1 = Top Of Book</code><br/><br/><em>Documentation bugfix:</em> clarified that market data subscription with duplicate <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_262.html">MDReqID &lt;262&gt;</a> value will be rejected in <a href="##client-supplied-identifiers">Client supplied identifiers</a>.</td>
+</tr>
+<tr>
+<td>2017/08/30</td>
+<td><em>Documentation bugfix:</em> clarified description of <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType &lt;269&gt;</a> in <a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot / Full Refresh &lt;W&gt;</a>.</td>
+</tr>
+<tr>
+<td>2017/12/01</td>
+<td><strong>API Change</strong> added <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType &lt;269&gt;</a> value <code class="prettyprint">3 = INDEX_VALUE</code> to <a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> to support reporting the auction collar price.</td>
+</tr>
+<tr>
+<td>2018/01/22</td>
+<td><em>Documentation bugfix:</em> fixed <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_126.html">ExpireTime &lt;126&gt;</a> tag number in documentation for <a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> and <a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot / Full Refresh &lt;W&gt;</a><br/><br/><em>Documentation improvement:</em> added examples of <a href="#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a>, <a href="#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a>, and <a href="#market-data-snapshot-full-refresh-lt-w-gt">Market Data - Snapshot / Full Refresh &lt;W&gt;</a> messages.</td>
+</tr>
+<tr>
+<td>2018/03/09</td>
+<td><em>Documentation bugfix:</em> correct <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a> tag number in documentation for <a href="#symbol-list-request-lt-x-gt">Symbol List Request &lt;x&gt;</a><br/><br/><em>Documentation improvement:</em> added examples of <a href="#symbol-list-request-lt-x-gt">Symbol List Request &lt;x&gt;</a> and <a href="#symbol-list-lt-y-gt">Symbol List &lt;y&gt;</a> messages.</td>
+</tr>
+<tr>
+<td>2018/04/06</td>
+<td><strong>New Feature:</strong> Document block trading support.</td>
+</tr>
+<tr>
+<td>2018/05/18</td>
+<td>Add additional examples of Market Data requests and responses.</td>
+</tr>
+<tr>
+<td>2018/08/07</td>
+<td><strong>API Change</strong> Added support for maker side using custom tags 9002 <code class="prettyprint">MDEntryMakerSide</code> and <code class="prettyprint">EnableMDEntryMakerSide</code>.</td>
+</tr>
+<tr>
+<td>2020/08/28</td>
+<td>Removing <code class="prettyprint">DAIBTC</code>and <code class="prettyprint">DAIETH</code> trading pairs</td>
+</tr>
+<tr>
+<td>2020/09/11</td>
+<td>Documentation for new token support: <code class="prettyprint">AMP</code>, <code class="prettyprint">COMP</code>, <code class="prettyprint">PAXG</code></td>
+</tr>
+<tr>
+<td>2020/09/24</td>
+<td>Documentation for new token support: <code class="prettyprint">MKR</code>, <code class="prettyprint">ZRX</code>, <code class="prettyprint">KNC</code>, <code class="prettyprint">MANA</code>, <code class="prettyprint">STORJ</code>, <code class="prettyprint">SNX</code>, <code class="prettyprint">CRV</code>, <code class="prettyprint">BAL</code>, <code class="prettyprint">UNI</code>, <code class="prettyprint">REN</code>, <code class="prettyprint">UMA</code>, <code class="prettyprint">YFI</code></td>
+</tr>
+<tr>
+<td>2020/10/05</td>
+<td>Documentation for new order book support: <code class="prettyprint">BTCDAI</code> and <code class="prettyprint">ETHDAI</code></td>
+</tr>
+<tr>
+<td>2020/03/22</td>
+<td>Documentation for new token support: <code class="prettyprint">SKL</code>, <code class="prettyprint">GRT</code>, <code class="prettyprint">BNT</code>, <code class="prettyprint">1INCH</code>, <code class="prettyprint">ENJ</code>, <code class="prettyprint">LRC</code>, <code class="prettyprint">SAND</code></td>
+</tr>
+<tr>
+<td>2021/04/27</td>
+<td>Documentation for new token support: <code class="prettyprint">CUBE</code>, <code class="prettyprint">LPT</code>, <code class="prettyprint">BOND</code>, <code class="prettyprint">MATIC</code>, <code class="prettyprint">INJ</code>, <code class="prettyprint">SUSHI</code></td>
+</tr>
+<tr>
+<td>2021/05/05</td>
+<td>Documentation for new token support: <code class="prettyprint">DOGE</code></td>
+</tr>
+<tr>
+<td>2021/06/16</td>
+<td>Documentation for new token support: <code class="prettyprint">ALCX</code>, <code class="prettyprint">MIR</code>, <code class="prettyprint">FTM</code>, <code class="prettyprint">ANKR</code></td>
+</tr>
+<tr>
+<td>2021/07/14</td>
+<td>Documentation for new token support: <code class="prettyprint">CTX</code></td>
+</tr>
+<tr>
+<td>2021/07/21</td>
+<td>Documentation for new token support: <code class="prettyprint">XTZ</code></td>
+</tr>
+<tr>
+<td>2021/09/15</td>
+<td>Documentation for new token support: <code class="prettyprint">AXS</code>, <code class="prettyprint">SLP</code>, <code class="prettyprint">LUNA</code>, <code class="prettyprint">UST</code>, <code class="prettyprint">MCO2</code></td>
+</tr>
+<tr>
+<td>2021/11/13</td>
+<td>Documentation for new token support: <code class="prettyprint">WCFG</code>, <code class="prettyprint">RARE</code>, <code class="prettyprint">RAD</code>, <code class="prettyprint">QNT</code>, <code class="prettyprint">NMR</code>, <code class="prettyprint">MASK</code>, <code class="prettyprint">FET</code>, <code class="prettyprint">ASH</code>, <code class="prettyprint">AUDIO</code>, <code class="prettyprint">API3</code>, <code class="prettyprint">USDC</code>, <code class="prettyprint">SHIB</code></td>
+</tr>
+<tr>
+<td>2021/12/20</td>
+<td>Documentation for new token support: <code class="prettyprint">RNDR</code>, <code class="prettyprint">MC</code>, <code class="prettyprint">GALA</code>, <code class="prettyprint">ENS</code>, <code class="prettyprint">KP3R</code>, <code class="prettyprint">CVC</code>, <code class="prettyprint">ELON</code>, <code class="prettyprint">MIM</code>, <code class="prettyprint">SPELL</code></td>
+</tr>
+<tr>
+<td>2022/02/01</td>
+<td>Documentation for new token support: <code class="prettyprint">TOKE</code>, <code class="prettyprint">LDO</code>, <code class="prettyprint">RLY</code></td>
+</tr>
+<tr>
+<td>2022/02/28</td>
+<td>Documentation for new token support: <code class="prettyprint">SOL</code></td>
+</tr>
+<tr>
+<td>2022/03/01</td>
+<td>Documentation for new token support: <code class="prettyprint">RAY</code>, <code class="prettyprint">SBR</code></td>
+</tr>
+<tr>
+<td>2022/03/16</td>
+<td>Documentation for new token support: <code class="prettyprint">APE</code></td>
+</tr>
+<tr>
+<td>2022/03/29</td>
+<td>Documentation for new token support: <code class="prettyprint">RBN</code>, <code class="prettyprint">FXS</code>, <code class="prettyprint">DPI</code>, <code class="prettyprint">LQTY</code>, <code class="prettyprint">LUSD</code>, <code class="prettyprint">FRAX</code>, <code class="prettyprint">INDEX</code>, <code class="prettyprint">MPL</code></td>
+</tr>
+<tr>
+<td>2022/04/26</td>
+<td>Documentation for new token support: <code class="prettyprint">GUSDSGD</code></td>
+</tr>
+<tr>
+<td>2022/04/27</td>
+<td>Documentation for new token support: <code class="prettyprint">METIS</code>, <code class="prettyprint">QRDO</code>, <code class="prettyprint">ZBC</code>, <code class="prettyprint">CHZ</code>, <code class="prettyprint">REVV</code>, <code class="prettyprint">JAM</code>, <code class="prettyprint">FIDA</code>, <code class="prettyprint">GMT</code></td>
+</tr>
+<tr>
+<td>2022/05/17</td>
+<td>Documentation for new token support: <code class="prettyprint">GFI</code>, <code class="prettyprint">ORCA</code></td>
+</tr>
+<tr>
+<td>2022/06/14</td>
+<td>Documentation for new token support: <code class="prettyprint">ALI</code>, <code class="prettyprint">TRU</code></td>
+</tr>
+<tr>
+<td>2022/06/14</td>
+<td>Documentation for new token support: <code class="prettyprint">GUSDGBP</code></td>
+</tr>
+<tr>
+<td>2022/06/23</td>
+<td>Deprecating documentation for Auction and Block trading support</td>
+</tr>
+<tr>
+<td>2022/07/06</td>
+<td>Documentation for new token support: <code class="prettyprint">DOT</code>, <code class="prettyprint">ERN</code></td>
+</tr>
+<tr>
+<td>2022/08/01</td>
+<td>Documentation for new token support: <code class="prettyprint">GAL</code>, <code class="prettyprint">EUL</code>, <code class="prettyprint">SAMO</code></td>
+</tr>
+<tr>
+<td>2022/08/23</td>
+<td>Documentation for new token support: <code class="prettyprint">BICO</code>, <code class="prettyprint">IMX</code>, <code class="prettyprint">PLA</code>, <code class="prettyprint">IOTX</code></td>
+</tr>
+<tr>
+<td>2022/09/07</td>
+<td>Documentation for new token support: <code class="prettyprint">BUSD</code></td>
+</tr>
+<tr>
+<td>2022/10/11</td>
+<td>Documentation for new token support: <code class="prettyprint">AVAX</code></td>
+</tr>
+<tr>
+<td>2023/01/10</td>
+<td>Documentation for new token support: <code class="prettyprint">ATOM</code>, <code class="prettyprint">USDT</code></td>
+</tr>
+<tr>
+<td>2023/02/16</td>
+<td><strong>New Feature:</strong> Add MarkPrice support</td>
+</tr>
+<tr>
+<td>2024/03/04</td>
+<td><strong>New Feature:</strong> Add FundingAmount support</td>
+</tr>
+<tr>
+<td>2023/05/08</td>
+<td>Corrected documentation (symbol) for BTC-GUSD-PERP</td>
+</tr>
+<tr>
+<td>2023/08/04</td>
+<td>Documentation for token delist: <code class="prettyprint">ENJ</code></td>
+</tr>
+<tr>
+<td>2023/08/10</td>
+<td>Documentation for new token support: <code class="prettyprint">XRP</code></td>
+</tr>
+<tr>
+<td>2023/09/11</td>
+<td>Documentation for new token support: <code class="prettyprint">HNT</code></td>
+</tr>
+<tr>
+<td>2023/09/18</td>
+<td>Removed Documentation for new token support: <code class="prettyprint">MPL</code>, <code class="prettyprint">MC</code>, <code class="prettyprint">METIS</code>, <code class="prettyprint">RBN</code>, <code class="prettyprint">GFI</code>, <code class="prettyprint">LQTY</code>, and <code class="prettyprint">LUSD</code></td>
+</tr>
+<tr>
+<td>2023/11/15</td>
+<td>Remove Documentation for delisted token: <code class="prettyprint">MIR</code>, <code class="prettyprint">UST</code>, <code class="prettyprint">FXS</code>, <code class="prettyprint">FRAX</code>, <code class="prettyprint">BUSD</code></td>
+</tr>
+<tr>
+<td>2024/04/23</td>
+<td>Remove Documentation for delisted token: <code class="prettyprint">ZEC</code></td>
+</tr>
+</tbody></table>
+
+          <ul style="list-style-type: none; padding-left: 28px;">
+    <li>Trust is Our Product™</li>
+    <li>For trademarks and patents, please see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+    <li>NMLS #1518126</li>
+    <li>© Copyright 2022 Gemini Trust Company, LLC.</li>
+</ul>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

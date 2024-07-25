@@ -1,0 +1,3380 @@
+<!doctype html>
+<html>
+  <head>
+
+<!--
+This was built with https://github.com/lord/slate
+
+© Copyright 2021 Gemini Trust Company, LLC.
+ -->
+
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Gemini Clearing API Reference</title>
+
+    <link href="../stylesheets/screen-5619571e.css" rel="stylesheet" media="screen" />
+    <link href="../stylesheets/print-f82aaaf9.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7630154/729946/css/fonts.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="../javascripts/all-967b56e5.js"></script>
+
+      <script>
+        $(function() {
+          setupLanguages([]);
+        });
+      </script>
+  </head>
+
+  <body class="gemini-clearing gemini-clearing_index" data-languages="[]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="../images/navbar-cad8cdcb.png" alt="" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <a id="logo" href="https://gemini.com"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
+        <div class="lang-selector">
+        </div>
+
+      <div id="menu">
+        <p id="sandbox-message">You are viewing the Gemini sandbox documentation</p>
+        <div class="nav-label">Select an API Document:</div>
+        <ul>
+          <li id="gemini-clearing"><a href="/gemini-clearing/" >Gemini Clearing™</a></li>
+          <li id="rest"><a href="/rest-api/" >REST</a></li>
+          <li id="oauth"><a href="/oauth/" >OAuth</a></li>
+          <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
+          <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
+          <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
+          <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
+          <li id="instant"><a href="/instant/" >Gemini Instant</a></li>
+        </ul>
+      </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li>Trust is Our Product™</li>
+            <li>For trademarks and patents, please <br> see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+            <li>NMLS <span>#1518126</span></li>
+            <li>© Copyright 2022 Gemini Trust <br> Company, LLC.</li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        
+          <h1 id="gemini-clearing">Gemini Clearing™</h1>
+
+<p>Gemini Clearing allows two parties to settle a trade off the order book. The initiator enters the trade details for any supported <a href="#symbols-and-minimums">symbol</a> and generates a <code class="prettyprint">clearing_id</code> (<a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_37.html">OrderID <37></a>). If a <code class="prettyprint">counterparty_id</code> is supplied, only the specified counterparty can confirm the order. If a <code class="prettyprint">counterparty_id</code> is not supplied, then Gemini will generate a <code class="prettyprint">clearing_id</code> (<a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_37.html">OrderID <37></a>) that can filled by any counterparty.</p>
+
+          <h1 id="workflow">Workflow</h1>
+
+<h3 id="bilateral-trade">Bilateral Trade</h3>
+
+<ol>
+<li>Initiator places a clearing order with the order details</li>
+<li>Did the initiator use a <code class="prettyprint">counterparty_id</code>?
+
+<ul>
+<li>Yes, only the Gemini account associated with the <code class="prettyprint">counterparty_id</code> will be able to complete the order.</li>
+<li>No, anybody with the <code class="prettyprint">clearing_id</code> will be able to confirm the order.</li>
+</ul></li>
+<li>The counterparty will be able to confirm the order on the <a href="https://exchange.gemini.com/web/clearing">web interface</a>, via <a href="/gemini-clearing/#clearing-order-confirmation">FIX</a>, or via <a href="/gemini-clearing/#confirm-clearing-order">REST</a> 
+
+<ul>
+<li>The order initiator can cancel the order if the counterparty has not yet confirmed. Cancellation can be performed on the <a href="https://exchange.gemini.com/web/clearing">web interface</a>, via <a href="/gemini-clearing/#clearing-order-cancellation">FIX</a>, and <a href="/gemini-clearing/#cancel-clearing-order">REST</a>.<br></li>
+</ul></li>
+<li>Once confirmed, Gemini will attempt settlement. Settlement can only occur when both parties have the funds required in their account to fill the trade.<br>
+
+<ul>
+<li>If any party does not post the funds required to settle the trade before the expiration time, then the order will expire.</li>
+</ul></li>
+</ol>
+
+<h3 id="broker-trade">Broker Trade</h3>
+
+<ol>
+<li>The broker submits a clearing order with the order details and both <code class="prettyprint">counterparty_id</code>s of the buyer and seller.</li>
+<li>The buyer and seller can both review the trade details and confirm the order on the <a href="https://exchange.gemini.com/web/clearing">web interface</a>, via <a href="/gemini-clearing/#clearing-order-confirmation">FIX</a>, or via <a href="/gemini-clearing/#confirm-clearing-order">REST</a>
+
+<ul>
+<li>Either side can cancel the trade if both the buyer and seller have yet to confirm the order. Cancellation can be done via the <a href="https://exchange.gemini.com/web/clearing">web interface</a>, <a href="/gemini-clearing/#clearing-order-cancellation">FIX</a>, and <a href="/gemini-clearing/#cancel-clearing-order">REST</a></li>
+<li>The broker will be able to see the status of the order on the <a href="https://exchange.gemini.com/web/clearing">web interface</a> and over the <a href="/rest-api/#clearing-order-status">/v1/clearing/status</a> endpoint on the REST API</li>
+</ul></li>
+<li>Once confirmed, Gemini will attempt settlement. Settlement can only occur when both parties have the funds required in their account to fill the trade.
+
+<ul>
+<li>If any party does not post the funds required to settle the trade before the expiration time, then the order will expire.</li>
+</ul></li>
+</ol>
+
+<h2 id="initiator-enters-order">Initiator enters order</h2>
+
+<p>The initiator of the order places an order with the following details:</p>
+
+<ul>
+<li>Symbol</li>
+<li>Price</li>
+<li>Side</li>
+<li>Amount</li>
+<li>Expiration time</li>
+<li><em>optional:</em> <code class="prettyprint">counterparty_id</code>
+
+<ul>
+<li>If supplied, only the designated counterparty will be able to fill the clearing order.</li>
+<li>If not supplied, any account with the <code class="prettyprint">clearing_id</code> will be able to confirm the order</li>
+</ul></li>
+</ul>
+
+<p>The clearing order will remain awaiting confirmation until the order is confirmed by a counterparty or the expiration time passes. The initiator does not have to have to requisite funds in their account to initiate an order but will need to post the funds before expiration for the trade to settle.</p>
+
+<h2 id="broker-enters-order">Broker enters order</h2>
+
+<p>The broker of the trade places an order with the following details</p>
+
+<ul>
+<li>Symbol</li>
+<li>Price</li>
+<li>Side</li>
+<li>Amount</li>
+<li>Expiration time</li>
+<li>The buyer&#39;s <code class="prettyprint">counterparty_id</code></li>
+<li>The seller&#39;s <code class="prettyprint">counterparty_id</code></li>
+</ul>
+
+<h2 id="order-confirmation">Order Confirmation</h2>
+
+<p>A counterparty can confirm the order on the <a href="https://exchange.gemini.com/web/clearing">web interface</a>, sending a POST to <code class="prettyprint">https://api.gemini.com/v1/clearing/confirm</code>, or sending a <a href="https://www.onixs.biz/fix-dictionary/4.4/msgtype_s_115.html">New Order Cross &lt;s&gt;</a> via a FIX order entry session. The counterparty can confirm the order without having the funds needed to fill the order, but will need to post the funds for the trade to settle.</p>
+
+<p>Confirmation via <a href="/rest-api/#confirm-clearing-order">REST</a> and <a href="/fix-api/#clearing-order-cancellation">FIX</a> requires the following details to match the initiator&#39;s order:</p>
+
+<ul>
+<li>Symbol</li>
+<li>Price</li>
+<li>Side
+
+<ul>
+<li>the side will be the opposite side of the initiator&#39;s side (Ex. Initiator sends Side as &#39;Buy&quot;, confirming party responds with Side &quot;Sell&quot; )</li>
+</ul></li>
+<li>amount / <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_38.html">OrderQty <38></a></li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_37.html">Order ID <37></a></li>
+</ul>
+
+<h2 id="settlement">Settlement</h2>
+
+<p>After the counterparty confirms the order, the system will attempt to settle the funds. Each party has until the exipiration time to post the required funds to settle the order. If either party does not post the funds to settle the order before the expiration, then the order will expire.</p>
+
+<p>After settlement occurs, the order will show in <a href="https://exchange.gemini.com/history">transaction history</a>.</p>
+
+<h2 id="cancellation">Cancellation</h2>
+
+<p>In a bilateral trade the initiator can cancel the order before it is confirmed. In a broker trade, either counterparty may cancel the trade before it is confirmed by both sides. Cancellation can be done using the <a href="https://exchange.gemini.com/web/clearing">web interface</a>, sending a POST to <code class="prettyprint">https://api.gemini.com/v1/clearing/cancel</code>, or sending a <a href="https://www.onixs.biz/fix-dictionary/4.4/msgType_u_117.html">Cross Order Cancel Request &lt;u&gt;</a>.</p>
+
+<p>Cancellation via <a href="/rest-api/#cancel-clearing-order">REST</a> only requires the <code class="prettyprint">clearing_id</code> and <a href="/fix-api/#gemini-clearing">FIX</a> requires the following details:</p>
+
+<ul>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol <55></a></li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">Side <54></a></li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_38.html">OrderQty <38></a></li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_551.html">OrigCrossID <551></a></li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_41.html">OrigClOrdID <41></a></li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_37.html">Order ID <37></a></li>
+</ul>
+
+          <h1 id="testing">Testing</h1>
+
+<p>Gemini Clearing is available in our <a href="/rest-api/#sandbox">sandbox</a> environment. Start by creating a <a href="https://exchange.sandbox.gemini.com/register/check-location">sandbox account</a>.</p>
+
+<p>Email <a href="mailto:trading@gemini.com">trading@gemini.com</a> to coordinate a testing session to go over the Gemini Clearing workflow.</p>
+
+          <h1 id="symbols-and-minimums">Symbols and minimums</h1>
+
+<p>Symbols are formatted as <code class="prettyprint">CCY1CCY2</code> where prices are in <code class="prettyprint">CCY2</code> and quantities are in <code class="prettyprint">CCY1</code>. <code class="prettyprint">CCY1</code> is in the <code class="prettyprint">Currency</code> column and <code class="prettyprint">CCY2</code> is in the respective <code class="prettyprint">CCY2 Price Increment</code> column:</p>
+
+<table><thead>
+<tr>
+<th>Symbol</th>
+<th>Minimum Order Size</th>
+<th>Tick Size</th>
+<th>Quote Currency Price Increment</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>btcusd</td>
+<td>0.00001 BTC (1e-5)</td>
+<td>0.00000001 BTC (1e-8)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>btceur</td>
+<td>0.00001 BTC (1e-5)</td>
+<td>0.00000001 BTC (1e-8)</td>
+<td>0.01 EUR</td>
+</tr>
+<tr>
+<td>btcgbp</td>
+<td>0.00001 BTC (1e-5)</td>
+<td>0.00000001 BTC (1e-8)</td>
+<td>0.01 GBP</td>
+</tr>
+<tr>
+<td>btcsgd</td>
+<td>0.00001 BTC (1e-5)</td>
+<td>0.00000001 BTC (1e-8)</td>
+<td>0.01 SGD</td>
+</tr>
+<tr>
+<td>ethbtc</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.00001 BTC (1e-5)</td>
+</tr>
+<tr>
+<td>ethusd</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>etheur</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.01 EUR</td>
+</tr>
+<tr>
+<td>ethgbp</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.01 GBP</td>
+</tr>
+<tr>
+<td>ethsgd</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.01 SGD</td>
+</tr>
+<tr>
+<td>bchusd</td>
+<td>0.001 BCH (1e-3)</td>
+<td>0.000001 BCH (1e-6)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>bchbtc</td>
+<td>0.001 BCH (1e-3)</td>
+<td>0.000001 BCH (1e-6)</td>
+<td>0.00001 BTC (1e-5)</td>
+</tr>
+<tr>
+<td>bcheth</td>
+<td>0.001 BCH (1e-3)</td>
+<td>0.000001 BCH (1e-6)</td>
+<td>0.0001 ETH (1e-4)</td>
+</tr>
+<tr>
+<td>ltcusd</td>
+<td>0.01 LTC (1e-2)</td>
+<td>0.00001 LTC (1e-5)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>ltcbtc</td>
+<td>0.01 LTC (1e-2)</td>
+<td>0.00001 LTC (1e-5)</td>
+<td>0.0000001 BTC (1e-7)</td>
+</tr>
+<tr>
+<td>ltceth</td>
+<td>0.01 LTC (1e-2)</td>
+<td>0.00001 LTC (1e-5)</td>
+<td>0.00001 ETH (1e-5)</td>
+</tr>
+<tr>
+<td>ltcbch</td>
+<td>0.01 LTC (1e-2)</td>
+<td>0.00001 LTC (1e-5)</td>
+<td>0.0001 BCH (1e-4)</td>
+</tr>
+<tr>
+<td>batusd</td>
+<td>1.0 BAT (1e0)</td>
+<td>0.000001 BAT (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>daiusd</td>
+<td>0.1 DAI (1e-1)</td>
+<td>0.000001 DAI (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>linkusd</td>
+<td>0.1 LINK (1e-1)</td>
+<td>0.000001 LINK (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>oxtusd</td>
+<td>1.0 OXT (1e0)</td>
+<td>0.000001 OXT (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>linkbtc</td>
+<td>0.1 LINK (1e-1)</td>
+<td>0.000001 LINK (1e-6)</td>
+<td>0.00000001 BTC (1e-8)</td>
+</tr>
+<tr>
+<td>linketh</td>
+<td>0.1 LINK (1e-1)</td>
+<td>0.000001 LINK (1e-6)</td>
+<td>0.0000001 ETH (1e-7)</td>
+</tr>
+<tr>
+<td>ampusd</td>
+<td>10.0 AMP (1e1)</td>
+<td>0.000001 AMP (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>compusd</td>
+<td>0.001 COMP (1e-3)</td>
+<td>0.000001 COMP (1e-6)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>paxgusd</td>
+<td>0.0001 PAXG (1e-4)</td>
+<td>0.00000001 PAXG (1e-8)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>mkrusd</td>
+<td>0.001 MKR (1e-3)</td>
+<td>0.000001 MKR (1e-6)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>zrxusd</td>
+<td>0.1 ZRX (1e-1)</td>
+<td>0.000001 ZRX (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>kncusd</td>
+<td>0.1 KNC (1e-1)</td>
+<td>0.000001 KNC (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>manausd</td>
+<td>1.0 MANA (1e0)</td>
+<td>0.000001 MANA (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>storjusd</td>
+<td>0.1 STORJ (1e-1)</td>
+<td>0.000001 STORJ (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>snxusd</td>
+<td>0.01 SNX (1e-2)</td>
+<td>0.000001 SNX (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>crvusd</td>
+<td>0.1 CRV (1e-1)</td>
+<td>0.000001 CRV (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>balusd</td>
+<td>0.01 BAL (1e-2)</td>
+<td>0.000001 BAL (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>uniusd</td>
+<td>0.01 UNI (1e-2)</td>
+<td>0.000001 UNI (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>renusd</td>
+<td>0.01 REN (1e-2)</td>
+<td>0.000001 REN (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>umausd</td>
+<td>0.01 UMA (1e-2)</td>
+<td>0.000001 UMA (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>yfiusd</td>
+<td>0.00001 YFI (1e-5)</td>
+<td>0.000001 YFI (1e-6)</td>
+<td>0.01 USD</td>
+</tr>
+<tr>
+<td>aaveusd</td>
+<td>0.001 AAVE (1e-3)</td>
+<td>0.000001 AAVE (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>filusd</td>
+<td>0.1 FIL (1e-1)</td>
+<td>0.000001 FIL (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>sklusd</td>
+<td>0.1 SKL (1e-1)</td>
+<td>0.000001 SKL (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>grtusd</td>
+<td>0.1 GRT (1e-1)</td>
+<td>0.000001 GRT (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>bntusd</td>
+<td>0.01 BNT (1e-2)</td>
+<td>0.000001 BNT (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>1inchusd</td>
+<td>0.01 1INCH (1e-2)</td>
+<td>0.000001 1INCH (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>lrcusd</td>
+<td>0.1 LRC (1e-1)</td>
+<td>0.000001 LRC (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>sandusd</td>
+<td>0.1 SAND (1e-1)</td>
+<td>0.000001 SAND (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>cubeusd</td>
+<td>0.01 CUBE (1e-2)</td>
+<td>0.000001 CUBE (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>lptusd</td>
+<td>0.001 LPT (1e-3)</td>
+<td>0.000001 LPT (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>bondusd</td>
+<td>0.001 BOND (1e-3)</td>
+<td>0.000001 BOND (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>maticusd</td>
+<td>0.1 MATIC (1e-1)</td>
+<td>0.000001 MATIC (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>injusd</td>
+<td>0.01 INJ (1e-2)</td>
+<td>0.000001 INJ (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>sushiusd</td>
+<td>0.01 SUSHI (1e-2)</td>
+<td>0.000001 SUSHI (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>dogeusd</td>
+<td>0.1 DOGE (1e-1)</td>
+<td>0.000001 DOGE (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>alcxusd</td>
+<td>0.00001 ALCX (1e-5)</td>
+<td>0.000001 ALCX (1e-6)</td>
+<td>0.01 USD (1e-2)</td>
+</tr>
+<tr>
+<td>ftmusd</td>
+<td>0.03 FTM (3e-2)</td>
+<td>0.000001 FTM (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>ankrusd</td>
+<td>0.1 ANKR (1e-1)</td>
+<td>0.000001 ANKR (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>btcgusd</td>
+<td>0.00001 BTC (1e-5)</td>
+<td>0.00000001 BTC (1e-8)</td>
+<td>0.01 GUSD</td>
+</tr>
+<tr>
+<td>ethgusd</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.01 GUSD</td>
+</tr>
+<tr>
+<td>ctxusd</td>
+<td>0.002 CTX (2e-3)</td>
+<td>0.000001 CTX (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>xtzusd</td>
+<td>0.02 XTZ (2e-2)</td>
+<td>0.000001 XTZ (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>axsusd</td>
+<td>0.003 AXS (3e-3)</td>
+<td>0.000001 AXS (1e-6)</td>
+<td>0.01 USD (1e-2)</td>
+</tr>
+<tr>
+<td>slpusd</td>
+<td>0.5 SLP (5e-1)</td>
+<td>0.000001 SLP (1e-6)</td>
+<td>0.0000001 USD (1e-7)</td>
+</tr>
+<tr>
+<td>lunausd</td>
+<td>1 LUNA (1e0)</td>
+<td>0.000001 LUNA (1e-6)</td>
+<td>0.00000001 USD (1e-8)</td>
+</tr>
+<tr>
+<td>mco2usd</td>
+<td>0.02 MCO2 (2e-2)</td>
+<td>0.000001 MCO2 (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>dogebtc</td>
+<td>1.0 DOGE (1e0)</td>
+<td>0.00000001 DOGE (1e-8)</td>
+<td>0.000000001 BTC (1e-9)</td>
+</tr>
+<tr>
+<td>dogeeth</td>
+<td>1.0 DOGE (1e0)</td>
+<td>0.00000001 DOGE (1e-8)</td>
+<td>0.00000001 ETH (1e-8)</td>
+</tr>
+<tr>
+<td>wcfgusd</td>
+<td>0.05 WCFG (5e-2)</td>
+<td>0.000001 WCFG (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>rareusd</td>
+<td>0.1 RARE (1e-1)</td>
+<td>0.000001 RARE (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>radusd</td>
+<td>0.01 RAD (1e-2)</td>
+<td>0.000001 RAD (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>qntusd</td>
+<td>0.0004 QNT (4e-4)</td>
+<td>0.000001 QNT (1e-6)</td>
+<td>0.01 USD (1e-2)</td>
+</tr>
+<tr>
+<td>nmrusd</td>
+<td>0.003 NMR (3e-3)</td>
+<td>0.000001 NMR (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>maskusd</td>
+<td>0.01 MASK (1e-2)</td>
+<td>0.000001 MASK (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>fetusd</td>
+<td>0.1 FET (1e-1)</td>
+<td>0.000001 FET (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>ashusd</td>
+<td>0.005 ASH (5e-3)</td>
+<td>0.000001 ASH (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>audiousd</td>
+<td>0.05 AUDIO (5e-2)</td>
+<td>0.000001 AUDIO (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>api3usd</td>
+<td>0.03 API3 (3e-2)</td>
+<td>0.000001 API3 (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>usdcusd</td>
+<td>0.1 USDC (1e-1)</td>
+<td>0.000001 USDC (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>shibusd</td>
+<td>1000.0 SHIB (1e3)</td>
+<td>0.000001 SHIB (1e-6)</td>
+<td>0.000000001 USD (1e-9)</td>
+</tr>
+<tr>
+<td>rndrusd</td>
+<td>0.02 RNDR (2e-2)</td>
+<td>0.000001 RNDR (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>galausd</td>
+<td>0.4 GALA (4e-1)</td>
+<td>0.000001 GALA (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>ensusd</td>
+<td>0.002 ENS (2e-3)</td>
+<td>0.000001 ENS (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>kp3rusd</td>
+<td>0.0001 KP3R (1e-4)</td>
+<td>0.000001 KP3R (1e-6)</td>
+<td>0.01 USD (1e-2)</td>
+</tr>
+<tr>
+<td>cvcusd</td>
+<td>0.2 CVC (2e-1)</td>
+<td>0.000001 CVC (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>elonusd</td>
+<td>60000.0 ELON (6e4)</td>
+<td>0.000001 ELON (1e-6)</td>
+<td>0.00000000001 USD (1e-11)</td>
+</tr>
+<tr>
+<td>mimusd</td>
+<td>0.1 MIM (1e-1)</td>
+<td>0.000001 MIM (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>spellusd</td>
+<td>5.0 SPELL (5e0)</td>
+<td>0.000001 SPELL (1e-6)</td>
+<td>0.0000001 USD (1e-7)</td>
+</tr>
+<tr>
+<td>tokeusd</td>
+<td>0.002 TOKE (2e-3)</td>
+<td>0.000001 TOKE (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>ldousd</td>
+<td>0.02 LDO (2e-2)</td>
+<td>0.000001 LDO (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>rlyusd</td>
+<td>0.2 RLY (2e-1)</td>
+<td>0.000001 RLY (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>solusd</td>
+<td>0.001 SOL (1e-3)</td>
+<td>0.000001 SOL (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>rayusd</td>
+<td>0.03 RAY (3e-2)</td>
+<td>0.000001 RAY (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>sbrusd</td>
+<td>1.0 SBR (1e0)</td>
+<td>0.000001 SBR (1e-6)</td>
+<td>0.000001 USD (1e-6)</td>
+</tr>
+<tr>
+<td>apeusd</td>
+<td>0.02 APE (2e-2)</td>
+<td>0.000001 APE (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>dpiusd</td>
+<td>0.0006 DPI (6e-4)</td>
+<td>0.000001 DPI (1e-6)</td>
+<td>0.01 USD (1e-2)</td>
+</tr>
+<tr>
+<td>indexusd</td>
+<td>0.02 INDEX (2e-2)</td>
+<td>0.000001 INDEX (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>gusdsgd</td>
+<td>0.1 GUSD</td>
+<td>0.000001 GUSD (1e-6)</td>
+<td>0.001 SGD (1e-3)</td>
+</tr>
+<tr>
+<td>qrdousd</td>
+<td>0.04 QRDO (4e-2)</td>
+<td>0.000001 QRDO (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>zbcusd</td>
+<td>3.0 ZBC (3e0)</td>
+<td>0.000001 ZBC (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>chzusd</td>
+<td>0.5 CHZ (5e-1)</td>
+<td>0.000001 CHZ (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>revvusd</td>
+<td>1.0 REVV (1e0)</td>
+<td>0.000001 REVV (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>jamusd</td>
+<td>10.0 JAM (1e1)</td>
+<td>0.000001 JAM (1e-6)</td>
+<td>0.0000001 USD (1e-7)</td>
+</tr>
+<tr>
+<td>fidausd</td>
+<td>0.06 FIDA (6e-2)</td>
+<td>0.000001 FIDA (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>gmtusd</td>
+<td>0.1 GMT (1e-1)</td>
+<td>0.000001 GMT (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>orcausd</td>
+<td>0.05 ORCA (5e-2)</td>
+<td>0.000001 ORCA (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>aliusd</td>
+<td>2.0 ALI (2e0)</td>
+<td>0.000001 ALI (1e-6)</td>
+<td>0.000001 USD (1e-6)</td>
+</tr>
+<tr>
+<td>truusd</td>
+<td>0.8 TRU (8e-1)</td>
+<td>0.000001 TRU (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>gusdgbp</td>
+<td>0.1 GUSD (1e-1)</td>
+<td>0.0001 GUSD (1e-4)</td>
+<td>0.001 GBP (1e-3)</td>
+</tr>
+<tr>
+<td>dotusd</td>
+<td>0.01 DOT (1e-2)</td>
+<td>0.000001 DOT (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>ernusd</td>
+<td>0.05 ERN (5e-2)</td>
+<td>0.000001 ERN (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>galusd</td>
+<td>0.04 GAL (4e-2)</td>
+<td>0.000001 GAL (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>eulusd</td>
+<td>0.03 EUL (3e-2)</td>
+<td>0.000001 EUL (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>samousd</td>
+<td>10.0 SAMO (1e+1)</td>
+<td>0.000001 SAMO (1e-6)</td>
+<td>0.0000001 USD (1e-7)</td>
+</tr>
+<tr>
+<td>bicousd</td>
+<td>0.2 BICO (2e-1)</td>
+<td>0.000001 BICO (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>imxusd</td>
+<td>0.1 IMX (1e-1)</td>
+<td>0.000001 IMX (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>plausd</td>
+<td>0.3 PLA (3e-1)</td>
+<td>0.000001 PLA (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>iotxusd</td>
+<td>3.0 IOTX (3e+0)</td>
+<td>0.000001 IOTX (1e-6)</td>
+<td>0.000001 USD (1e-6)</td>
+</tr>
+<tr>
+<td>avaxusd</td>
+<td>0.005 AVAX (5e-3)</td>
+<td>0.000001 AVAX (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>atomusd</td>
+<td>0.01 ATOM (1e-2)</td>
+<td>0.000001 ATOM (1e-6)</td>
+<td>0.001 USD (1e-3)</td>
+</tr>
+<tr>
+<td>usdtusd*</td>
+<td>0.1 USDT (1e-1)</td>
+<td>0.000001 USDT (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+<tr>
+<td>btcusdt*</td>
+<td>0.00001 BTC (1e-5)</td>
+<td>0.00000001 BTC (1e-8)</td>
+<td>0.01 USDT (1e-2)</td>
+</tr>
+<tr>
+<td>ethusdt*</td>
+<td>0.001 ETH (1e-3)</td>
+<td>0.000001 ETH (1e-6)</td>
+<td>0.01 USDT (1e-2)</td>
+</tr>
+<tr>
+<td>pepeusd</td>
+<td>1000 PEPE (1e3)</td>
+<td>0.000001 PEPE (1e-6)</td>
+<td>0.000000001 USD (1e-9)</td>
+</tr>
+<tr>
+<td>xrpusd</td>
+<td>0.1 XRP (1e-1)</td>
+<td>0.000001 XRP (1e-6)</td>
+<td>0.00001 USD (1e-5)</td>
+</tr>
+<tr>
+<td>hntusd</td>
+<td>0.04 HNT (1e-1)</td>
+<td>0.000001 HNT (1e-6)</td>
+<td>0.0001 USD (1e-4)</td>
+</tr>
+</tbody></table>
+
+<p>*Note: Not available to trade for customers in New York</p>
+
+<h2 id="all-supported-symbols">All Supported Symbols</h2>
+
+<p><code class="prettyprint">btcusd</code>
+<code class="prettyprint">ethbtc</code>
+<code class="prettyprint">ethusd</code>
+<code class="prettyprint">bchusd</code>
+<code class="prettyprint">bchbtc</code>
+<code class="prettyprint">bcheth</code>
+<code class="prettyprint">ltcusd</code>
+<code class="prettyprint">ltcbtc</code>
+<code class="prettyprint">ltceth</code>
+<code class="prettyprint">ltcbch</code>
+<code class="prettyprint">batusd</code>
+<code class="prettyprint">daiusd</code>
+<code class="prettyprint">linkusd</code>
+<code class="prettyprint">oxtusd</code>
+<code class="prettyprint">linkbtc</code>
+<code class="prettyprint">linketh</code>
+<code class="prettyprint">ampusd</code>
+<code class="prettyprint">compusd</code>
+<code class="prettyprint">paxgusd</code>
+<code class="prettyprint">mkrusd</code>
+<code class="prettyprint">zrxusd</code>
+<code class="prettyprint">kncusd</code>
+<code class="prettyprint">manausd</code>
+<code class="prettyprint">storjusd</code>
+<code class="prettyprint">snxusd</code>
+<code class="prettyprint">crvusd</code>
+<code class="prettyprint">balusd</code>
+<code class="prettyprint">uniusd</code>
+<code class="prettyprint">renusd</code>
+<code class="prettyprint">umausd</code>
+<code class="prettyprint">yfiusd</code>
+<code class="prettyprint">aaveusd</code>
+<code class="prettyprint">filusd</code>
+<code class="prettyprint">btceur</code>
+<code class="prettyprint">btcgbp</code>
+<code class="prettyprint">etheur</code>
+<code class="prettyprint">ethgbp</code>
+<code class="prettyprint">btcsgd</code>
+<code class="prettyprint">ethsgd</code>
+<code class="prettyprint">sklusd</code>
+<code class="prettyprint">grtusd</code>
+<code class="prettyprint">bntusd</code>
+<code class="prettyprint">1inchusd</code>
+<code class="prettyprint">lrcusd</code>
+<code class="prettyprint">sandusd</code>
+<code class="prettyprint">cubeusd</code>
+<code class="prettyprint">lptusd</code>
+<code class="prettyprint">bondusd</code>
+<code class="prettyprint">maticusd</code>
+<code class="prettyprint">injusd</code>
+<code class="prettyprint">sushiusd</code>
+<code class="prettyprint">dogeusd</code>
+<code class="prettyprint">alcxusd</code>
+<code class="prettyprint">ftmusd</code>
+<code class="prettyprint">ankrusd</code>
+<code class="prettyprint">btcgusd</code>
+<code class="prettyprint">ethgusd</code>
+<code class="prettyprint">ctxusd</code>
+<code class="prettyprint">xtzusd</code>
+<code class="prettyprint">axsusd</code>
+<code class="prettyprint">slpusd</code>
+<code class="prettyprint">lunausd</code>
+<code class="prettyprint">mco2usd</code>
+<code class="prettyprint">dogebtc</code>
+<code class="prettyprint">dogeeth</code>
+<code class="prettyprint">wcfgusd</code>
+<code class="prettyprint">rareusd</code>
+<code class="prettyprint">radusd</code>
+<code class="prettyprint">qntusd</code>
+<code class="prettyprint">nmrusd</code>
+<code class="prettyprint">maskusd</code>
+<code class="prettyprint">fetusd</code>
+<code class="prettyprint">ashusd</code>
+<code class="prettyprint">audiousd</code>
+<code class="prettyprint">api3usd</code>
+<code class="prettyprint">usdcusd</code>
+<code class="prettyprint">shibusd</code>
+<code class="prettyprint">rndrusd</code>
+<code class="prettyprint">galausd</code>
+<code class="prettyprint">ensusd</code>
+<code class="prettyprint">kp3rusd</code>
+<code class="prettyprint">cvcusd</code>
+<code class="prettyprint">elonusd</code>
+<code class="prettyprint">mimusd</code>
+<code class="prettyprint">spellusd</code>
+<code class="prettyprint">tokeusd</code>
+<code class="prettyprint">ldousd</code>
+<code class="prettyprint">rlyusd</code>
+<code class="prettyprint">solusd</code>
+<code class="prettyprint">rayusd</code>
+<code class="prettyprint">sbrusd</code>
+<code class="prettyprint">apeusd</code>
+<code class="prettyprint">dpiusd</code>
+<code class="prettyprint">indexusd</code>
+<code class="prettyprint">gusdsgd</code>
+<code class="prettyprint">qrdousd</code>
+<code class="prettyprint">zbcusd</code>
+<code class="prettyprint">chzusd</code>
+<code class="prettyprint">revvusd</code>
+<code class="prettyprint">jamusd</code>
+<code class="prettyprint">fidausd</code>
+<code class="prettyprint">gmtusd</code>
+<code class="prettyprint">orcausd</code>
+<code class="prettyprint">aliusd</code>
+<code class="prettyprint">truusd</code>
+<code class="prettyprint">gusdgbp</code>
+<code class="prettyprint">dotusd</code>
+<code class="prettyprint">ernusd</code>
+<code class="prettyprint">galusd</code>
+<code class="prettyprint">eulusd</code>
+<code class="prettyprint">samousd</code>
+<code class="prettyprint">bicousd</code>
+<code class="prettyprint">imxusd</code>
+<code class="prettyprint">plausd</code>
+<code class="prettyprint">iotxusd</code>
+<code class="prettyprint">avaxusd</code>
+<code class="prettyprint">atomusd</code>
+<code class="prettyprint">usdtusd</code>
+<code class="prettyprint">btcusdt</code>
+<code class="prettyprint">ethusdt</code>
+<code class="prettyprint">pepeusd</code>
+<code class="prettyprint">xrpusd</code>
+<code class="prettyprint">hntusd</code></p>
+
+          <h1 id="fix">FIX</h1>
+
+<h2 id="initiate-a-clearing-order">Initiate a Clearing Order</h2>
+
+<h3 id="new-order-cross">New Order Cross</h3>
+
+<p>To submit a new Gemini Clearing order, send a <a href="https://www.onixs.biz/fix-dictionary/4.4/msgtype_s_115.html">New Order Cross &lt;s&gt;</a> message with <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_40.html">OrdType &lt;40&gt;</a> as type Limit.</p>
+
+<p>Gemini will respond to a <a href="https://www.onixs.biz/fix-dictionary/4.4/msgtype_s_115.html">New Order Cross &lt;s&gt;</a> with an <a href="/fix-api/#execution-report-lt-8-gt">Execution Report <8></a>. The <a href="/fix-api/#execution-report-lt-8-gt">Execution Report <8></a> will have <a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_37.html">OrderID <37></a> populated with the <code class="prettyprint">clearing_id</code> which the counterparty will need to confirm the order.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="/fix-api/#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = s</li>
+</ul></li>
+<li>
+
+<ul>
+<li>11 </li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdId</a></li>
+<li>Y</li>
+<li>Unique identifier of the cross order as assigned by the institution. Uniqueness must be guaranteed by the institution for the duration of the connection to the order entry channel.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>38</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_38.html">OrderQty</a></li>
+<li>Y</li>
+<li>Decimal quantity of quantity currency to buy or sell</li>
+</ul></li>
+<li>
+
+<ul>
+<li>40</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_40.html">OrdType</a></li>
+<li>Y</li>
+<li>Order type. <br/><br/>Valid values:<br/><ul><li>2 = Limit</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>44</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_44.html">Price</a></li>
+<li>Y</li>
+<li>Decimal price. Price is denominated in <code class="prettyprint">CCY1</code>.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>54</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">Side</a></li>
+<li>Y</li>
+<li>Side of the initiator of the order.<br/><br/>Valid values:<br/><ul><li>1 = Buy</li><li>2 = Sell</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Ticker symbol of the order.<br/><br/>See <a href="/fix-api/#supported-symbols">Supported Symbols</a> for valid values.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>60</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_60.html">TransactTime</a></li>
+<li>Y</li>
+<li>Time of order creation (expressed in UTC).</li>
+</ul></li>
+<li>
+
+<ul>
+<li>126</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_126.html">ExpireTime</a></li>
+<li>Y</li>
+<li>Time of order expiration (expressed in UTC). Can be up to 30 days from order initiation.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>548</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_548.html">CrossID</a></li>
+<li>Y</li>
+<li>Unique identifier for a cross order</li>
+</ul></li>
+<li>
+
+<ul>
+<li>549</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_549.html">CrossType</a></li>
+<li>Y</li>
+<li>Type of cross being submitted.<br/><br/>Valid values:<br/><ul><li>1 = Cross trade which is either completely executed or not</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>550</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_550.html">CrossPrioritization</a></li>
+<li>Y</li>
+<li>Indicates if one side or the other of a cross order should be prioritized.<br/><br/>Valid values:<br/><ul><li>0 = None</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>552</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_552.html">NoSides</a></li>
+<li>Y</li>
+<li>Number of <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">side <54></a> repeating group instances<br/><br/>Valid values:<br/><ul><li>1 = One Side</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>583</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_583.html">ClOrdLinkID</a></li>
+<li>N*</li>
+<li>Also referred to as <code class="prettyprint">counterparty_id</code>. A value that is assigned to a specific counterparty Gemini account. Can be accessed on the <a href="https://exchange.gemini.com/web/clearing">web interface</a> under the <code class="prettyprint">GEMINI ID</code> label. See <a href="#workflow">workflow</a> for more detail.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=204|35=s|34=2|49=TESTOE001|52=20190807-19:28:38.078|56=GEMINI|40=2|44=12000|55=BTCUSD|60=20190807-19:28:38.078|126=20190807-21:28:38.078|548=26990504|549=1|550=0|552=1|54=1|11=87749738|38=2.22222|10=023|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 204
+        35                      MsgType: NewOrderCross (s)
+        34                    MsgSeqNum: 2
+        49                 SenderCompID: TESTOE001
+        52                  SendingTime: 20190807-19:28:38.078
+        56                 TargetCompID: GEMINI
+BODY
+        40                      OrdType: LIMIT (2)
+        44                        Price: 12000
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190807-19:28:38.078
+        126                  ExpireTime: 20190807-21:28:38.078
+        548                     CrossID: 26990504
+        549                   CrossType: Cross trade which is either completely executed or not executed at all (1)
+        550         CrossPrioritization: No priority (0)
+        552                     NoSides: One Side (1)
+        54                         Side: BUY (1)
+        11                      ClOrdID: 87749738
+        38                       OrderQty: 2.22222
+TRAILER
+        10                     CheckSum: 023
+</code></pre>
+
+<h3 id="new-order-cross-execution-report">New Order Cross Execution Report <8></h3>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=197|35=8|34=2|49=GEMINI|52=20190807-19:28:38.251|56=TESTOE001|6=12000|11=87749738|14=2.22222|17=1565206118250|37=2DZ4MPQM|39=0|44=12000|54=1|55=BTCUSD|60=20190807-19:28:38.250|150=0|151=2.22222|10=009|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 197
+        35                      MsgType: ExecutionReport (8)
+        34                    MsgSeqNum: 2
+        49                 SenderCompID: GEMINI
+        52                  SendingTime: 20190807-19:28:38.251
+        56                 TargetCompID: TESTOE001
+BODY
+        6                         AvgPx: 12000
+        11                      ClOrdID: 87749738
+        14                       CumQty: 2.22222
+        17                       ExecID: 1565206118250
+        37                      OrderID: 2DZ4MPQM
+        39                    OrdStatus: NEW (0)
+        44                        Price: 12000
+        54                         Side: BUY (1)
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190807-19:28:38.250
+        150                    ExecType: NEW (0)
+        151                   LeavesQty: 2.22222
+TRAILER
+        10                     CheckSum: 009
+</code></pre>
+
+<h2 id="clearing-order-confirmation">Clearing Order Confirmation</h2>
+
+<h3 id="new-order-cross-confirmation">New Order Cross Confirmation</h3>
+
+<p>To confirm a Gemini Clearing order, the counterparty must login and confirm the order. The order must be confirmed with the same details provided in the initial order.</p>
+
+<p>Gemini will respond to a <a href="https://www.onixs.biz/fix-dictionary/4.4/msgtype_s_115.html">New Order Cross &lt;s&gt;</a> with an <a href="/fix-api/#execution-report-lt-8-gt">Execution Report <8></a>.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="/fix-api/#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = s</li>
+</ul></li>
+<li>
+
+<ul>
+<li>11</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdId</a></li>
+<li>Y</li>
+<li>Unique identifier of the cross order as assigned by the institution. Uniqueness must be guaranteed by the institution for the duration of the connection to the order entry channel.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>38</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_38.html">OrderQty</a></li>
+<li>Y</li>
+<li>Decimal quantity of quantity currency to buy or sell</li>
+</ul></li>
+<li>
+
+<ul>
+<li>40</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_40.html">OrdType</a></li>
+<li>Y</li>
+<li>Order type. <br/><br/>Valid values:<br/><ul><li>2 = Limit</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>44</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_44.html">Price</a></li>
+<li>Y</li>
+<li>Decimal price. Price is denominated in <code class="prettyprint">CCY1</code>.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>54</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">Side</a></li>
+<li>Y</li>
+<li>Side of the counterparty of the order. Will be the opposite side of the initiator.<br/><br/>Valid values:<br/><ul><li>1 = Buy</li><li>2 = Sell</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Ticker symbol of the order.<br/><br/>See <a href="/fix-api/#supported-symbols">Supported Symbols</a> for valid values.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>60</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_60.html">TransactTime</a></li>
+<li>Y</li>
+<li>Time or order creatio (expressed in UTC).</li>
+</ul></li>
+<li>
+
+<ul>
+<li>117</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_117.html">QuoteID</a></li>
+<li>Y</li>
+<li>Also called <code class="prettyprint">clearing_id</code>, will be provided to initiator in <a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_37.html">tag <37></a> of the execution report, or if a <code class="prettyprint">counterparty_id</code> is used, the <code class="prettyprint">clearing_id</code> will show up in the counterparty&#39;s blotter on the <a href="https://exchange.gemini.com/web/clearing">web interface</a></li>
+</ul></li>
+<li>
+
+<ul>
+<li>126</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_126.html">ExpireTime</a></li>
+<li>Y</li>
+<li>Time of order expiration (expressed in UTC). Can be up to 30 days from order initiation.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>548</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_548.html">CrossID</a></li>
+<li>Y</li>
+<li>Unique identifier for a cross order</li>
+</ul></li>
+<li>
+
+<ul>
+<li>549</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_549.html">CrossType</a></li>
+<li>Y</li>
+<li>Type of cross being submitted.<br/><br/>Valid values:<br/><ul><li>1 = Cross trade which is either completely executed or not</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>550</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_550.html">CrossPrioritization</a></li>
+<li>Y</li>
+<li>Indicates if one side or the other of a cross order should be prioritized.<br/><br/>Valid values:<br/><ul><li>0 = None</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>552</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_552.html">NoSides</a></li>
+<li>Y</li>
+<li>Number of <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">side <54></a> repeating group instances<br/><br/>Valid values:<br/><ul><li>1 = One Side</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=191|35=s|34=2|49=TESTOE002|52=20190806-18:49:03.689|56=GEMINI|40=2|44=12000|55=btcusd|60=20190806-18:49:03.689|117=4KZ306ZG|548=86478800|549=1|550=0|552=1|54=2|11=46081666|38=2.22222|10=103|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 191
+        35                      MsgType: NewOrderCross (s)
+        34                    MsgSeqNum: 2
+        49                 SenderCompID: TESTOE002
+        52                  SendingTime: 20190806-18:49:03.689
+        56                 TargetCompID: GEMINI
+BODY
+        40                      OrdType: LIMIT (2)
+        44                        Price: 12000
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190806-18:49:03.689
+        117                     QuoteID: 2DZ4MPQM
+        548                     CrossID: 86478800
+        549                   CrossType: 1
+        550         CrossPrioritization: 0
+        552             Number of sides: 1
+        54                         Side: SELL (2)
+        11                      ClOrdID: 46081666
+        38                       OrderQty: 2.22222
+TRAILER
+        10                     CheckSum: 103
+</code></pre>
+
+<h3 id="new-order-cross-confirmation-execution-report">New Order Cross Confirmation Execution Report <8></h3>
+
+<p>See <a href="/fix-api/#execution-report-lt-8-gt">Execution Report <8></a> for more details on execution report tags.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=205|35=8|34=2|49=GEMINI|52=20190806-18:49:03.839|56=TESTOE002|6=12000|11=46081666|14=2.22222|17=1565117343839|37=4KZ306ZG|39=0|44=12000|54=2|55=BTCUSD|58=ORDER_CONFIRMED|60=20190806-18:49:03.839|150=0|151=2.22222|10=057|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 205
+        35                      MsgType: ExecutionReport (8)
+        34                    MsgSeqNum: 2
+        49                 SenderCompID: GEMINI
+        52                  SendingTime: 20190806-18:49:03.839
+        56                 TargetCompID: TESTOE002
+BODY
+        6                         AvgPx: 12000
+        11                      ClOrdID: 46081666
+        14                       CumQty: 2.22222
+        17                       ExecID: 1565117343839
+        37                      OrderID: 4KZ306ZG
+        39                    OrdStatus: New (0)
+        44                        Price: 12000
+        54                         Side: SELL (2)
+        55                       Symbol: BTCUSD
+        58                         Text: ORDER_CONFIRMED
+        60                 TransactTime: 20190806-18:49:03.839
+        150                    ExecType: NEW (0)
+        151                 LeavesQty: 2.22222
+TRAILER
+        10 CheckSum: 057
+</code></pre>
+
+<h2 id="clearing-order-cancellation">Clearing Order Cancellation</h2>
+
+<h3 id="cross-order-cancel-request">Cross Order Cancel Request</h3>
+
+<p>Once an initiator places a <a href="#initiate-a-clearing-order">New Order Cross</a>, a <a href="https://www.onixs.biz/fix-dictionary/4.4/msgType_u_117.html">Cross Order Cancellation Request&lt;35=u&gt;</a> can be placed to cancel the order before it is confirmed by the counterparty. If the order has already been confirmed by the counterparty, it can no longer be cancelled.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="/fix-api/#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = u</li>
+</ul></li>
+<li>
+
+<ul>
+<li>37</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_37.html">OrderID</a></li>
+<li>Y</li>
+<li>The OrderID given in tag 37 in the <a href="#initiate-a-clearing-order">Execution Report <8></a> of the original order.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Ticker symbol of the order.<br/><br/>See <a href="/fix-api/#supported-symbols">Supported Symbols</a> for valid values.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>60</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_60.html">TransactTime</a></li>
+<li>Y</li>
+<li>Time of order creation (expressed in UTC).</li>
+</ul></li>
+<li>
+
+<ul>
+<li>548</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_548.html">CrossID</a></li>
+<li>Y</li>
+<li>Unique identifier for a cross order</li>
+</ul></li>
+<li>
+
+<ul>
+<li>549</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_549.html">CrossType</a></li>
+<li>Y</li>
+<li>Type of cross being submitted.<br/><br/>Valid values:<br/><ul><li>1 = Cross trade which is either completely executed or not</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>550</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_550.html">CrossPrioritization</a></li>
+<li>Y</li>
+<li>Indicates if one side or the other of a cross order should be prioritized.<br/><br/>Valid values:<br/><ul><li>0 = None</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>551</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_551.html">OrigCrossID</a></li>
+<li>Y</li>
+<li>CrossID given in the original <a href="#initiate-a-clearing-order">new order cross</a> in <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_548.html">tag 548</a></li>
+</ul></li>
+<li>
+
+<ul>
+<li>552</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_552.html">NoSides</a></li>
+<li>Y</li>
+<li>Number of <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">side <54></a> repeating group instances<br/><br/>Valid values:<br/><ul><li>1 = One Side</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>54</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">Side</a></li>
+<li>Y</li>
+<li>Side of the initiator of the order.<br/><br/>Valid values:<br/><ul><li>1 = Buy</li><li>2 = Sell</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>41</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_41.html">OrigClOrdID</a></li>
+<li>Y</li>
+<li>ClOrdID given in the original <a href="#initiate-a-clearing-order">new order cross</a>.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>11</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdId</a></li>
+<li>Y</li>
+<li>Unique identifier of the cross order as assigned by the institution. Uniqueness must be guaranteed by the institution for the duration of the connection to the order entry channel.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=201|34=3|35=u|49=TESTOE001|52=20190806-20:30:28.898|56=GEMINI|37=2DZ4MPQM|55=BTCUSD|60=20190806-20:30:28.898|548=73180000|549=1|550=0|551=26990504|552=1|54=2|41=87749738|11=76494933|38=2.22222|10=128|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 201
+        34                    MsgSeqNum: 3
+        35                      MsgType: Cross Order Cancel Request
+        49                 SenderCompID: TESTOE001
+        52                  SendingTime: 20190806-20:30:28.898
+        56                 TargetCompID: GEMINI
+BODY
+        37                      OrderID: 2DZ4MPQM
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190806-20:30:28.898
+        548                     CrossID: 73180000
+        549                   CrossType: 1
+        550         CrossPrioritization: 0
+        551                 OrigCrossID: 26990504
+        552                     NoSides: 1
+        54                         Side: SELL (2)
+        41                  OrigClOrdID: 87749738
+        11                      ClOrdID: 76494933
+        38                       OrderQty: 2.22222
+TRAILER
+        10                     CheckSum: 066
+</code></pre>
+
+<h3 id="cross-order-cancel-request-execution-report">Cross Order Cancel Request Execution Report</h3>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=202|35=8|34=3|49=GEMINI|52=20190806-20:30:28.947|56=TESTOE001|6=0|11=76494933|14=2.22222|17=1565123428947|37=2DZ4MPQM|39=4|54=2|55=BTCUSD|58=ORDER_CANCELED|60=20190806-20:30:28.947|150=4|151=2.22222|10=127|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 202
+        35                      MsgType: ExecutionReport (8)
+        34                    MsgSeqNum: 3
+        49                 SenderCompId: GEMINI
+        52                  SendingTime: 20190806-20:30:28.947
+        56                 TargetCompID: TESTOE001
+BODY
+        6                         AvgPx: 0
+        11                      ClOrdID: 76494933
+        14                       CumQty: 2.22222
+        17                       ExecID: 1565123428947
+        37                      OrderID: 2DZ4MPQM
+        39                    OrdStatus: CANCELED (4)
+        54                         Side: SELL (2)
+        55                       Symbol: BTCUSD
+        58                         Text: ORDER_CANCELLED
+        60                 TransactTime: 20190806-20:30:28.947
+        150                    ExecType: CANCELED (4)
+        151                   LeavesQty: 2.22222
+TRAILER
+        10                     CheckSum: 127
+</code></pre>
+
+<h2 id="fix-broker-support">FIX Broker Support</h2>
+
+<p>Gemini Clearing also allows for brokers to facilitate trades between two Gemini customers. A broker can submit a new Gemini Clearing order that must then be confirmed by each counterparty before settlement.</p>
+
+<h3 id="broker-new-order-cross">Broker New Order Cross</h3>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="/fix-api/#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = s</li>
+</ul></li>
+<li>
+
+<ul>
+<li>40</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_40.html">OrdType</a></li>
+<li>Y</li>
+<li>Order type. <br/><br/>Valid values:<br/><ul><li>2 = Limit</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>44</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_44.html">Price</a></li>
+<li>Y</li>
+<li>Decimal price. Price is denominated in <code class="prettyprint">CCY1</code></li>
+</ul></li>
+<li>
+
+<ul>
+<li>55</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">Symbol</a></li>
+<li>Y</li>
+<li>Ticker symbol of the order.<br/><br/>See <a href="/fix-api/#supported-symbols">Supported Symbols</a> for valid values.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>60</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_60.html">TransactTime</a></li>
+<li>Y</li>
+<li>Time of order creation (expressed in UTC).</li>
+</ul></li>
+<li>
+
+<ul>
+<li>548</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_548.html">CrossID</a></li>
+<li>Y</li>
+<li>Unique identifier for a cross order</li>
+</ul></li>
+<li>
+
+<ul>
+<li>549</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_549.html">CrossType</a></li>
+<li>Y</li>
+<li>Type of cross being submitted.<br/><br/>Valid values:<br/><ul><li>1 = Cross trade which is either completely executed or not</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>550</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_550.html">CrossPrioritization</a></li>
+<li>Y</li>
+<li>Indicates if one side or the other of a cross order should be prioritized.<br/><br/>Valid values:<br/><ul><li>0 = None</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>552</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_552.html">NoSides</a></li>
+<li>Y</li>
+<li>Number of <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">side <54></a> repeating group instances<br/><br/>Valid values:<br/><ul><li>2 = Two Sides</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>54</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">Side</a></li>
+<li>Y</li>
+<li><strong>Part of a repeating group</strong><br/>Side of the source/target of the order. The opposite repeating group must have the opposite side.<br/><br/>Valid values:<br/><ul><li>1 = Buy</li><li>2 = Sell</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>11</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdID</a></li>
+<li>Y</li>
+<li><strong>Part of a repeating group</strong><br/>Unique identifier of the cross order as assigned by the institution. Uniqueness must be guaranteed by the institution for the duration of the connection to the order entry channel.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>583</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagnum_583.html">ClOrdLinkID</a></li>
+<li>Y</li>
+<li><strong>Part of a repeating group</strong><br/>Also referred to as <code class="prettyprint">counterparty_id</code>. A value that is assigned to a specific counterparty Gemini account. Can be accessed on the <a href="https://exchange.gemini.com/web/clearing">web interface</a> under the <code class="prettyprint">GEMINI ID</code> label. See <a href="#workflow">workflow</a> for more detail. <br/><br/> Must be consistent with the rest of the repeating group.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>38</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_38.html">OrderQty</a></li>
+<li>Y</li>
+<li><strong>Part of a repeating group</strong><br/>Decimal quantity of quantity currency to buy or sell. <br/><br/>Must match the opposing repeating group.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>126</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_126.html">ExpireTime</a></li>
+<li>Y</li>
+<li>Time of order expiration (expressed in UTC). Can be up to 30 days from order initiation.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=247|35=s|34=2|49=TESTOE001|52=20190905-13:29:45.762|56=GEMINI|40=2|44=10000|55=btcusd|60=20190905-13:29:45.762|548=49382061|549=1|550=0|552=2|54=1|11=63216195|583=R485E04Q|38=25.01|54=2|11=44996792|583=7467JVXP|38=25.01|126=20190905-15:29:45.762|10=236|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 247
+        35                      MsgType: NewOrderCross (s)
+        34                    MsgSeqNum: 2
+        49                 SenderCompID: TESTOE001
+        52                  SendingTime: 20190905-13:29:45.762
+        56                 TargetCompID: GEMINI
+BODY
+        40                      OrdType: LIMIT (2)
+        44                        Price: 10000
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190905-13:29:45.762
+        548                     CrossID: 49382061
+        549                   CrossType: Cross trade which is either completely executed or not executed at all (1)
+        550         CrossPrioritization: No priority (0)
+        552                     NoSides: Two Sides (2)
+        126                  ExpireTime: 20190905-15:29:45.762
+REPEATING GROUPS
+        54                         Side: BUY (1)
+        11                      ClOrdID: 63216195
+        583                 ClOrdLinkID: R485E04Q
+        38                     OrderQty: 25.01
+        54                         Side: SELL (2)
+        11                      ClOrdID: 44996792
+        583                 ClOrdLinkID: 7467JVXP
+        38                     OrderQty: 25.01
+TRAILER
+        10                     CheckSum: 236
+</code></pre>
+
+<h3 id="broker-new-order-cross-execution-report">Broker New Order Cross Execution Report</h3>
+
+<p>After submitting a <a href="#fix-broker-support">new order cross as a broker</a>, 2 execution reports will be sent (one for each side of the trade).</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=211|35=8|34=2|49=GEMINI|52=20190905-13:29:45.928|56=TESTOE001|6=10000|11=63216195|14=25.01|17=1567690185928|37=G9LVQOX5|39=0|44=10000|54=1|55=btcusd|60=20190905-13:29:45.928|150=0|151=25.01|583=R485E04Q|10=239|
+8=FIX.4.4|9=211|35=8|34=3|49=GEMINI|52=20190905-13:29:45.929|56=TESTOE001|6=10000|11=44996792|14=25.01|17=1567690185928|37=G9LVQOX5|39=0|44=10000|54=2|55=btcusd|60=20190905-13:29:45.928|150=0|151=25.01|583=7467JVXP|10=054|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 211
+        35                      MsgType: ExecutionReport (8)
+        34                    MsgSeqNum: 2
+        49                 SenderCompID: GEMINI
+        52                  SendingTime: 20190905-13:29:45.928
+        56                 TargetCompID: TESTOE001
+BODY
+        6                         AvgPx: 10000
+        11                      ClOrdID: 63216195
+        14                       CumQty: 25.01
+        17                       ExecID: 1567690185928
+        37                      OrderID: G9LVQOX5
+        39                    OrdStatus: NEW (0)
+        44                        Price: 10000
+        54                         Side: BUY (1)
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190905-13:29:45.928
+        150                    ExecType: NEW (0)
+        151                   LeavesQty: 25.01
+        583                 ClOrdLinkID: Clearing ID for corresponding Gemini account (R485E04Q)
+Trailer
+        10                     CheckSum: 239
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 211
+        35                      MsgType: ExecutionReport (8)
+        34                    MsgSeqNum: 3
+        49                 SenderCompID: GEMINI
+        52                  SendingTime: 20190905-13:29:45.929
+        56                 TargetCompID: TESTOE001
+BODY
+        6                         AvgPx: 10000
+        11                      ClOrdID: 44996792
+        14                       CumQty: 25.01
+        17                       ExecID: 1567690185928
+        37                      OrderID: G9LVQOX5
+        39                    OrdStatus: NEW (0)
+        44                        Price: 10000
+        54                         Side: SELL (2)
+        55                       Symbol: BTCUSD
+        60                 TransactTime: 20190905-13:29:45.928
+        150                    ExecType: NEW (0)
+        151                   LeavesQty: 25.01
+        583                 ClOrdLinkID: Clearing ID for corresponding Gemini account (7467JVXP)
+Trailer
+        10                     CheckSum: 054
+</code></pre>
+
+          <h1 id="rest-api">REST API</h1>
+
+<p>Gemini Clearing allows two parties to settle a trade off the order book. The initiator enters the trade details for any supported <a href="#symbols-and-minimums">symbol</a> and generates a <code class="prettyprint">trade_id</code>. If a <code class="prettyprint">counterparty_id</code> is supplied, only the specified counterparty can confirm the order. If a <code class="prettyprint">counterparty_id</code> is not supplied, the ticket will generate a <code class="prettyprint">trade_id</code> that can filled by any counterparty.</p>
+
+<h2 id="new-clearing-order">New Clearing Order</h2>
+
+<h3 id="roles">Roles</h3>
+
+<p>The API key you use to access this endpoint must have the Trader role assigned.  See <a href="#roles">Roles</a> for more information. You can also retrieve the clearing counterparty ID associated with the API key by posting a request to either the <a href="/rest-api/#roles-api">roles</a> or <a href="/rest-api/#get-accounts-in-master-group">account/list</a> endpoints. </p>
+
+<p>The OAuth scope must have <code class="prettyprint">clearing:create</code> assigned to access <code class="prettyprint">/v1/clearing/new</code>, <code class="prettyprint">/v1/clearing/cancel</code> and <code class="prettyprint">/v1/clearing/confirm</code>. The OAuth scope must have <code class="prettyprint">clearing:read</code> to access <code class="prettyprint">/v1/clearing/status</code>.  See <a href="/oauth/#oauth-scopes">OAuth Scopes</a> for more information.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/new</code></p>
+
+<h3 id="sandbox">Sandbox</h3>
+
+<p>Base url can be changed to <code class="prettyprint">https://api.sandbox.gemini.com</code> for test purposes. Please reach out to trading@gemini.com to enable Gemini Clearing on your sandbox account and test workflows.</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/clearing/new&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>counterparty_id</td>
+<td>string</td>
+<td>An optional symbol that corresponds with a counterparty to which you are directing the trade. Can be retrieved from <a href="/rest-api/#roles-api">roles</a> or <a href="/rest-api/#get-accounts-in-master-group">account/list</a> endpoints.</td>
+</tr>
+<tr>
+<td>expires_in_hrs</td>
+<td>integer</td>
+<td>The number of hours before the trade expires. Your counterparty will need to confirm the order before this time expires.</td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td>The <a href="#symbols-and-minimums">symbol</a> of the order</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>string</td>
+<td>Quoted decimal amount to purchase</td>
+</tr>
+<tr>
+<td>price</td>
+<td>string</td>
+<td>Quoted decimal amount to spend per unit</td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>New Clearing Order example</p>
+</blockquote>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com"</span>
+<span class="n">endpoint</span> <span class="o">=</span> <span class="s">"/v1/clearing/new"</span>
+<span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">endpoint</span>
+
+<span class="n">gemini_api_key</span> <span class="o">=</span> <span class="s">"mykey"</span>
+<span class="n">gemini_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">counterparty_id</span> <span class="o">=</span> <span class="s">"OM9VNL1G"</span>
+<span class="n">payload_nonce</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"request"</span><span class="p">:</span> <span class="n">endpoint</span><span class="p">,</span>
+    <span class="s">"nonce"</span><span class="p">:</span> <span class="n">payload_nonce</span><span class="p">,</span>
+    <span class="s">"counterparty_id"</span><span class="p">:</span> <span class="n">counterparty_id</span><span class="p">,</span>
+    <span class="s">"expires_in_hrs"</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="s">"symbol"</span><span class="p">:</span> <span class="s">"btcusd"</span><span class="p">,</span>
+    <span class="s">"amount"</span><span class="p">:</span> <span class="s">"100"</span><span class="p">,</span>
+    <span class="s">"price"</span><span class="p">:</span> <span class="s">"9500.00"</span><span class="p">,</span>
+    <span class="s">"side"</span><span class="p">:</span> <span class="s">"buy"</span>
+<span class="p">}</span>
+
+<span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">gemini_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="n">request_headers</span> <span class="o">=</span> <span class="p">{</span> <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">"text/plain"</span><span class="p">,</span>
+                    <span class="s">'Content-Length'</span><span class="p">:</span> <span class="s">"0"</span><span class="p">,</span>
+                    <span class="s">'X-GEMINI-APIKEY'</span><span class="p">:</span> <span class="n">gemini_api_key</span><span class="p">,</span>
+                    <span class="s">'X-GEMINI-PAYLOAD'</span><span class="p">:</span> <span class="n">b64</span><span class="p">,</span>
+                    <span class="s">'X-GEMINI-SIGNATURE'</span><span class="p">:</span> <span class="n">signature</span><span class="p">,</span>
+                    <span class="s">'Cache-Control'</span><span class="p">:</span> <span class="s">"no-cache"</span> <span class="p">}</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                        <span class="n">headers</span><span class="o">=</span><span class="n">request_headers</span><span class="p">)</span>
+
+<span class="n">new_clearing_order</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">new_clearing_order</span><span class="p">)</span>
+</code></pre>
+
+<blockquote>
+<p>Sample payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/clearing/new"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OM9VNL1G"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in_hrs"</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"btcusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"100"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9500.00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>JSON response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitConfirm"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0OQGOZXW"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The response will be an object</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>string</td>
+<td>A description of the status of the clearing order. Because this is the reponse to an order initiation the response will be <code class="prettyprint">AwaitConfirm</code> upon order placement success. Failures will show a brief description of the error in this field or the <code class="prettyprint">reason</code> and <code class="prettyprint">message</code> fields.</td>
+</tr>
+<tr>
+<td>clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order. The <code class="prettyprint">clearing_id</code> can be used to check the status of your order or by the counterparty to confirm the order.</td>
+</tr>
+</tbody></table>
+
+<h2 id="new-broker-order">New Broker Order</h2>
+
+<p>Gemini Clearing also allows for brokers to facilitate trades between two Gemini customers. A broker can submit a new Gemini Clearing order that must then be confirmed by each counterparty before settlement.</p>
+
+<blockquote>
+<p>Sample payload for broker order initiation</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/clearing/broker/new"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"source_counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R485E04Q"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"target_counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Z4929ZDY"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ethusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"175.00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in_hrs"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"200"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;v1/clearing/broker/new&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>source_counterparty_id</td>
+<td>string</td>
+<td>A symbol that corresponds with the counterparty sourcing the clearing trade</td>
+</tr>
+<tr>
+<td>target_counterparty_id</td>
+<td>string</td>
+<td>A symbol that corresponds with the counterparty where the clearing trade is targeted</td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td>The <a href="#symbols-and-minimums">symbol</a> of the order</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>string</td>
+<td>Quoted decimal amount to purchase</td>
+</tr>
+<tr>
+<td>expires_in_hrs</td>
+<td>integer</td>
+<td>The number of hours before the trade expires. Your counterparty will need to confirm the order before this time expires.</td>
+</tr>
+<tr>
+<td>price</td>
+<td>string</td>
+<td>Quoted decimal amount to spend per unit</td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;. This side will be assigned to the <code class="prettyprint">source_counterparty_id</code>. The opposite side will be sent to the <code class="prettyprint">target_counterparty_id</code>.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response to broker clearing order</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitSourceTargetConfirm"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8EM7NVXD"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The reponse will be an object</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>string</td>
+<td>Will return <code class="prettyprint">AwaitSourceTargetConfirm</code>, meaning the order is waiting for both the source and the target parties to confirm the order</td>
+</tr>
+<tr>
+<td>clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order.</td>
+</tr>
+</tbody></table>
+
+<h2 id="clearing-order-status">Clearing Order Status</h2>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/status</code></p>
+
+<blockquote>
+<p>Sample order cancel payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/clearing/status"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OM9VNL1G"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;v1/clearing/status&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order. The <code class="prettyprint">clearing_id</code> can be used to check the status of, cancel or confirm the order.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response for confirmed clearing order</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Confirmed"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The response will be an object</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>string</td>
+<td>Will return &quot;ok&quot;</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>A description of the status of the order give in the <code class="prettyprint">clearing_id</code> field. See <a href="#order-status-description">order status descriptions</a> for more information</td>
+</tr>
+</tbody></table>
+
+<h3 id="order-status-description">Order status description</h3>
+
+<table><thead>
+<tr>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">AwaitConfirm</code></td>
+<td>Indicates that a <a href="#workflow">bilateral trade</a> order has been successfully initiated but has not yet been confirmed by the counterparty</td>
+</tr>
+<tr>
+<td><code class="prettyprint">AwaitSourceTargetConfirm</code></td>
+<td>Indicates that a <a href="#new-broker-order">broker trade</a> has been successfully initiated but has not yet been confirmed by the target nor source counterparty</td>
+</tr>
+<tr>
+<td><code class="prettyprint">AwaitTargetConfirm</code></td>
+<td>The source counterparty has confirmed the clearing order but the target counterparty has not yet confirmed</td>
+</tr>
+<tr>
+<td><code class="prettyprint">AwaitSourceConfirm</code></td>
+<td>The target counterparty has confirmed the clearing order but the source counterparty has not yet confirmed</td>
+</tr>
+<tr>
+<td><code class="prettyprint">Confirmed</code></td>
+<td>The counterparty has confirmed the clearing order but the trade has not attempted settlement yet.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">AttemptSettlement</code></td>
+<td>The counterparty has not yet funded their account to the required amount to settle the trade.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">Settled</code></td>
+<td>The order has been settled and the funds have successfully moved between accounts.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">Expired</code></td>
+<td>The order expiration time has come before the counterparty confirmed the order or. If the counterparty did confirm the order, then they did not have enough funds to settle the order before the expiration time.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">Canceled</code></td>
+<td>The order was canceled by the order initiator.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">Not Found</code></td>
+<td>The <code class="prettyprint">clearing_id</code> given in the payload was not successfully matched to a pending clearing order.</td>
+</tr>
+</tbody></table>
+
+<h2 id="cancel-clearing-order">Cancel Clearing Order</h2>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/cancel</code></p>
+
+<blockquote>
+<p>Sample order cancel payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/clearing/cancel"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P0521QDV"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;v1/clearing/cancel&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order. The <code class="prettyprint">clearing_id</code> can be used to check the status of, cancel or confirm the order.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response - successful cancel</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P0521QDV order canceled"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>JSON response - failed cancel</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unable to cancel order P0521QDV"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The response will be an object</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>string</td>
+<td>A description of the status of the clearing order. This reponse will return the string &quot;ok&quot; upon success, or &quot;failed&quot; upon failure.</td>
+</tr>
+<tr>
+<td>details</td>
+<td>string</td>
+<td>Provides more detailed description on the result. Will either return &quot;P0521QDV order canceled&quot; or &quot;Unable to cancel order P0521QDV&quot;.</td>
+</tr>
+</tbody></table>
+
+<h2 id="confirm-clearing-order">Confirm Clearing Order</h2>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/confirm</code></p>
+
+<blockquote>
+<p>Sample order confirmation payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1/clearing/confirm"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OM9VNL1G"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"btcusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"100"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9500.00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;v1/clearing/confirm&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order. The <code class="prettyprint">clearing_id</code> can be used to check the status of your order or by the counterparty to confirm the order.</td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td>The <a href="#symbols-and-minimums">symbol</a> of the order</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>string</td>
+<td>Quoted decimal amount to purchase</td>
+</tr>
+<tr>
+<td>price</td>
+<td>string</td>
+<td>Quoted decimal amount to spend per unit</td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;. Must be the opposite side of the initiator&#39;s side</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response - clearing order confirmation success</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"confirmed"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>JSON response - clearing order confirmation failure</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"error"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"InvalidSide"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invalid side for symbol BTCUSD: 'buy'"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The reponse will be an object</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>sring</td>
+<td>A brief description of the result. Will return &quot;confirmed&quot; upon success and &quot;error&quot; upon failure</td>
+</tr>
+<tr>
+<td>reason</td>
+<td>string</td>
+<td>Will only populate upon failure. Gives the reason for the confirmation error</td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>Will only populate upon failure. A more detailed description of the reason for failure</td>
+</tr>
+</tbody></table>
+
+<h2 id="clearing-order-list">Clearing Order List</h2>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/list</code></p>
+
+<blockquote>
+<p>Sample clearing list payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/clearing/list"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"counterparty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KQ4P3XWE"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expiration_start"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642222800000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expiration_end"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642309200000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"submission_start"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"submission_end"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641791100000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"funded"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/clearing/list&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td><em>Optional</em>. Trading pair</td>
+</tr>
+<tr>
+<td>counterparty</td>
+<td>string</td>
+<td><em>Optional</em>. counterparty_id or counterparty_alias</td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;</td>
+</tr>
+<tr>
+<td>expiration_start</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">expiration_end</code> if set</td>
+</tr>
+<tr>
+<td>expiration_end</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">expiration_start</code> if set</td>
+</tr>
+<tr>
+<td>submission_start</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">submission_end</code> if set</td>
+</tr>
+<tr>
+<td>submission_end</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">submission_start</code> if set</td>
+</tr>
+<tr>
+<td>funded</td>
+<td>boolean</td>
+<td><em>Optional</em>. Default value false if not set</td>
+</tr>
+<tr>
+<td>account</td>
+<td>string</td>
+<td><em>Optional</em>. Required for Master API keys as described in <a href="#private-api-invocation">Private API Invocation</a>. The name of the account within the subaccount group. Only available for exchange accounts.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response - successful list</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9LVQE9X5"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"YZ43LX81"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitTargetConfirm"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800020</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"expiration"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641963600000</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2MYR07XP"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trade1SrcOrderId"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KQ4P3XWE"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"broker_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WV4V1DGN"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitSourceConfirm"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800016</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"expiration"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642222800000</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EM8WO7LQ"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trade4SrcOrderId"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"broker_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WV4V1DGN"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitSourceTargetConfirm"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800028</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"expiration"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642136400000</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The response will be an object containing clearing list</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>string</td>
+<td>A description of the status of the clearing list. This reponse will return the string &quot;success&quot; upon success, or &quot;failed&quot; upon failure.</td>
+</tr>
+<tr>
+<td>orders</td>
+<td>array</td>
+<td>Array of JSON objects with clearing details</td>
+</tr>
+<tr>
+<td>-- -- clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order. Always set.</td>
+</tr>
+<tr>
+<td>-- -- order_id</td>
+<td>string</td>
+<td><em>Optional</em>. Only provided if order was submitted with it.</td>
+</tr>
+<tr>
+<td>-- -- counterparty_id</td>
+<td>string</td>
+<td><em>Optional</em>. A symbol that corresponds with a counterparty to which you completed the trade with.</td>
+</tr>
+<tr>
+<td>-- -- counterparty_alias</td>
+<td>string</td>
+<td><em>Optional</em>. Counterparty alias</td>
+</tr>
+<tr>
+<td>-- -- broker_id</td>
+<td>string</td>
+<td><em>Optional</em>. A symbol that corresponds with a broker id.</td>
+</tr>
+<tr>
+<td>-- -- symbol</td>
+<td>string</td>
+<td>Trading pair. Always set.</td>
+</tr>
+<tr>
+<td>-- -- side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;. Always set.</td>
+</tr>
+<tr>
+<td>-- -- price</td>
+<td>decimal</td>
+<td>The price the clearing order was executed at</td>
+</tr>
+<tr>
+<td>-- -- quantity</td>
+<td>decimal</td>
+<td>The amount that was executed</td>
+</tr>
+<tr>
+<td>-- -- status</td>
+<td>string</td>
+<td>A description of the status of the order given in the <code class="prettyprint">clearing_id</code> field. See <a href="#order-status-description">order status descriptions</a> for more information</td>
+</tr>
+<tr>
+<td>-- -- submission</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td>UTC timestamp. Always set.</td>
+</tr>
+<tr>
+<td>-- -- expiration</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td>UTC timestamp. Always set.</td>
+</tr>
+</tbody></table>
+
+<h2 id="clearing-broker-list">Clearing Broker List</h2>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/broker/list</code></p>
+
+<blockquote>
+<p>Sample clearing broker list payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/clearing/broker/list"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expiration_start"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642222800000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expiration_end"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642309200000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"submission_start"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"submission_end"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641791100000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"funded"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/clearing/broker/list&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td><em>Optional</em>. Trading pair</td>
+</tr>
+<tr>
+<td>expiration_start</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">expiration_end</code> if set</td>
+</tr>
+<tr>
+<td>expiration_end</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">expiration_start</code> if set</td>
+</tr>
+<tr>
+<td>submission_start</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">submission_end</code> if set</td>
+</tr>
+<tr>
+<td>submission_end</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>. UTC timestamp. Requires <code class="prettyprint">submission_start</code> if set</td>
+</tr>
+<tr>
+<td>funded</td>
+<td>boolean</td>
+<td><em>Optional</em>. Default value false if not set</td>
+</tr>
+<tr>
+<td>account</td>
+<td>string</td>
+<td><em>Optional</em>. Required for Master API keys as described in <a href="#private-api-invocation">Private API Invocation</a>. The name of the account within the subaccount group. Only available for exchange accounts.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response - successful broker list</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9LVQ98X5"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"source_counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R54L3DG1"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"source_order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trade1SrcOrderId"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"target_counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KQ4P3XWE"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"target_order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trade1TgtOrderId"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"source_side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitSourceConfirm"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800016</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"expiration"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642222800000</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"clearing_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VXQ341X4"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"source_counterparty_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R54L3DG1"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"source_order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trade4SrcOrderId"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCEUR"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"source_side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitSourceTargetConfirm"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="mi">1641790800028</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"expiration"</span><span class="p">:</span><span class="w"> </span><span class="mi">1642136400000</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The response will be an object containing clearing broker list</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>result</td>
+<td>string</td>
+<td>A description of the status of the clearing broker list. This reponse will return the string &quot;success&quot; upon success, or &quot;failed&quot; upon failure.</td>
+</tr>
+<tr>
+<td>orders</td>
+<td>array</td>
+<td>Array of JSON objects with clearing broker list details</td>
+</tr>
+<tr>
+<td>-- -- clearing_id</td>
+<td>string</td>
+<td>A unique identifier for the clearing order. Always set.</td>
+</tr>
+<tr>
+<td>-- -- source_counterparty_id</td>
+<td>string</td>
+<td>Source counterparty id. Always set.</td>
+</tr>
+<tr>
+<td>-- -- source_order_id</td>
+<td>string</td>
+<td><em>Optional</em>. Only provided if order was submitted with it.</td>
+</tr>
+<tr>
+<td>-- -- target_counterparty_id</td>
+<td>string</td>
+<td><em>Optional</em>. Only provided if target counterparty was already set.</td>
+</tr>
+<tr>
+<td>-- -- target_order_id</td>
+<td>string</td>
+<td><em>Optional</em>. Only provided if target counterparty set this field.</td>
+</tr>
+<tr>
+<td>-- -- symbol</td>
+<td>string</td>
+<td>Trading pair. Always set.</td>
+</tr>
+<tr>
+<td>-- -- source_side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;. Always set.</td>
+</tr>
+<tr>
+<td>-- -- price</td>
+<td>decimal</td>
+<td>The price the clearing order was executed at</td>
+</tr>
+<tr>
+<td>-- -- quantity</td>
+<td>decimal</td>
+<td>The amount that was executed</td>
+</tr>
+<tr>
+<td>-- -- status</td>
+<td>string</td>
+<td>A description of the status of the order given in the <code class="prettyprint">clearing_id</code> field. See <a href="#order-status-description">order status descriptions</a> for more information</td>
+</tr>
+<tr>
+<td>-- -- submission</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td>UTC timestamp. Always set.</td>
+</tr>
+<tr>
+<td>-- -- expiration</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td>UTC timestamp. Always set.</td>
+</tr>
+</tbody></table>
+
+<h2 id="clearing-trades">Clearing Trades</h2>
+
+<h3 id="roles">Roles</h3>
+
+<p>The API key you use to access this endpoint must have the Master account scope assigned.  See <a href="#roles">Roles</a> for more information. You can also retrieve the clearing counterparty ID associated with the API key by posting a request to either the <a href="/rest-api/#roles-api">roles</a> or <a href="/rest-api/#get-accounts-in-master-group">account/list</a> endpoints. </p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/trades</code></p>
+
+<blockquote>
+<p>Sample clearing trades payload</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/clearing/trades"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"timestamp_nanos"</span><span class="p">:</span><span class="w"> </span><span class="mi">1630382206000000000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/clearing/trades&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer or <a href="#timestamps">timestamp</a></td>
+<td>The nonce, as described in <a href="#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>timestamp_nanos</td>
+<td><a href="#timestamps">timestamp</a></td>
+<td><em>Optional</em>.  Only return transfers on or after this timestamp in nanos.</td>
+</tr>
+<tr>
+<td>limit_per_account</td>
+<td>integer</td>
+<td><em>Optional</em>.  The maximum number of clearing trades to return.  The default is 100 and the maximum is 300.</td>
+</tr>
+<tr>
+<td>account</td>
+<td>string</td>
+<td><em>Optional</em>. Only required when using a master api-key.  The name of the account within the subaccount group. Master API keys can get all account names using the <a href="#get-accounts-in-master-group">Get Accounts endpoint</a>.  Only available for exchange accounts.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>JSON response - successful clearing trades</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"sourceAccount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"primary"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"targetAccount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"primary"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCUSD"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"sourceSide"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"clearingId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"41M23L5Q"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Settled"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"expirationTimeMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">1662567706120</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"createdMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">1662481306139</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"lastUpdatedMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">1662481561668</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"hasBroker"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"wasNotified"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"sourceAccount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"primary"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"targetAccount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"primary"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCUSD"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"sourceSide"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"clearingId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0EMOYLJ5"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AwaitTargetConfirm"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"expirationTimeMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">1662567728123</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"createdMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">1662481328126</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"lastUpdatedMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">1662481561415</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"hasBroker"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"wasNotified"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>The response will be an object containing clearing trades</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>sourceAccount</td>
+<td>string</td>
+<td>A account that corresponds with the counterparty sourcing the clearing trade.</td>
+</tr>
+<tr>
+<td>targetAccount</td>
+<td>string</td>
+<td>A account that corresponds with the counterparty where the clearing trade is targeted.</td>
+</tr>
+<tr>
+<td>pair</td>
+<td>string</td>
+<td>The trading pair of the clearing trade.</td>
+</tr>
+<tr>
+<td>sourceSide</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;. Always set.</td>
+</tr>
+<tr>
+<td>price</td>
+<td>string</td>
+<td>The price the clearing order was executed at.</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>string</td>
+<td>The amount that was executed.</td>
+</tr>
+<tr>
+<td>clearingId</td>
+<td>string</td>
+<td>The clearing ID.</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>A description of the status of the order given in the <code class="prettyprint">clearing_id</code> field. See <a href="#order-status-description">order status descriptions</a> for more information.</td>
+</tr>
+<tr>
+<td>expirationTimeMs</td>
+<td><a href="#timestamps">timestampms</a></td>
+<td>The time that the clearing trade expires.</td>
+</tr>
+<tr>
+<td>createdMs</td>
+<td><a href="#timestamps">timestampms</a></td>
+<td>The time that the clearing trade was created.</td>
+</tr>
+<tr>
+<td>lastUpdatedMs</td>
+<td><a href="#timestamps">timestampms</a></td>
+<td>The last time the clearing trade was updated.</td>
+</tr>
+<tr>
+<td>hasBroker</td>
+<td>boolean</td>
+<td>Broker trade.</td>
+</tr>
+<tr>
+<td>wasNotified</td>
+<td>boolean</td>
+<td>Broker was notified.</td>
+</tr>
+</tbody></table>
+
+          <h1 id="websockets">Websockets</h1>
+
+<p>Gemini Clearing orders will be available on the <a href="/websocket-api/#order-events">order events API</a> because clearing orders are not published to the exchange. All Gemini Clearing orders are cleared just between the initiating party and counterparty. </p>
+
+<p>The orders will only show up in <a href="/websocket-api/#order-events">order events stream</a> when the order is settled.</p>
+
+<p>The following python code sample will open a private websocket stream.</p>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">ssl</span>
+<span class="kn">import</span> <span class="nn">websocket</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_close</span><span class="p">(</span><span class="n">ws</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"### closed ###"</span><span class="p">)</span>
+
+<span class="n">gemini_api_key</span> <span class="o">=</span> <span class="s">"apikey"</span>
+<span class="n">gemini_api_secret</span> <span class="o">=</span> <span class="s">"apisecret"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s">"request"</span><span class="p">:</span> <span class="s">"/v1/order/events"</span><span class="p">,</span><span class="s">"nonce"</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()}</span>
+<span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">gemini_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+
+<span class="n">ws</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">WebSocketApp</span><span class="p">(</span><span class="s">"wss://api.gemini.com/v1/order/events"</span><span class="p">,</span>
+                            <span class="n">on_message</span><span class="o">=</span><span class="n">on_message</span><span class="p">,</span>
+                            <span class="n">header</span><span class="o">=</span><span class="p">{</span>
+                                <span class="s">'X-GEMINI-PAYLOAD'</span><span class="p">:</span> <span class="n">b64</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                <span class="s">'X-GEMINI-APIKEY'</span><span class="p">:</span> <span class="n">gemini_api_key</span><span class="p">,</span>
+                                <span class="s">'X-GEMINI-SIGNATURE'</span><span class="p">:</span> <span class="n">signature</span>
+                            <span class="p">})</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">run_forever</span><span class="p">(</span><span class="n">sslopt</span><span class="o">=</span><span class="p">{</span><span class="s">"cert_reqs"</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span><span class="p">})</span>
+</code></pre>
+
+<h3 id="sample-json-response-for-settled-clearing-order">Sample JSON response for settled Clearing Order</h3>
+
+<p>This clearing order was settled on the <a href="https://exchange.gemini.com/web/clearing">Web UI</a>. Please see <a href="/websocket-api/#common-fields">common fields</a> for more information on the expected fields.</p>
+<pre class="highlight json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fill"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"263424597"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"api_session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UI"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ltcusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"order_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exchange limit"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1565273156"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"timestampms"</span><span class="p">:</span><span class="w"> </span><span class="mi">1565273156891</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"is_live"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"is_cancelled"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"is_hidden"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"avg_execution_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90.00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"executed_amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15000"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"remaining_amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"original_amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15000"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90.00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"fill"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"trade_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"263424597"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"liquidity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GTS"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90.00"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15000"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"fee_currency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"socket_sequence"</span><span class="p">:</span><span class="w"> </span><span class="mi">87</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">type</code></td>
+<td>string <br><a href="/websocket-api/#event-types">order event type</a></td>
+<td><code class="prettyprint">fill</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">order_type</code></td>
+<td>string</td>
+<td>will always be <code class="prettyprint">exchange limit</code> for clearing orders</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fill.trade_id</code></td>
+<td>string</td>
+<td>the event id the order was filled at</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fill.liquidity</code></td>
+<td>string</td>
+<td>will return <code class="prettyprint">GTS</code> for clearing orders</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fill.price</code></td>
+<td>decimal</td>
+<td>the price the trade filled at</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fill.amount</code></td>
+<td>decimal</td>
+<td>the amount of the trade fill</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fill.fee</code></td>
+<td>decimal</td>
+<td>the fee associated with this side of the trade</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fill.fee_currency</code></td>
+<td>string</td>
+<td>the three-letter code of the currency associated with the fee</td>
+</tr>
+</tbody></table>
+
+          <h1 id="revision-history">Revision History</h1>
+
+<table><thead>
+<tr>
+<th>Date</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>2019/08/08</td>
+<td>Initial Gemini Clearing API Documentation</td>
+</tr>
+<tr>
+<td>2020/04/09</td>
+<td>Documentation for new token support: <code class="prettyprint">BAT</code>, <code class="prettyprint">DAI</code>, <code class="prettyprint">LINK</code>, <code class="prettyprint">OXT</code></td>
+</tr>
+<tr>
+<td>2020/08/28</td>
+<td>Removing <code class="prettyprint">DAIBTC</code>and <code class="prettyprint">DAIETH</code> trading pairs</td>
+</tr>
+<tr>
+<td>2020/09/11</td>
+<td>Documentation for new token support: <code class="prettyprint">AMP</code>, <code class="prettyprint">COMP</code>, <code class="prettyprint">PAXG</code></td>
+</tr>
+<tr>
+<td>2020/09/24</td>
+<td>Documentation for new token support: <code class="prettyprint">MKR</code>, <code class="prettyprint">ZRX</code>, <code class="prettyprint">KNC</code>, <code class="prettyprint">MANA</code>, <code class="prettyprint">STORJ</code>, <code class="prettyprint">SNX</code>, <code class="prettyprint">CRV</code>, <code class="prettyprint">BAL</code>, <code class="prettyprint">UNI</code>, <code class="prettyprint">REN</code>, <code class="prettyprint">UMA</code>, <code class="prettyprint">YFI</code></td>
+</tr>
+<tr>
+<td>2020/10/05</td>
+<td>Documentation for new order book support: <code class="prettyprint">BTCDAI</code> and <code class="prettyprint">ETHDAI</code></td>
+</tr>
+<tr>
+<td>2020/10/07</td>
+<td>Documentation for new token support: <code class="prettyprint">AAVE</code></td>
+</tr>
+<tr>
+<td>2020/10/14</td>
+<td>Documentation for new token support: <code class="prettyprint">FIL</code></td>
+</tr>
+<tr>
+<td>2020/10/26</td>
+<td>Documentation for new fiat support: <code class="prettyprint">GBP</code> and <code class="prettyprint">EUR</code></td>
+</tr>
+<tr>
+<td>2020/03/22</td>
+<td>Documentation for new token support: <code class="prettyprint">SKL</code>, <code class="prettyprint">GRT</code>, <code class="prettyprint">BNT</code>, <code class="prettyprint">1INCH</code>, <code class="prettyprint">ENJ</code>, <code class="prettyprint">LRC</code>, <code class="prettyprint">SAND</code></td>
+</tr>
+<tr>
+<td>2021/04/27</td>
+<td>Documentation for new token support: <code class="prettyprint">CUBE</code>, <code class="prettyprint">LPT</code>, <code class="prettyprint">BOND</code>, <code class="prettyprint">MATIC</code>, <code class="prettyprint">INJ</code>, <code class="prettyprint">SUSHI</code></td>
+</tr>
+<tr>
+<td>2021/05/05</td>
+<td>Documentation for new token support: <code class="prettyprint">DOGE</code></td>
+</tr>
+<tr>
+<td>2021/06/16</td>
+<td>Documentation for new token support: <code class="prettyprint">ALCX</code>, <code class="prettyprint">MIR</code>, <code class="prettyprint">FTM</code>, <code class="prettyprint">ANKR</code></td>
+</tr>
+<tr>
+<td>2021/07/14</td>
+<td>Documentation for new token support: <code class="prettyprint">CTX</code></td>
+</tr>
+<tr>
+<td>2021/07/21</td>
+<td>Documentation for new token support: <code class="prettyprint">XTZ</code></td>
+</tr>
+<tr>
+<td>2021/09/15</td>
+<td>Documentation for new token support: <code class="prettyprint">AXS</code>, <code class="prettyprint">SLP</code>, <code class="prettyprint">LUNA</code>, <code class="prettyprint">UST</code>, <code class="prettyprint">MCO2</code></td>
+</tr>
+<tr>
+<td>2021/11/13</td>
+<td>Documentation for new token support: <code class="prettyprint">WCFG</code>, <code class="prettyprint">RARE</code>, <code class="prettyprint">RAD</code>, <code class="prettyprint">QNT</code>, <code class="prettyprint">NMR</code>, <code class="prettyprint">MASK</code>, <code class="prettyprint">FET</code>, <code class="prettyprint">ASH</code>, <code class="prettyprint">AUDIO</code>, <code class="prettyprint">API3</code>, <code class="prettyprint">USDC</code>, <code class="prettyprint">SHIB</code></td>
+</tr>
+<tr>
+<td>2021/12/20</td>
+<td>Documentation for new token support: <code class="prettyprint">RNDR</code>, <code class="prettyprint">MC</code>, <code class="prettyprint">GALA</code>, <code class="prettyprint">ENS</code>, <code class="prettyprint">KP3R</code>, <code class="prettyprint">CVC</code>, <code class="prettyprint">ELON</code>, <code class="prettyprint">MIM</code>, <code class="prettyprint">SPELL</code></td>
+</tr>
+<tr>
+<td>2022/02/01</td>
+<td>Documentation for new token support: <code class="prettyprint">TOKE</code>, <code class="prettyprint">LDO</code>, <code class="prettyprint">RLY</code></td>
+</tr>
+<tr>
+<td>2022/02/28</td>
+<td>Documentation for new token support: <code class="prettyprint">SOL</code></td>
+</tr>
+<tr>
+<td>2022/03/01</td>
+<td>Documentation for new token support: <code class="prettyprint">RAY</code>, <code class="prettyprint">SBR</code></td>
+</tr>
+<tr>
+<td>2022/03/16</td>
+<td>Documentation for new token support: <code class="prettyprint">APE</code></td>
+</tr>
+<tr>
+<td>2022/03/29</td>
+<td>Documentation for new token support: <code class="prettyprint">RBN</code>, <code class="prettyprint">FXS</code>, <code class="prettyprint">DPI</code>, <code class="prettyprint">LQTY</code>, <code class="prettyprint">LUSD</code>, <code class="prettyprint">FRAX</code>, <code class="prettyprint">INDEX</code>, <code class="prettyprint">MPL</code></td>
+</tr>
+<tr>
+<td>2022/04/26</td>
+<td>Documentation for new token support: <code class="prettyprint">GUSDSGD</code></td>
+</tr>
+<tr>
+<td>2022/04/27</td>
+<td>Documentation for new token support: <code class="prettyprint">METIS</code>, <code class="prettyprint">QRDO</code>, <code class="prettyprint">ZBC</code>, <code class="prettyprint">CHZ</code>, <code class="prettyprint">REVV</code>, <code class="prettyprint">JAM</code>, <code class="prettyprint">FIDA</code>, <code class="prettyprint">GMT</code></td>
+</tr>
+<tr>
+<td>2022/05/17</td>
+<td>Documentation for new token support: <code class="prettyprint">GFI</code>, <code class="prettyprint">ORCA</code></td>
+</tr>
+<tr>
+<td>2022/05/18</td>
+<td><strong>New Feature</strong> Documentation for <a href="#clearing-order-list">Clearing Order List</a> and <a href="#clearing-broker-list">Clearing Broker List</a></td>
+</tr>
+<tr>
+<td>2022/06/14</td>
+<td>Documentation for new token support: <code class="prettyprint">ALI</code>, <code class="prettyprint">TRU</code></td>
+</tr>
+<tr>
+<td>2022/06/22</td>
+<td>Documentation for new token support: <code class="prettyprint">GUSDGBP</code></td>
+</tr>
+<tr>
+<td>2022/07/06</td>
+<td>Documentation for new token support: <code class="prettyprint">DOT</code>, <code class="prettyprint">ERN</code></td>
+</tr>
+<tr>
+<td>2022/08/01</td>
+<td>Documentation for new token support: <code class="prettyprint">GAL</code>, <code class="prettyprint">EUL</code>, <code class="prettyprint">SAMO</code></td>
+</tr>
+<tr>
+<td>2022/08/23</td>
+<td>Documentation for new token support: <code class="prettyprint">BICO</code>, <code class="prettyprint">IMX</code>, <code class="prettyprint">PLA</code>, <code class="prettyprint">IOTX</code></td>
+</tr>
+<tr>
+<td>2022/09/07</td>
+<td>Documentation for new token support: <code class="prettyprint">BUSD</code></td>
+</tr>
+<tr>
+<td>2022/10/11</td>
+<td>Documentation for new token support: <code class="prettyprint">AVAX</code></td>
+</tr>
+<tr>
+<td>2023/01/10</td>
+<td>Documentation for new token support: <code class="prettyprint">ATOM</code>, <code class="prettyprint">USDT</code></td>
+</tr>
+<tr>
+<td>2023/08/04</td>
+<td>Documentation for token delist: <code class="prettyprint">ENJ</code></td>
+</tr>
+<tr>
+<td>2023/08/10</td>
+<td>Documentation for new token support: <code class="prettyprint">XRP</code></td>
+</tr>
+<tr>
+<td>2023/09/11</td>
+<td>Documentation for new token support: <code class="prettyprint">HNT</code></td>
+</tr>
+<tr>
+<td>2023/09/18</td>
+<td>Removed Documentation for new token support: <code class="prettyprint">MPL</code>, <code class="prettyprint">MC</code>, <code class="prettyprint">METIS</code>, <code class="prettyprint">RBN</code>, <code class="prettyprint">GFI</code>, <code class="prettyprint">LQTY</code>, and <code class="prettyprint">LUSD</code></td>
+</tr>
+<tr>
+<td>2023/11/15</td>
+<td>Remove Documentation for delisted token: <code class="prettyprint">MIR</code>, <code class="prettyprint">UST</code>, <code class="prettyprint">FXS</code>, <code class="prettyprint">FRAX</code>, <code class="prettyprint">BUSD</code></td>
+</tr>
+<tr>
+<td>2024/04/23</td>
+<td>Remove Documentation for delisted token: <code class="prettyprint">ZEC</code></td>
+</tr>
+<tr>
+<td>2024/05/05</td>
+<td>Remove Documentation for delisted token: <code class="prettyprint">OXT-BTC</code>,<code class="prettyprint">OXT-ETH</code>,<code class="prettyprint">BAT-BTC</code>,<code class="prettyprint">BAT-ETH</code>, <code class="prettyprint">BTC-DAI</code>, <code class="prettyprint">ETH-DAI</code></td>
+</tr>
+</tbody></table>
+
+          <ul style="list-style-type: none; padding-left: 28px;">
+    <li>Trust is Our Product™</li>
+    <li>For trademarks and patents, please see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+    <li>NMLS #1518126</li>
+    <li>© Copyright 2022 Gemini Trust Company, LLC.</li>
+</ul>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

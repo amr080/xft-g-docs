@@ -1,0 +1,831 @@
+<!doctype html>
+<html>
+  <head>
+
+<!--
+This was built with https://github.com/lord/slate
+
+© Copyright 2021 Gemini Trust Company, LLC.
+ -->
+
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Gemini OAuth API Reference</title>
+
+    <link href="../stylesheets/screen-5619571e.css" rel="stylesheet" media="screen" />
+    <link href="../stylesheets/print-f82aaaf9.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7630154/729946/css/fonts.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="../javascripts/all-967b56e5.js"></script>
+
+      <script>
+        $(function() {
+          setupLanguages(["python","shell"]);
+        });
+      </script>
+  </head>
+
+  <body class="oauth oauth_index" data-languages="[&quot;python&quot;,&quot;shell&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="../images/navbar-cad8cdcb.png" alt="" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <a id="logo" href="https://gemini.com"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
+        <div class="lang-selector">
+              <a href="#" data-language-name="python">python</a>
+              <a href="#" data-language-name="shell">shell</a>
+        </div>
+
+      <div id="menu">
+        <p id="sandbox-message">You are viewing the Gemini sandbox documentation</p>
+        <div class="nav-label">Select an API Document:</div>
+        <ul>
+          <li id="gemini-clearing"><a href="/gemini-clearing/" >Gemini Clearing™</a></li>
+          <li id="rest"><a href="/rest-api/" >REST</a></li>
+          <li id="oauth"><a href="/oauth/" >OAuth</a></li>
+          <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
+          <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
+          <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
+          <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
+          <li id="instant"><a href="/instant/" >Gemini Instant</a></li>
+        </ul>
+      </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li>Trust is Our Product™</li>
+            <li>For trademarks and patents, please <br> see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+            <li>NMLS <span>#1518126</span></li>
+            <li>© Copyright 2022 Gemini Trust <br> Company, LLC.</li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        
+          <h1 id="oauth-2-0">OAuth 2.0</h1>
+
+<p>In addition to the API key methods described in <a href="/rest-api/#private-api-invocation">private APIs</a>, Gemini supports OAuth 2.0 flows and adheres to the <a href="https://oauth.net/2/">OAuth 2.0 Standards</a>. Both authorization code and implicit OAuth flows are supported, however use of authorization code flows is strongly recommended for most use cases because of enhanced security and the ability to support features such as refresh tokens.</p>
+
+<p>The first step in using Gemini OAuth is to create a new OAuth application which you can do via <a href="https://exchange.gemini.com/settings/api">API Settings</a>. You will be asked for some basic information including a name, description, background information, logo, and the <a href="#oauth-scopes">scopes</a> that you are requesting access to. We will provide you a <code class="prettyprint">client_id</code> and a <code class="prettyprint">client_secret</code> which are used to identify and secure your app.</p>
+
+<p>Once your app is registered it will be reviewed by Gemini, and then set live for use. You may also follow the same process in our <a href="https://exchange.sandbox.gemini.com/settings/api">Sandbox Environment</a> to build a test integration.</p>
+
+<p>Please email <a href="mailto:trading@gemini.com">trading@gemini.com</a> with any questions. We will provide you a <code class="prettyprint">client_id</code> and a <code class="prettyprint">client_secret</code>. Your <code class="prettyprint">client_id</code> will be used in all your requests to identify your app, and <code class="prettyprint">client_secret</code> must be sent in all POST requests</p>
+
+<p>Instead of API Keys OAuth 2.0 uses access tokens and, if using the authorization code grant flow, refresh tokens. Access tokens are short-lived (24 hour expiration) and are used in Gemini API calls while refresh tokens don&#39;t expire and are used solely to generate new access tokens.</p>
+
+          <h2 id="authorization-code-grant-flow">Authorization Code Grant Flow</h2>
+
+<p>The OAuth 2.0 authorization code grant flow involves the user being directed to an authorization server which returns an authorization code that may then be exchanged for access and refresh tokens. Access tokens are short-lived (24 hour expiration) and are used as authentication against Gemini APIs, while refresh tokens never expire and are used to regenerate access tokens.</p>
+
+<h3 id="authorization-request">Authorization Request</h3>
+
+<p>Users should first be redirected to Gemini to authorize access to your application. The user will be prompted to login using a Gemini OAuth window.</p>
+
+<p><code class="prettyprint">GET https://exchange.gemini.com/auth</code></p>
+
+<blockquote>
+<p>Example authorization request:</p>
+</blockquote>
+
+<p><code class="prettyprint">GET https://exchange.gemini.com/auth?client_id=my_id&amp;response_type=code&amp;redirect_uri=www.example.com/redirect&amp;state=82350325&amp;scope=balances:read,orders:create</code></p>
+
+<h3 id="url-parameters">URL Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>client_id</td>
+<td>string</td>
+<td>Unique id of your application. This is provided in your <a href="https://exchange.gemini.com/settings/api">API settings</a></td>
+</tr>
+<tr>
+<td>response_type</td>
+<td>string</td>
+<td>The literal string &quot;code&quot;</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>string</td>
+<td>The URL users should be returned to when they authorize. Note, this URL must be included in your list of approved redirect_uris in your app registration</td>
+</tr>
+<tr>
+<td>state</td>
+<td>string</td>
+<td>A random string that will be returned to you in the response.</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>string</td>
+<td>A comma separated list of <a href="#oauth-scopes">scopes</a> corresponding to the access you&#39;re requesting for your application. Note, these scopes must be included in your list of scopes in your app registration</td>
+</tr>
+</tbody></table>
+
+<h3 id="authorization-response">Authorization Response</h3>
+
+<blockquote>
+<p>Example <code class="prettyprint">redirect_uri</code> response after user login</p>
+</blockquote>
+
+<p><code class="prettyprint">https://www.example.com/redirect?code=90123465-86ee-44ef-b4e3-835cc89bc8a3&amp;state=82350325
+</code></p>
+
+<p>On successful authorization Gemini will redirect your user to the <code class="prettyprint">redirect_uri</code> you supplied with additional parameters <code class="prettyprint">code</code> and <code class="prettyprint">state</code>. The parameter <code class="prettyprint">state</code> should match the <code class="prettyprint">state</code> you provided, otherwise you should not trust the response. <code class="prettyprint">code</code> is a temporary code which you will then use to obtain access and refresh tokens.</p>
+
+<h3 id="token-request">Token Request</h3>
+
+<p>Once you have received a <code class="prettyprint">code</code> you can exchange it for access and refresh tokens.</p>
+
+<p><code class="prettyprint">POST https://exchange.gemini.com/auth/token</code></p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>client_id</td>
+<td>string</td>
+<td>Unique id of your application. This is provided in your <a href="https://exchange.gemini.com/settings/api">API settings</a></td>
+</tr>
+<tr>
+<td>client_secret</td>
+<td>string</td>
+<td>Secret of your application. This is provided when you first register an app in <a href="https://exchange.gemini.com/settings/api">API settings</a></td>
+</tr>
+<tr>
+<td>code</td>
+<td>string</td>
+<td>The code you received from the authorization request</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>string</td>
+<td>This must match the <code class="prettyprint">redirect_uri</code> provided in the authorization request</td>
+</tr>
+<tr>
+<td>grant_type</td>
+<td>string</td>
+<td>The literal string &quot;authorization_code&quot;</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Example Token Request</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my_id"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"client_secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my_secret"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90123465-86ee-44ef-b4e3-835cc89bc8a3"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"www.example.com/redirect"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"grant_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"authorization_code"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="token-response">Token Response</h3>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>access_token</td>
+<td>string</td>
+<td>A short-lived token to use in API call authentication. Is valid until the <code class="prettyprint">expires_in</code> time reaches 0</td>
+</tr>
+<tr>
+<td>refresh_token</td>
+<td>string</td>
+<td>A refresh token to be used to generate new access tokens</td>
+</tr>
+<tr>
+<td>token_type</td>
+<td>string</td>
+<td>The literal string &quot;bearer&quot;</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>string</td>
+<td>The <a href="#oauth-scopes">scopes</a> the access token will have access to</td>
+</tr>
+<tr>
+<td>expires_in</td>
+<td>integer</td>
+<td>The lifetime in seconds of the access token, as measured in seconds from the current time</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Example Token Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d9af2411-3e85-41bb-89f4-cf53750f04df"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"215c5a89-6df7-457b-ba0b-70695da8c91f"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"balances:read,orders:create"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">86399</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+          <h2 id="using-refresh-tokens">Using Refresh Tokens</h2>
+
+<p>The access token you receive will be relatively short-lived (default 24 hours). Once an access token has expired you can use your refresh token to generate a new access token. Refresh tokens never expire, however they are one-time use only as your request for a new access token will also return a new refresh token.</p>
+
+<p>Getting a new access token is similar to getting the initial access and refresh tokens with slightly different parameters</p>
+
+<h3 id="token-request">Token Request</h3>
+
+<p><code class="prettyprint">POST https://exchange.gemini.com/auth/token</code></p>
+
+<blockquote>
+<p>Example Token Request</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my_id"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"client_secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my_secret"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"215c5a89-6df7-457b-ba0b-70695da8c91f"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"grant_type"</span><span class="p">:</span><span class="s2">"refresh_token"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>client_id</td>
+<td>string</td>
+<td>Unique id of your application</td>
+</tr>
+<tr>
+<td>client_secret</td>
+<td>string</td>
+<td>Secret of your application. This is provided when you first register an app in [API settings][API Settings]</td>
+</tr>
+<tr>
+<td>refresh_token</td>
+<td>string</td>
+<td>Your refresh token</td>
+</tr>
+<tr>
+<td>grant_type</td>
+<td>string</td>
+<td>The literal string &quot;refresh_token&quot;</td>
+</tr>
+</tbody></table>
+
+<h3 id="token-response">Token Response</h3>
+
+<p>The response is the same as the initial token response – it will contain a new access token to query APIs and a new refresh token for when the access token expires.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>access_token</td>
+<td>string</td>
+<td>A short-lived token to use in API call authentication</td>
+</tr>
+<tr>
+<td>refresh_token</td>
+<td>string</td>
+<td>A refresh token to be used to generate new access tokens</td>
+</tr>
+<tr>
+<td>token_type</td>
+<td>string</td>
+<td>The literal string &quot;bearer&quot;</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>string</td>
+<td>The <a href="#oauth-scopes">scopes</a> the access token will have access to</td>
+</tr>
+<tr>
+<td>expires_in</td>
+<td>integer</td>
+<td>The lifetime in seconds of the access token, as measured in seconds from the current time</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Example Token Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c5e9459d-dc6f-4567-bce4-050ec965f22e"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">86399</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"balances:read,orders:create"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ce0f14af-74dd-4767-a4e7-286e98b944c1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+          <h2 id="implicit-grant-flow">Implicit Grant Flow</h2>
+
+<p>In addition to the authorization code flow, Gemini also supports the OAuth 2.0 implicit grant flow. This is a simplified version of the authorization code flow and is not recommended for most applications. This OAuth flow is not available by default, please reach out to <a href="mailto:trading@gemini.com">trading@gemini.com</a> to request access to the implicit grant flow.</p>
+
+<p>When the <code class="prettyprint">access_token</code> expires you must request a new one using either the implicit flow or authorization code flow.</p>
+
+<p>Send request to following URL with URL parameters</p>
+
+<p><code class="prettyprint">GET https://exchange.gemini.com/auth</code></p>
+
+<blockquote>
+<p>First direct users to Gemini like the example below</p>
+</blockquote>
+
+<p><code class="prettyprint">
+GET https://exchange.gemini.com/auth?response_type=token&amp;client_id=my_id&amp;redirect_uri=https://example.com/redirect?scope=Trader&amp;state=7j87
+</code></p>
+
+<h3 id="url-parameters">URL Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>response_type</td>
+<td>string</td>
+<td>The literal string &quot;token&quot;</td>
+</tr>
+<tr>
+<td>client_id</td>
+<td>string</td>
+<td>Unique id of your application. This is provided in your <a href="https://exchange.gemini.com/settings/api">API settings</a></td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>string</td>
+<td>The URL users should be returned to when they authorize. Note, this URL must be included in your list of approved redirect_uris in your app registration</td>
+</tr>
+<tr>
+<td>state</td>
+<td>string</td>
+<td>A random string that will be returned to you in the response.</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>string</td>
+<td>A comma separated list of <a href="#oauth-scopes">scopes</a> corresponding to the access you&#39;re requesting for your application. Note, these scopes must be included in your list of scopes in your app registration</td>
+</tr>
+</tbody></table>
+
+<p>Users will then be sent to Gemini login with their credentials. Once they do they will be sent to the <code class="prettyprint">redirect_uri</code> provided.</p>
+
+<h3 id="authorization-response-url-parameters">Authorization Response (URL Parameters)</h3>
+
+<blockquote>
+<p>Example <code class="prettyprint">redirect_uri</code> response after user login</p>
+</blockquote>
+
+<p><code class="prettyprint">
+https://example.com/redirect#access_token=3b7661f0-f156-498a-ad17-0fa4025ec907&amp;state=7j87&amp;token_type=bearer&amp;scope=Trader&amp;expires_in=83534
+</code></p>
+
+<p>On successful authorization Gemini will redirect your user to the <code class="prettyprint">redirect_uri</code> you supplied with additional parameters <code class="prettyprint">code</code> and <code class="prettyprint">state</code>. The parameter <code class="prettyprint">state</code> should match the <code class="prettyprint">state</code> you provided, otherwise you should not trust the response. <code class="prettyprint">access_token</code> is the access token which you will use to make API calls on behalf of the user.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>access_token</td>
+<td>string</td>
+<td>A short-lived token to use in API call authentication. Is valid until the <code class="prettyprint">expires_in</code> time reaches 0</td>
+</tr>
+<tr>
+<td>token_type</td>
+<td>string</td>
+<td>The literal string &quot;bearer&quot;</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>string</td>
+<td>The <a href="#oauth-scopes">scopes</a> the access token will have access to</td>
+</tr>
+<tr>
+<td>expires_in</td>
+<td>integer</td>
+<td>The lifetime in seconds of the access token, as measured in seconds from the current time</td>
+</tr>
+</tbody></table>
+
+          <h2 id="using-access-tokens">Using Access Tokens</h2>
+
+<p>Once you have an access token you can use it to call any Gemini API.</p>
+
+<p>Most of the examples for the private APIs in these docs make use of API keys and <a href="#private-api-invocation">corresponding headers</a>, to use an access token simply update your header:</p>
+
+<table><thead>
+<tr>
+<th>Header</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Authorization</td>
+<td>The literal string &quot;Bearer &quot; concatenated to your temporary <code class="prettyprint">access_token</code></td>
+</tr>
+<tr>
+<td>X-GEMINI-PAYLOAD</td>
+<td>The base64-encoded JSON payload (the payloads on OAuth do not require a nonce)</td>
+</tr>
+</tbody></table>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1/mytrades"</span>
+<span class="n">access_token</span> <span class="o">=</span> <span class="s">"Bearer d9af2411-3e85-41bb-89f4-cf53750f04df"</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"request"</span><span class="p">:</span> <span class="s">"/v1/mytrades"</span><span class="p">,</span>
+    <span class="s">"symbol"</span><span class="p">:</span> <span class="s">"btcusd"</span>
+<span class="p">}</span>
+<span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
+
+<span class="n">request_headers</span> <span class="o">=</span> <span class="p">{</span> 
+    <span class="s">"Authorization"</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
+    <span class="s">"X-GEMINI-PAYLOAD"</span><span class="p">:</span> <span class="n">b64</span>
+<span class="p">}</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                        <span class="n">headers</span><span class="o">=</span><span class="n">request_headers</span><span class="p">,</span>
+                        <span class="n">verify</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">my_trades</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</code></pre>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl -X POST https://api.gemini.com/v1/mytrades <span class="se">\ </span>
+-H <span class="s1">'Authorization: Bearer d9af2411-3e85-41bb-89f4-cf53750f04df'</span> <span class="se">\</span>
+-H <span class="s1">'X-GEMINI-PAYLOAD: eyJyZXF1ZXN0IjogIi92MS9teXRyYWRlcyIsICJzeW1ib2wiOiAiYnRjdXNkIn0='</span>
+</code></pre>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1/orders/history"</span>
+<span class="n">access_token</span> <span class="o">=</span> <span class="s">"Bearer d9af2411-3e85-41bb-89f4-cf53750f04df"</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"request"</span><span class="p">:</span> <span class="s">"/v1/orders/history"</span><span class="p">,</span>
+    <span class="s">"symbol"</span><span class="p">:</span> <span class="s">"btcusd"</span>
+<span class="p">}</span>
+<span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
+
+<span class="n">request_headers</span> <span class="o">=</span> <span class="p">{</span> 
+    <span class="s">"Authorization"</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
+    <span class="s">"X-GEMINI-PAYLOAD"</span><span class="p">:</span> <span class="n">b64</span>
+<span class="p">}</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                        <span class="n">headers</span><span class="o">=</span><span class="n">request_headers</span><span class="p">,</span>
+                        <span class="n">verify</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">my_orders</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</code></pre>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl -X POST https://api.gemini.com/v1/orders/history <span class="se">\ </span>
+-H <span class="s1">'Authorization: Bearer d9af2411-3e85-41bb-89f4-cf53750f04df'</span> <span class="se">\</span>
+-H <span class="s1">'X-GEMINI-PAYLOAD: eyJyZXF1ZXN0IjogIi92MS9teXRyYWRlcyIsICJzeW1ib2wiOiAiYnRjdXNkIn0='</span>
+</code></pre>
+
+          <h2 id="oauth-scopes">OAuth Scopes</h2>
+
+<p>Gemini uses a role-based system for its API. All OAuth applications are limited to the scopes in the following chart:</p>
+
+<table><thead>
+<tr>
+<th>Endpoint</th>
+<th>URI</th>
+<th>Scope</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="/rest-api/#get-deposit-addresses">Get Deposit Addresses</a></td>
+<td><code class="prettyprint">/v1/addresses/:network</code></td>
+<td>addresses:read, addresses:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#new-deposit-address">New Deposit Address</a></td>
+<td><code class="prettyprint">/v1/deposit/:network/newAddress</code></td>
+<td>addresses:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#create-an-address-request">Create Approved Address</a></td>
+<td><code class="prettyprint">/v1/approvedAddresses/:network/request</code></td>
+<td>addresses:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#view-approved-addresses">View Approved Address List</a></td>
+<td><code class="prettyprint">/v1/approvedAddresses/account/:network</code></td>
+<td>addresses:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#remove-addresses-from-approved-address-list">Remove Address from Approved Address List</a></td>
+<td><code class="prettyprint">/v1/approvedAddresses/:network/remove</code></td>
+<td>addresses:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-available-balances">Get Available Balances</a></td>
+<td><code class="prettyprint">/v1/balances</code></td>
+<td>balances:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-notional-balances">Get Notional Balances</a></td>
+<td><code class="prettyprint">v1/notionalbalances/:currency</code></td>
+<td>balances:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-earn-balances">Get Earn Balances</a></td>
+<td><code class="prettyprint">/v1/balances/earn</code></td>
+<td>earn:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-earn-rates">Get Earn Rates</a></td>
+<td><code class="prettyprint">/v1/earn/rates</code></td>
+<td>earn:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-earn-interest">Get Earn Interest</a></td>
+<td><code class="prettyprint">/v1/earn/interest</code></td>
+<td>earn:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-earn-history">Get Earn History</a></td>
+<td><code class="prettyprint">/v1/earn/history</code></td>
+<td>earn:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#add-bank">Add A Bank</a></td>
+<td><code class="prettyprint">/v1/payments/addbank</code></td>
+<td>banks:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#add-a-bank-cad">Add A Bank CAD</a></td>
+<td><code class="prettyprint">/v1/payments/addbank/cad</code></td>
+<td>banks:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#payment-methods">View Payment Methods</a></td>
+<td><code class="prettyprint">/v1/payments/methods</code></td>
+<td>banks:read, banks:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#new-clearing-order">New Clearing Order</a></td>
+<td><code class="prettyprint">/v1/clearing/new</code></td>
+<td>clearing:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#cancel-clearing-order">Cancel Clearing Order</a></td>
+<td><code class="prettyprint">/v1/clearing/cancel</code></td>
+<td>clearing:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#confirm-clearing-order">Confirm Clearing Order</a></td>
+<td><code class="prettyprint">/v1/clearing/confirm</code></td>
+<td>clearing:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#clearing-order-status">Clearing Order Status</a></td>
+<td><code class="prettyprint">/v1/clearing/status</code></td>
+<td>clearing:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#clearing-order-list">Clearing Order List</a></td>
+<td><code class="prettyprint">/v1/clearing/list</code></td>
+<td>clearing:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#clearing-broker-list">Clearing Broker List</a></td>
+<td><code class="prettyprint">/v1/clearing/broker/list</code></td>
+<td>clearing:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#clearing-trades">Clearing Trades</a></td>
+<td><code class="prettyprint">/v1/clearing/trades</code></td>
+<td>clearing:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#withdraw-crypto-funds">Withdraw Crypto Funds</a></td>
+<td><code class="prettyprint">/v1/withdraw/:currency</code></td>
+<td>crypto:send</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-past-trades">Get Past Trades</a></td>
+<td><code class="prettyprint">/v1/mytrades</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-orders-history">Get Orders History</a></td>
+<td><code class="prettyprint">/v1/orders/history</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-notional-volume">Get Notional Volume</a></td>
+<td><code class="prettyprint">/v1/notionalvolume</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-trade-volume">Get Trade Volume</a></td>
+<td><code class="prettyprint">/v1/tradevolume</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#transfers">Transfers</a></td>
+<td><code class="prettyprint">/v1/transfers</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#transactions">Transactions</a></td>
+<td><code class="prettyprint">/v1/transactions</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#custody-account-fees">Custody Account Fees</a></td>
+<td><code class="prettyprint">/v1/custodyaccountfees</code></td>
+<td>history:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#new-order">New Order</a></td>
+<td><code class="prettyprint">/v1/order/new</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#cancel-order">Cancel Order</a></td>
+<td><code class="prettyprint">/v1/order/cancel</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#cancel-all-session-orders">Cancel All Session Orders</a></td>
+<td><code class="prettyprint">/v1/order/cancel/session</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#cancel-all-active-orders">Cancel All Active Orders</a></td>
+<td><code class="prettyprint">/v1/order/cancel/all</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#wrap-order">Wrap Order</a></td>
+<td><code class="prettyprint">/v1/wrap/:symbol</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/instant/#gemini-instant-quote">Get Instant Quote</a></td>
+<td><code class="prettyprint">/v1/instant/quote/:side/:symbol</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/instant/#gemini-instant-execution">Execute Instant Order</a></td>
+<td><code class="prettyprint">/v1/instant/execute</code></td>
+<td>orders:create</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#order-status">Order Status</a></td>
+<td><code class="prettyprint">/v1/order/status</code></td>
+<td>orders:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#get-active-orders">Get Active Orders</a></td>
+<td><code class="prettyprint">/v1/orders</code></td>
+<td>orders:read</td>
+</tr>
+<tr>
+<td><a href="/rest-api/#account-detail">Account Detail</a></td>
+<td><code class="prettyprint">/v1/account</code></td>
+<td>account:read</td>
+</tr>
+</tbody></table>
+
+<p>API keys use different roles for to access Gemini APIs. Please see <a href="/rest-api/#roles">roles</a> for descriptions of each role and scope for API keys.</p>
+
+          <h2 id="revoke-oauth-token">Revoke OAuth Token</h2>
+
+<p>The <code class="prettyprint">access_token</code> may be revoked at any time by using <code class="prettyprint">v1/oauth/revokeByToken</code>. Once a token is revoked or expires, it can no longer be used to make requests.</p>
+
+<p>This endpoint is only available using an <code class="prettyprint">access_token</code> and will revoke the token used to make the request.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/oauth/revokeByToken</code></p>
+
+<h3 id="parameters">Parameters</h3>
+
+<p>No fields are expected in this request, other than the request name.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/oauth/revokeByToken&quot;</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Sample payload
+<code class="prettyprint">json
+{
+    &quot;request&quot;: &quot;/v1/oauth/revokeByToken&quot;
+}
+</code></p>
+</blockquote>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl -X POST https://api.gemini.com/v1/oauth/revokeByToken <span class="se">\ </span>
+-H <span class="s1">'Authorization: Bearer d9af2411-3e85-41bb-89f4-cf53750f04df'</span> <span class="se">\</span>
+-H <span class="s1">'X-GEMINI-PAYLOAD: eyJyZXF1ZXN0IjogIi92MS9vYXV0aC9yZXZva2VCeVRva2VuIn0='</span>
+</code></pre>
+
+<h3 id="response">Response</h3>
+
+<p>An array that indicates the <code class="prettyprint">access_token</code> has been revoked.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>A message that indicates the token has been revoked for the account</td>
+</tr>
+</tbody></table>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OAuth tokens and codes have been revoked for 00000000-0000-0000-0000-000000000000 on your account."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+          <h1 id="revision-history">Revision History</h1>
+
+<table><thead>
+<tr>
+<th>Date</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>2020/08/20</td>
+<td>Initial OAuth documentation</td>
+</tr>
+</tbody></table>
+
+          <ul style="list-style-type: none; padding-left: 28px;">
+    <li>Trust is Our Product™</li>
+    <li>For trademarks and patents, please see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+    <li>NMLS #1518126</li>
+    <li>© Copyright 2022 Gemini Trust Company, LLC.</li>
+</ul>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="python">python</a>
+                <a href="#" data-language-name="shell">shell</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

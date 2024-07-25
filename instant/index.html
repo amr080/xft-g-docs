@@ -1,0 +1,1336 @@
+<!doctype html>
+<html>
+  <head>
+
+<!--
+This was built with https://github.com/lord/slate
+
+© Copyright 2021 Gemini Trust Company, LLC.
+ -->
+
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Gemini Instant API Reference</title>
+
+    <link href="../stylesheets/screen-5619571e.css" rel="stylesheet" media="screen" />
+    <link href="../stylesheets/print-f82aaaf9.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7630154/729946/css/fonts.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="../javascripts/all-967b56e5.js"></script>
+
+      <script>
+        $(function() {
+          setupLanguages(["python","shell"]);
+        });
+      </script>
+  </head>
+
+  <body class="instant instant_index" data-languages="[&quot;python&quot;,&quot;shell&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="../images/navbar-cad8cdcb.png" alt="" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <a id="logo" href="https://gemini.com"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
+        <div class="lang-selector">
+              <a href="#" data-language-name="python">python</a>
+              <a href="#" data-language-name="shell">shell</a>
+        </div>
+
+      <div id="menu">
+        <p id="sandbox-message">You are viewing the Gemini sandbox documentation</p>
+        <div class="nav-label">Select an API Document:</div>
+        <ul>
+          <li id="gemini-clearing"><a href="/gemini-clearing/" >Gemini Clearing™</a></li>
+          <li id="rest"><a href="/rest-api/" >REST</a></li>
+          <li id="oauth"><a href="/oauth/" >OAuth</a></li>
+          <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
+          <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
+          <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
+          <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
+          <li id="instant"><a href="/instant/" >Gemini Instant</a></li>
+        </ul>
+      </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li>Trust is Our Product™</li>
+            <li>For trademarks and patents, please <br> see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+            <li>NMLS <span>#1518126</span></li>
+            <li>© Copyright 2022 Gemini Trust <br> Company, LLC.</li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        
+          <h1 id="gemini-instant">Gemini Instant</h1>
+
+<p>Gemini Instant is an order manager that guarantees execution of market orders and powers orders placed on the Gemini Mobile App and Web Interface. Gemini Instant orders are not available for all pairs and is intended to simplify the buying and selling experience.  </p>
+
+<p>NOTE: Trades made via the Instant API are subject to the <a href="https://www.gemini.com/fees/mobile-fee-schedule">Mobile Fee Schedule.</a></p>
+
+<h2 id="workflow">Workflow</h2>
+
+<p>The Gemini Instant workflow is as follows</p>
+
+<ol>
+<li>Request quote price for supported symbol from <a href="#gemini-instant-quote">v1/instant/quote</a>. The request must include <code class="prettyprint">totalSpend</code>, <code class="prettyprint">side</code> and<code class="prettyprint">symbol</code> for the order. The <code class="prettyprint">totalSpend</code> will be in the base currency (<code class="prettyprint">CCY2</code>) for buy orders and the top currency (<code class="prettyprint">CCY1</code>) for sell orders. The <code class="prettyprint">totalSpendCurrency</code> will be returned in the response from both <a href="#gemini-instant-quote">v1/instant/quote</a> and <a href="#gemini-instant-execute">v1/instant/execute</a>.</li>
+<li><a href="#gemini-instant-quote">v1/instant/quote</a> will return a <code class="prettyprint">price</code>, <code class="prettyprint">quoteId</code> and <code class="prettyprint">maxAgeMs</code> that indicates the total milliseconds until the quote expires. The endpoint will also return the quantity of currency to be received as well as the fee for the order.</li>
+<li>Request execution from <a href="#gemini-instant-execute">v1/instant/execute</a> by passing in the <code class="prettyprint">quoteId</code> and other required parameters before the quote expires.</li>
+<li>The response will confirm that the order has been executed and will return order details.</li>
+</ol>
+
+          <h2 id="gemini-instant-quote">Gemini Instant Quote</h2>
+
+<h3 id="roles">Roles</h3>
+
+<p>The API key you use to access this endpoint must have the Trader role assigned.  See <a href="#roles">Roles</a> for more information.</p>
+
+<p>The OAuth scope must have <code class="prettyprint">orders:create</code> assigned to access this endpoint.  See <a href="/oauth/#oauth-scopes">OAuth Scopes</a> for more information.</p>
+
+<blockquote>
+<p>Sample Quote Request Payload for BTCUSD purchase</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/instant/quote"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"btcusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"totalSpend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"100"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Sample Quote Request Payload of ETHUSD sale</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/instant/quote"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ethusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"totalSpend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/instant/quote/</code></p>
+
+<h3 id="payload-parameters">Payload Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/instant/quote/&quot;</td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;</td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td>The <a href="/rest-api/#symbols-and-minimums">symbol</a> for the order. Instant includes order books denominated in a <a href="https://support.gemini.com/hc/en-us/articles/360000032663-Do-you-support-fiat-currencies-other-than-USD-">supported currency</a>, as <code class="prettyprint">CCY2</code></td>
+</tr>
+<tr>
+<td>totalSpend</td>
+<td>string</td>
+<td>Quoted decimal amount to spend on the order. Must comply with <a href="/rest-api/#symbols-and-minimums">stated minimums</a>. The <code class="prettyprint">totalSpend</code> will be <code class="prettyprint">CCY2</code> in <code class="prettyprint">buy</code> orders and <code class="prettyprint">CCY1</code> in <code class="prettyprint">sell</code> orders.</td>
+</tr>
+<tr>
+<td>paymentMethodUuid</td>
+<td>string</td>
+<td><em>Optional</em>. uuid provided as <code class="prettyprint">bankId</code> in <a href="/rest-api/#payment-methods">Payment Methods API</a></td>
+</tr>
+<tr>
+<td>paymentMethodType</td>
+<td>string</td>
+<td><em>Optional</em>. Method used to specify payment method in <code class="prettyprint">buy</code> order. Can be &quot;AccountBalancePaymentType&quot; to use funds available in USD balance held on Gemini, &quot;BankAccountType&quot; to initial an ACH from a linked bank account, or &quot;CardAccountType&quot; to use a linked debit card to fund the purchase.</td>
+</tr>
+<tr>
+<td>account</td>
+<td>string</td>
+<td><em>Optional</em>. Required for Master API keys as described in <a href="#private-api-invocation">Private API Invocation</a>. The name of the account within the subaccount group. Specifies the account on which you intend to place the order. Only available for exchange accounts.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Sample BTCUSD Buy Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"quoteId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1328</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"maxAgeMs"</span><span class="p">:</span><span class="w"> </span><span class="mi">60000</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCUSD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6445.07"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"priceCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.01505181"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantityCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTC"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.9900309233"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"feeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFeeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"100"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpendCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Sample ETHUSD Sell Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"quoteId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"20930"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"maxAgeMs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"60000"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETHUSD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"225.42"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"priceCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantityCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETH"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.99"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"feeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFeeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpendCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETH"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>quoteId</td>
+<td>integer</td>
+<td>Unique ID for the quote. This is used in the <a href="#gemini-instant-execute">execution of the order</a></td>
+</tr>
+<tr>
+<td>maxAgeMs</td>
+<td>integer</td>
+<td>Number of milliseconds until this quote price expires. Once expired, you will need to request a new quote</td>
+</tr>
+<tr>
+<td>pair</td>
+<td>string</td>
+<td>The <a href="/rest-api/#symbols-and-minimums">symbol</a> passed in the quote request</td>
+</tr>
+<tr>
+<td>price</td>
+<td>string</td>
+<td>The quoted price of the asset. This will not change when attempting <a href="#gemini-instant-execute">execution</a></td>
+</tr>
+<tr>
+<td>priceCurrency</td>
+<td>string</td>
+<td>The currency in which the order is priced. Matches <code class="prettyprint">CCY2</code> in the <a href="/rest-api/#symbols-and-minimums">symbol</a></td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>Either &quot;buy&quot; or &quot;sell&quot;</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>string</td>
+<td>The quantity of the asset to be bought or sold</td>
+</tr>
+<tr>
+<td>quantityCurrency</td>
+<td>string</td>
+<td>The currency label for the <code class="prettyprint">quantity</code> field. Matches <code class="prettyprint">CCY1</code> in the <a href="/rest-api/#symbols-and-minimums">symbol</a></td>
+</tr>
+<tr>
+<td>fee</td>
+<td>string</td>
+<td>The fee quantity to be taken for the order upon <a href="#gemini-instant-execute">execution</a></td>
+</tr>
+<tr>
+<td>feeCurrency</td>
+<td>string</td>
+<td>The currency label for the order</td>
+</tr>
+<tr>
+<td>depositFee</td>
+<td>string</td>
+<td>The deposit fee quantity. Will be applied if a debit card is used for the order. Will return 0 if there is no <code class="prettyprint">depositFee</code></td>
+</tr>
+<tr>
+<td>depositFeeCurrency</td>
+<td>string</td>
+<td>Currency in which <code class="prettyprint">depositFee</code> is taken</td>
+</tr>
+<tr>
+<td>totalSpend</td>
+<td>string</td>
+<td>Total quantity to spend for the order. Will be the sum inclusive of all fees and amount to be traded.</td>
+</tr>
+<tr>
+<td>totalSpendCurrency</td>
+<td>string</td>
+<td>Currency of the <code class="prettyprint">totalSpend</code> to be spent on the order</td>
+</tr>
+</tbody></table>
+
+          <h2 id="gemini-instant-execution">Gemini Instant Execution</h2>
+
+<p>Once a quote is returned, the order may be executed using the <code class="prettyprint">/v1/instant/execute</code> endpoint.</p>
+
+<h3 id="roles">Roles</h3>
+
+<p>The API key you use to access this endpoint must have the Trader role assigned.  See <a href="#roles">Roles</a> for more information.</p>
+
+<p>The OAuth scope must have <code class="prettyprint">orders:create</code> assigned to access this endpoint.  See <a href="/oauth/#oauth-scopes">OAuth Scopes</a> for more information.</p>
+
+<blockquote>
+<p>Sample Instant Order Execution Request Payload BTCUSD Buy</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/instant/execute"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCUSD"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.01505181"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6445.07"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.9900309233"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"quoteId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1328</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Sample Instant Order Execution Request Payload ETHUSD Sell</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/instant/execute"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETHUSD"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"225.42"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.99"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"quoteId"</span><span class="p">:</span><span class="w"> </span><span class="mi">20930</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.gemini.com/v1/instant/execute</code></p>
+
+<h3 id="payload-parameters">Payload Parameters</h3>
+
+<p>These parameters must match what is returned in the <a href="#gemini-instant-quote">quote</a></p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>request</td>
+<td>string</td>
+<td>The literal string &quot;/v1/instant/execute&quot;</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>integer</td>
+<td>The nonce, as described in <a href="/rest-api/#private-api-invocation">Private API Invocation</a></td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>string</td>
+<td>The <a href="/rest-api/#symbols-and-minimums">symbol</a> for the order.</td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>&quot;buy&quot; or &quot;sell&quot;</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>string</td>
+<td>The quantity of the asset bought or sold. <code class="prettyprint">quantity</code> must match quantity returned in the <a href="#gemini-instant-quote">quote</a></td>
+</tr>
+<tr>
+<td>fee</td>
+<td>string</td>
+<td>The fee for the order. <code class="prettyprint">fee</code> must match fee returned in the <a href="#gemini-instant-quote">quote</a></td>
+</tr>
+<tr>
+<td>quoteId</td>
+<td>integer</td>
+<td>Unique ID for the quote. <code class="prettyprint">quoteId</code> must match quoteId returned in the <a href="#gemini-instant-quote">quote</a></td>
+</tr>
+<tr>
+<td>account</td>
+<td>string</td>
+<td><em>Optional</em>. Required for Master API keys as described in <a href="#private-api-invocation">Private API Invocation</a>. The name of the account within the subaccount group. Specifies the account on which you intend to place the order. Only available for exchange accounts.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Sample Response BTCUSD Buy</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"orderId"</span><span class="p">:</span><span class="w"> </span><span class="mi">375089415</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTCUSD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6445.07"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"priceCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.01505181"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantityCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTC"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"100"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpendCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.9900309233"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"feeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFeeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Sample Response ETHUSD Sell</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"orderId"</span><span class="p">:</span><span class="w"> </span><span class="mi">377326322</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETHUSD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"225.42"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"priceCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sell"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"quantityCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETH"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalSpendCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ETH"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"fee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.99"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"feeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"depositFeeCurrency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="response">Response</h3>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>orderId</td>
+<td>integer</td>
+<td>The ID for the executed order</td>
+</tr>
+<tr>
+<td>pair</td>
+<td>string</td>
+<td>The <a href="/rest-api/#symbols-and-minimums">symbol</a> for the order.</td>
+</tr>
+<tr>
+<td>price</td>
+<td>string</td>
+<td>The price at which the order was executed</td>
+</tr>
+<tr>
+<td>priceCurrency</td>
+<td>string</td>
+<td>The currency in which the order is priced. Matches <code class="prettyprint">CCY2</code> in the <a href="/rest-api/#symbols-and-minimums">symbol</a></td>
+</tr>
+<tr>
+<td>side</td>
+<td>string</td>
+<td>Either &quot;buy&quot; or &quot;sell&quot;</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>string</td>
+<td>The quantity of the asset bought or sold</td>
+</tr>
+<tr>
+<td>quantityCurrency</td>
+<td>string</td>
+<td>The currency label for the <code class="prettyprint">quantity</code> field.</td>
+</tr>
+<tr>
+<td>totalSpend</td>
+<td>string</td>
+<td>Total quantity to spend for the order. Will be the sum inclusive of all fees and amount to be traded.</td>
+</tr>
+<tr>
+<td>totalSpendCurrency</td>
+<td>string</td>
+<td>Currency of the <code class="prettyprint">totalSpend</code> to be spent on the order</td>
+</tr>
+<tr>
+<td>fee</td>
+<td>string</td>
+<td>The fee quantity charged for the order</td>
+</tr>
+<tr>
+<td>feeCurrency</td>
+<td>string</td>
+<td>The currency label for the fee.</td>
+</tr>
+<tr>
+<td>depositFee</td>
+<td>string</td>
+<td>The deposit fee quantity. Will be applied if a debit card is used for the order. Will return 0 if there is no <code class="prettyprint">depositFee</code></td>
+</tr>
+<tr>
+<td>depositFeeCurrency</td>
+<td>string</td>
+<td>Currency in which <code class="prettyprint">depositFee</code> is taken</td>
+</tr>
+</tbody></table>
+
+          <h1 id="sandbox">Sandbox</h1>
+
+<p>Gemini&#39;s <a href="https://exchange.sandbox.gemini.com">sandbox site</a> is an instance of the Gemini Exchange that offers full exchange functionality using test funds.  </p>
+
+<ul>
+<li>Gemini has an automated system that makes trades on the exchange to simulate normal exchange activity</li>
+<li>all funds are for testing purposes. Only Testnet BTC deposits and withdrawals are supported.</li>
+</ul>
+
+<h2 id="sandbox-urls">Sandbox URLs</h2>
+
+<p><strong>Website</strong>
+<br/>
+<a href="https://exchange.sandbox.gemini.com">https://exchange.sandbox.gemini.com</a></p>
+
+<p><strong>REST API</strong>
+<br/>
+<a href="https://api.sandbox.gemini.com">https://api.sandbox.gemini.com</a></p>
+
+<p><strong>WebSocket Feed</strong>
+<br/>
+<a href="wss://api.sandbox.gemini.com">wss://api.sandbox.gemini.com</a></p>
+
+<p><strong>Documentation</strong>
+<br/>
+<a href="https://docs.sandbox.gemini.com">https://docs.sandbox.gemini.com</a></p>
+
+<h2 id="create-your-account">Create your account</h2>
+
+<p>Go to the <a href="https://exchange.sandbox.gemini.com">sandbox site</a> to register for a test account to begin trading.  </p>
+
+<ul>
+<li>use the website to get comfortable trading on Gemini </li>
+<li>use the API to validate your trading systems before deploying them against the real Gemini exchange</li>
+</ul>
+
+<p>Your account will automatically be credited with USD, BTC, ETH, BCH, LTC, OXT, LINK, BAT and DAI.  You may use these funds to trade, both through the web site and through the API.  </p>
+
+<p>Gemini&#39;s sandbox site does not support either depositing or withdrawing your test funds, which can only be used to trade on the sandbox exchange.</p>
+
+<p>Sandbox does not support email notifications. If you need this as part of your testing plan, please contact <a href="mailto:trading@gemini.com">trading@gemini.com</a>.</p>
+
+<p>If you have any issues, or if you need to adjust your balances (to test insufficient funds handling, for example), contact <a href="mailto:trading@gemini.com">trading@gemini.com</a>.</p>
+
+<h2 id="two-factor-authentication">Two Factor Authentication</h2>
+
+<p>Two factor authentication (&quot;2FA&quot;) is enabled by default for all sandbox accounts. To disable 2FA for automated testing, please do the following: </p>
+
+<ol>
+<li>At the Authy 2FA entry screen, set a cookie or an HTTP header with the name GEMINI-SANDBOX-2FA.  The value doesn’t matter.</li>
+<li>Enter 9999999 as your 2FA code</li>
+</ol>
+
+          <h1 id="requests">Requests</h1>
+
+<p>There are two types of APIs below, the <a href="#public-apis">public ones</a> and the
+private ones, which are subdivided into <a href="#order-placement-apis">order
+placement</a>, <a href="#order-status-apis">order status</a>, and
+<a href="#account-status-apis">account status</a>.</p>
+
+          <h2 id="public-api-invocation">Public API invocation</h2>
+
+<p>Public APIs are accessible via GET, and the parameters for the request are
+included in the query string.</p>
+
+          <h2 id="private-api-invocation">Private API invocation</h2>
+
+<h3 id="payload-creation">Payload creation</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/order/status"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"order_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">18834</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Whitespace is valid JSON, so it is ignored by the server, and may be included if desired.
+The hashes are always taken on the base64 string directly, with no normalization,
+so whatever is sent in the payload is what should be hashed, and what the server will verify.</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="gp">~$ </span>base64 <span class="sh">&lt;&lt; EOF
+&gt; {
+&gt;     "request": "/v1/order/status",
+&gt;     "nonce": 123456,
+&gt;
+&gt;     "order_id": 18834
+&gt; }
+&gt; EOF
+ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYs
+CgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo=
+</span></code></pre>
+<pre class="highlight python"><code><span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
+</code></pre>
+
+<blockquote>
+<p>In this example, the <code class="prettyprint">api_secret</code> is <code class="prettyprint">1234abcd</code></p>
+</blockquote>
+<pre class="highlight shell"><code><span class="nb">echo</span> -n <span class="s1">'ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo='</span> | openssl sha384 -hmac <span class="s2">"1234abcd"</span>
+<span class="o">(</span>stdin<span class="o">)=</span> 337cc8b4ea692cfe65b4a85fcc9f042b2e3f702ac956fd098d600ab15705775017beae402be773ceee10719ff70d710f
+</code></pre>
+<pre class="highlight python"><code><span class="n">gemini_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">gemini_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</code></pre>
+
+<blockquote>
+<p>The final request will look like this:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl --request POST <span class="se">\</span>
+  --url https://api.gemini.com/v1/order/status <span class="se">\</span>
+  --header <span class="s1">'Cache-Control: no-cache'</span> <span class="se">\</span>
+  --header <span class="s1">'Content-Length: 0'</span> <span class="se">\</span>
+  --header <span class="s1">'Content-Type: text/plain'</span> <span class="se">\</span>
+  --header <span class="s1">'X-GEMINI-APIKEY: mykey'</span> <span class="se">\</span>
+  --header <span class="s1">'X-GEMINI-PAYLOAD: ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo='</span> <span class="se">\</span>
+  --header <span class="s1">'X-GEMINI-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f702ac956fd098d600ab15705775017beae402be773ceee10719ff70d710f'</span>
+</code></pre>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1/mytrades"</span>
+<span class="n">gemini_api_key</span> <span class="o">=</span> <span class="s">"mykey"</span>
+<span class="n">gemini_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+
+<span class="n">payload_nonce</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">payload</span> <span class="o">=</span>  <span class="p">{</span><span class="s">"request"</span><span class="p">:</span> <span class="s">"/v1/mytrades"</span><span class="p">,</span> <span class="s">"nonce"</span><span class="p">:</span> <span class="n">payload_nonce</span><span class="p">}</span>
+<span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">gemini_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="n">request_headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">"text/plain"</span><span class="p">,</span>
+    <span class="s">'Content-Length'</span><span class="p">:</span> <span class="s">"0"</span><span class="p">,</span>
+    <span class="s">'X-GEMINI-APIKEY'</span><span class="p">:</span> <span class="n">gemini_api_key</span><span class="p">,</span>
+    <span class="s">'X-GEMINI-PAYLOAD'</span><span class="p">:</span> <span class="n">b64</span><span class="p">,</span>
+    <span class="s">'X-GEMINI-SIGNATURE'</span><span class="p">:</span> <span class="n">signature</span><span class="p">,</span>
+    <span class="s">'Cache-Control'</span><span class="p">:</span> <span class="s">"no-cache"</span>
+    <span class="p">}</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">request_headers</span><span class="p">)</span>
+
+<span class="n">my_trades</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">my_trades</span><span class="p">)</span>
+</code></pre>
+
+<blockquote>
+<p>Which produces these HTTP headers</p>
+</blockquote>
+<pre class="highlight http"><code><span class="err">POST /v1/mytrades
+Content-Type: text/plain
+Content-Length: 0
+X-GEMINI-APIKEY: mykey
+X-GEMINI-PAYLOAD:ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N
+    0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGV
+    yX2lkIjogMTg4MzQKfQo=
+X-GEMINI-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f
+    702ac956fd098d600ab15705775017beae402be773ceee10719f
+    f70d710f
+</span></code></pre>
+
+          <h3 id="authentication">Authentication</h3>
+
+<p>Gemini uses API keys to allow access to private APIs.  You can obtain these by logging on and creating a key in <a href="https://exchange.gemini.com/settings/api">Settings/API</a>. This will give you both an &quot;API Key&quot; that will serve as your user name, and an &quot;API Secret&quot; that you will use to sign messages.</p>
+
+<p>All requests must contain a nonce. When provisioning a session key, you have the option of selecting &quot;Uses a time based nonce&quot;.  If this option is selected, the nonce has to be within +/- 30 seconds of Unix Epoch timestamp to be deemed valid. </p>
+
+<p>If you do not choose the option of a time based nonce, then the nonce has to be a number that will never be repeated and must increase between requests.  This is to prevent an attacker who has captured a previous request from simply replaying that request.  We recommend using a timestamp at millisecond or higher precision.  The nonce need only be increasing with respect to the session that the message is on.</p>
+
+          <h3 id="sessions">Sessions</h3>
+
+<p>A single account may have multiple API keys provisioned.  In this document, we&#39;ll refer to these as &quot;sessions&quot;.  All orders will be recorded with the session that created them.  The nonce associated with a request needs to be increasing with respect to the session that the nonce is used on.</p>
+
+<p>This allows multithreaded or distributed trading systems to place orders independently of each other, without needing to synchronize clocks to avoid race conditions.</p>
+
+<p>In addition, some operations (such as <code class="prettyprint">Cancel All Session Orders</code>) act on the orders associated with a specific session.</p>
+
+          <h3 id="require-heartbeat">Require Heartbeat</h3>
+
+<p>When provisioning a session key you have the option of marking the session as &quot;Requires Heartbeat&quot;.  The intention here is to specify that if connectivity to the exchange is lost for any reason, then all outstanding orders on this session should be canceled.</p>
+
+<p>If this option is selected for a session, then if the exchange does not receive a message for 30 seconds, then it will assume there has been an interruption in service, and cancel all outstanding orders.  To maintain the session, the trading system should send a <a href="#heartbeat">heartbeat</a> message at a more frequent interval.  We suggest at most 15 seconds between heartbeats.</p>
+
+<p>The <a href="#heartbeat">heartbeat</a> message is provided for convenience when there is no trading activity.  Any authenticated API call will reset the 30 second clock, even if explicit heartbeats are not sent.</p>
+
+<p>This feature is often referred to as &quot;Cancel on Disconnect&quot; on connection-oriented exchange protocols.</p>
+
+          <h3 id="payload">Payload</h3>
+
+<p>The payload of the requests will be a JSON object, which will be described
+in the documentation below.  Rather than being sent as the body of the POST
+request, it will be base-64 encoded and stored as a header in the request.</p>
+
+<aside type="warning">Authenticated APIs do <b>not</b> submit their payload as POSTed data, but instead put it in the X-GEMINI-PAYLOAD header</aside>
+
+<p>All of them will include the request name and the nonce associated with the
+request.</p>
+
+<table><thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Content-Length</td>
+<td><code class="prettyprint">0</code></td>
+</tr>
+<tr>
+<td>Content-Type</td>
+<td><code class="prettyprint">text/plain</code></td>
+</tr>
+<tr>
+<td>X-GEMINI-APIKEY</td>
+<td>Your Gemini API key</td>
+</tr>
+<tr>
+<td>X-GEMINI-PAYLOAD</td>
+<td>The base64-encoded JSON payload</td>
+</tr>
+<tr>
+<td>X-GEMINI-SIGNATURE</td>
+<td><code class="prettyprint">hex(HMAC_SHA384(base64(payload), key=api_secret))</code></td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>no-cache</td>
+</tr>
+</tbody></table>
+
+          <h3 id="master-api">Master API</h3>
+
+<p>A group that contains multiple accounts can provision a Master API key. Master API keys offer the convenience of invoking any account API on behalf of an account within that group. To invoke an API on behalf of an account, add that account&#39;s nickname as an <code class="prettyprint">account</code> parameter to your request payload.</p>
+
+<p>Master API keys are formatted with a prepending <code class="prettyprint">master-</code>, while account level API keys are formatted with a prepending <code class="prettyprint">account-</code>.</p>
+
+<p>The <code class="prettyprint">account</code> parameter may be used on any API that performs an action for or against a single account.</p>
+
+<blockquote>
+<p>Example of adding the account parameter to an API call, in this case New Order</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/order/new"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"account"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-trading-account"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;nonce&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"client_order_id"</span><span class="p">:</span><span class="w"> </span><span class="err">&lt;client_order_id&gt;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"btcusd"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3633.00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buy"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exchange limit"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+          <h2 id="roles">Roles</h2>
+
+<blockquote>
+<p>Example of error response due to API key missing a role</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="nt">"result"</span><span class="p">:</span><span class="s2">"error"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"reason"</span><span class="p">:</span><span class="s2">"MissingRole"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"To access this endpoint, you need to log in to the website and go to the settings page to assign one of these roles [FundManager] to API key wujB3szN54gtJ4QDhqRJ which currently has roles [Trader]"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Gemini uses a role-based system for private API endpoints so that you can separate privileges for your API keys.</p>
+
+<p>By assigning different roles to different API keys, you can create</p>
+
+<ol>
+<li>one API key that can trade, and</li>
+<li>another API key that can withdraw digital assets, or</li>
+<li>an API key to have access to read-only endpoints</li>
+</ol>
+
+<p>You can configure which roles are assigned to your API keys by logging in to the Gemini Exchange website and going to API Settings to configure your API keys.</p>
+
+<aside type="warning">When you create an API key, the Trader role is assigned by default.</aside>
+
+<p>If you try to access an endpoint that requires a role you did not assign to your API key, you will get back a response with:</p>
+
+<ul>
+<li><code class="prettyprint">403</code> status</li>
+<li>a JSON response body with
+
+<ul>
+<li><code class="prettyprint">reason</code> set to <code class="prettyprint">MissingRole</code>, and</li>
+<li><code class="prettyprint">message</code> explaining what role you need to add to your API key to use this endpoint</li>
+</ul></li>
+</ul>
+
+<p>See <a href="#error-codes">Error Codes</a> for more information about API error responses.</p>
+
+          <h3 id="administrator">Administrator</h3>
+
+<aside>
+The Administrator role is exclusive to Master API keys.
+</aside>
+
+<p>Assigning the Administrator role to an API key allows this API key to:</p>
+
+<ul>
+<li>Create accounts within the Master Group</li>
+<li>View accounts within the Master Group</li>
+</ul>
+
+          <h3 id="trader">Trader</h3>
+
+<p>Assigning the Trader role to an API key allows this API key to:</p>
+
+<ul>
+<li>Check balances</li>
+<li>Place and cancel orders</li>
+<li>Check the status of orders</li>
+<li>See all deposit addresses</li>
+<li>See all active orders</li>
+<li>See your trade history and volume</li>
+<li>View accounts within the Master Group</li>
+</ul>
+
+          <h3 id="fund-manager">Fund Manager</h3>
+
+<p>Assigning the Fund Manager role to an API key allows this API key to:</p>
+
+<ul>
+<li>Check balances</li>
+<li>See all deposit addresses</li>
+<li>Request new cryptocurrency deposit addresses</li>
+<li>Withdraw cryptocurrency funds</li>
+<li>View accounts within the Master Group</li>
+<li>Execute internal transfers between two accounts within the same Master group</li>
+</ul>
+
+          <h3 id="auditor">Auditor</h3>
+
+<aside>
+The Auditor role is read-only and cannot be combined with other roles.
+</aside>
+
+<p>Assigning the Auditor role to an API key allows this API key to:</p>
+
+<ul>
+<li>Check balances</li>
+<li>Check the status of orders</li>
+<li>See transfers such as deposits and withdrawals</li>
+<li>See all deposit addresses</li>
+<li>See all active orders</li>
+<li>See trade volume</li>
+<li>See past trades</li>
+<li>View accounts within the Master Group</li>
+</ul>
+
+          <h3 id="endpoint-summary">Endpoint summary</h3>
+
+<p>Here&#39;s a summary of which role you need to assign to your API key to use each endpoint in the API:</p>
+
+<h4 id="account-scoped-api">Account Scoped API</h4>
+
+<table><thead>
+<tr>
+<th>Endpoint</th>
+<th>URI</th>
+<th>Trader can access?</th>
+<th>Fund Manager can access?</th>
+<th>Auditor can access?</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="#new-order">New Order</a></td>
+<td><code class="prettyprint">/v1/order/new</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#cancel-order">Cancel Order</a></td>
+<td><code class="prettyprint">/v1/order/cancel</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#cancel-all-session-orders">Cancel All Session Orders</a></td>
+<td><code class="prettyprint">/v1/order/cancel/session</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#cancel-all-active-orders">Cancel All Active Orders</a></td>
+<td><code class="prettyprint">/v1/order/cancel/all</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#wrap-order">Wrap Order</a></td>
+<td><code class="prettyprint">/v1/wrap/:symbol</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#order-status">Order Status</a></td>
+<td><code class="prettyprint">/v1/order/status</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-active-orders">Get Active Orders</a></td>
+<td><code class="prettyprint">/v1/orders</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-past-trades">Get Past Trades</a></td>
+<td><code class="prettyprint">/v1/mytrades</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-orders-history">Get Orders History</a></td>
+<td><code class="prettyprint">/v1/orders/history</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-trade-volume">Get Trade Volume</a></td>
+<td><code class="prettyprint">/v1/tradevolume</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-notional-volume">Get Notional Volume</a></td>
+<td><code class="prettyprint">/v1/notionalvolume</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#heartbeat">Heartbeat</a></td>
+<td><code class="prettyprint">/v1/heartbeat</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#get-available-balances">Get Available Balances</a></td>
+<td><code class="prettyprint">/v1/balances</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-notional-balances">Get Notional Balances</a></td>
+<td><code class="prettyprint">v1/notionalbalances/:currency</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-earn-balances">Get Earn Balances</a></td>
+<td><code class="prettyprint">/v1/balances/earn</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-earn-rates">Get Earn Rates</a></td>
+<td><code class="prettyprint">/v1/earn/rates</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-earn-interest">Get Earn Interest</a></td>
+<td><code class="prettyprint">/v1/earn/interest</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-earn-history">Get Earn History</a></td>
+<td><code class="prettyprint">/v1/earn/history</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#get-deposit-addresses">Get Deposit Addresses</a></td>
+<td><code class="prettyprint">/v1/addresses/:network</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#new-deposit-address">New Deposit Address</a></td>
+<td><code class="prettyprint">/v1/deposit/:network/newAddress</code></td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#transfers">Transfers</a></td>
+<td><code class="prettyprint">/v1/transfers</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#custody-account-fees">Custody Account Fees</a></td>
+<td><code class="prettyprint">/v1/custodyaccountfees</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#withdraw-crypto-funds">Withdraw Crypto Funds</a></td>
+<td><code class="prettyprint">/v1/withdraw/:currency</code></td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#new-clearing-order">New Clearing Order</a></td>
+<td><code class="prettyprint">/v1/clearing/new</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#clearing-order-status">Clearing Order Status</a></td>
+<td><code class="prettyprint">/v1/clearing/status</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#cancel-clearing-order">Cancel Clearing Order</a></td>
+<td><code class="prettyprint">/v1/clearing/cancel</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#confirm-clearing-order">Confirm Clearing Order</a></td>
+<td><code class="prettyprint">/v1/clearing/confirm</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#clearing-order-list">Clearing Order List</a></td>
+<td><code class="prettyprint">/v1/clearing/list</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#clearing-broker-list">Clearing Broker List</a></td>
+<td><code class="prettyprint">/v1/clearing/broker/list</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#clearing-trades">Clearing Trades</a></td>
+<td><code class="prettyprint">/v1/clearing/trades</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="/instant/#gemini-instant-quote">Get Instant Quote</a></td>
+<td><code class="prettyprint">/v1/instant/quote/:side/:symbol</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="/instant/#gemini-instant-execution">Execute Instant Order</a></td>
+<td><code class="prettyprint">/v1/instant/execute</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#add-bank">Add A Bank</a></td>
+<td><code class="prettyprint">/v1/payments/addbank</code></td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#add-a-bank-cad">Add A Bank CAD</a></td>
+<td><code class="prettyprint">/v1/payments/addbank/cad</code></td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#payment-methods">View Payment Methods</a></td>
+<td><code class="prettyprint">/v1/payments/methods</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#account-detail">Account Detail</a></td>
+<td><code class="prettyprint">/v1/account</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#create-an-address-request">Create Approved Address</a></td>
+<td><code class="prettyprint">/v1/approvedAddresses/:network/request</code></td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#view-approved-addresses">View Approved Address List</a></td>
+<td><code class="prettyprint">/v1/approvedAddresses/account/:network</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#remove-addresses-from-approved-address-list">Remove Address from Approved Address List</a></td>
+<td><code class="prettyprint">/v1/approvedAddresses/:network/remove</code></td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#fx-rate">FX Rate</a></td>
+<td><code class="prettyprint">/v2/fxrate/:symbol/:timestamp</code></td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+</tr>
+</tbody></table>
+
+<h4 id="master-scoped-api">Master Scoped API</h4>
+
+<table><thead>
+<tr>
+<th>Endpoint</th>
+<th>URI</th>
+<th>Administrator can access?</th>
+<th>Trader can access?</th>
+<th>Fund Manager can access?</th>
+<th>Auditor can access?</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="#create-account">Create Account</a></td>
+<td><code class="prettyprint">/v1/account/create</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#rename-account">Rename Account</a></td>
+<td><code class="prettyprint">/v1/account/rename</code></td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#get-accounts-in-master-group">Get Accounts</a></td>
+<td><code class="prettyprint">/v1/account/list</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+<tr>
+<td><a href="#internal-transfers">Internal Transfer</a></td>
+<td><code class="prettyprint">/v1/account/transfer/:currency</code></td>
+<td>&#x2717;</td>
+<td>&#x2717;</td>
+<td>&#x2713;</td>
+<td>&#x2717;</td>
+</tr>
+<tr>
+<td><a href="#transactions">Transactions</a></td>
+<td><code class="prettyprint">/v1/transactions</code></td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+<td>&#x2713;</td>
+</tr>
+</tbody></table>
+
+<aside>
+Master level API keys can access Account level endpoints if the proper role is assigned. The account will need to be passed in the payload of the request as detailed <a href="https://docs.gemini.com/#using-master-api-keys"> Account Administration APIs</a>.
+</aside>
+
+          <h1 id="error-codes">Error Codes</h1>
+<pre class="highlight javascript"><code>
+<span class="p">{</span>
+    <span class="s2">"result"</span><span class="err">:</span> <span class="s2">"error"</span><span class="p">,</span>
+    <span class="s2">"reason"</span><span class="err">:</span> <span class="s2">"InsufficientFunds"</span><span class="p">,</span>
+    <span class="s2">"message"</span><span class="err">:</span> <span class="s2">"Primary bank/card account has insufficient funds"</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>In the event of an error, a non-200 error code will be returned, and the response body will be a json object with three fields:</p>
+
+<ol>
+<li><code class="prettyprint">result</code>, which will always be &quot;error&quot;</li>
+<li><code class="prettyprint">reason</code>, which will be one of the strings listed in the table below</li>
+<li><code class="prettyprint">message</code>, a human-readable English string indicating additional error information.</li>
+</ol>
+
+<table><thead>
+<tr>
+<th>Reason</th>
+<th>Message</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">InsufficientFunds</code></td>
+<td>Primary bank/card account has insufficient funds.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">MarketNotOpen</code></td>
+<td>The market is not currently accepting orders.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">DuplicateOrder</code></td>
+<td>An internal error occurred. This order is a duplicate.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InvalidPrice</code></td>
+<td>The price entered was below the market minimum.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InvalidQuantity</code></td>
+<td>The quantity entered was below the market minimum.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">StaleQuote</code></td>
+<td>An internal error occurred. Please try placing the order again.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InvalidOrder</code></td>
+<td>The order details you submitted are either invalid or stale. Please verify the order details and try again.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InvalidOrderType</code></td>
+<td>An internal error occurred. The order type is invalid.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InvalidQuoteId</code></td>
+<td>Invalid quoteId for symbol {symbol}.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">AboveMaximum</code></td>
+<td>Maximum order size exceeded. Please enter an amount less than {0}</td>
+</tr>
+<tr>
+<td><code class="prettyprint">StaleFee</code></td>
+<td>The fee rate for this transaction has changed since you submitted. Please try again.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InsufficientPermissions</code></td>
+<td>Sorry, you do not have sufficient privilege to complete this action.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">InsufficientFunds</code></td>
+<td>Sorry, you do not have sufficient funds available in your account to complete this order.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">NegativeBalance</code></td>
+<td>You may only place an order if your balance is non-negative.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">AccountClosed</code></td>
+<td>Account is closed and cannot be used for this operation.</td>
+</tr>
+</tbody></table>
+
+          <h1 id="revision-history">Revision History</h1>
+
+<table><thead>
+<tr>
+<th>Date</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>2020/05/28</td>
+<td>Initial Gemini Instant API documentation</td>
+</tr>
+</tbody></table>
+
+          <ul style="list-style-type: none; padding-left: 28px;">
+    <li>Trust is Our Product™</li>
+    <li>For trademarks and patents, please see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+    <li>NMLS #1518126</li>
+    <li>© Copyright 2022 Gemini Trust Company, LLC.</li>
+</ul>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="python">python</a>
+                <a href="#" data-language-name="shell">shell</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

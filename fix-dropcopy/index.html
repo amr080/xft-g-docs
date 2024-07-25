@@ -1,0 +1,1578 @@
+<!doctype html>
+<html>
+  <head>
+
+<!--
+This was built with https://github.com/lord/slate
+
+© Copyright 2021 Gemini Trust Company, LLC.
+ -->
+
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Gemini FIX Drop Copy API Reference</title>
+
+    <link href="../stylesheets/screen-5619571e.css" rel="stylesheet" media="screen" />
+    <link href="../stylesheets/print-f82aaaf9.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7630154/729946/css/fonts.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="../javascripts/all-967b56e5.js"></script>
+
+      <script>
+        $(function() {
+          setupLanguages([]);
+        });
+      </script>
+  </head>
+
+  <body class="fix-dropcopy fix-dropcopy_index" data-languages="[]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="../images/navbar-cad8cdcb.png" alt="" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <a id="logo" href="https://gemini.com"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
+        <div class="lang-selector">
+        </div>
+
+      <div id="menu">
+        <p id="sandbox-message">You are viewing the Gemini sandbox documentation</p>
+        <div class="nav-label">Select an API Document:</div>
+        <ul>
+          <li id="gemini-clearing"><a href="/gemini-clearing/" >Gemini Clearing™</a></li>
+          <li id="rest"><a href="/rest-api/" >REST</a></li>
+          <li id="oauth"><a href="/oauth/" >OAuth</a></li>
+          <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
+          <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
+          <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
+          <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
+          <li id="instant"><a href="/instant/" >Gemini Instant</a></li>
+        </ul>
+      </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li>Trust is Our Product™</li>
+            <li>For trademarks and patents, please <br> see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+            <li>NMLS <span>#1518126</span></li>
+            <li>© Copyright 2022 Gemini Trust <br> Company, LLC.</li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        
+          <h1 id="introduction">Introduction</h1>
+
+<p>Institutions can use the FIX Drop Copy feed to receive confirmations of trades on the Gemini exchange.  This will only report the trades themselves, not cancels or order placements.</p>
+
+<p>There are no client-originated messages supported on this channel except for the session-management ones.</p>
+
+<h2 id="survey">Survey</h2>
+
+<p>Please complete our <a href="https://geminiapi.typeform.com/to/Ryq6yl">API Use Survey</a> to help us improve your experience using the Gemini APIs.</p>
+
+          <h1 id="fix-dictionary">FIX Dictionary</h1>
+
+<p>Gemini uses <a href="https://www.fixtrading.org/standards/fix-4-4/">FIX 4.4</a> with the 20030618 errata.</p>
+
+<p>Of particular note if you may be using an older dictionary:</p>
+
+<table><thead>
+<tr>
+<th>Tag</th>
+<th>Field</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>234</td>
+<td><code class="prettyprint">StipulationValue</code></td>
+<td></td>
+<td>FIX enum but should allow other values.  Compatible with Errata 20030618 Vol 6 - see p. 86.</td>
+</tr>
+</tbody></table>
+
+<h2 id="custom-tags">Custom tags</h2>
+
+<table><thead>
+<tr>
+<th>Tag</th>
+<th>Field</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>9000</td>
+<td><code class="prettyprint">RiskLiquidityFlag</code></td>
+<td>Boolean</td>
+<td>Used in <a href="/fix-api/#new-order-single-lt-d-gt-limit">NewOrderSingle &lt;D&gt;</a> Indicates whether or not the order should match against Liquidation Orders sent from the Liquidation Engine. Only allowed from permissioned Market Makers.</td>
+</tr>
+<tr>
+<td>9001</td>
+<td><code class="prettyprint">CancelOnDisconnect</code></td>
+<td>Boolean</td>
+<td>Used in <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> to enable or disable session-level cancel on disconnect.</td>
+</tr>
+<tr>
+<td>9002</td>
+<td><code class="prettyprint">MDEntryMakerSide</code></td>
+<td>Char</td>
+<td>Used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> MDEntry groups when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">2 = Trade</code> to indicate the maker side of a trade.  See <a href="/fix-marketdata/#request-to-enable-maker-side-on-trades">Examples: Request to enable maker side on trades</a>.</td>
+</tr>
+<tr>
+<td>9003</td>
+<td><code class="prettyprint">EnableMDEntryMakerSide</code></td>
+<td>Boolean</td>
+<td>Used in <a href="/fix-marketdata/#market-data-request-lt-v-gt">Market Data Request &lt;V&gt;</a> to optionally enable showing custom field 9002 <code class="prettyprint">MDEntryMakerSide</code> in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> messages when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">2 = Trade</code>.  See <a href="/fix-marketdata/#showing-maker-side-for-trades">Examples: Showing Maker Side For Trades</a>.</td>
+</tr>
+<tr>
+<td>9009</td>
+<td><code class="prettyprint">MDEntryFundingIsRealized</code></td>
+<td>Boolean</td>
+<td>Used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a> MDEntry groups when <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html">MDEntryType</a> had the value <code class="prettyprint">S = Funding Amount</code> to indicate the IsRealized field of Funding Amount.</td>
+</tr>
+<tr>
+<td>9008</td>
+<td><code class="prettyprint">EventId</code></td>
+<td>Int</td>
+<td>Used in <a href="/fix-marketdata/#market-data-incremental-refresh-lt-x-gt">Market Data - Incremental Refresh &lt;X&gt;</a>  to specify the event associated with the update. This is for information only and may not be used to form a business logic.  See <a href="/fix-marketdata/#market-data-responses">Examples: market data responses send to clients</a>.</td>
+</tr>
+</tbody></table>
+
+<h2 id="download">Download</h2>
+
+<p>For your convenience, Gemini maintains our custom dictionary in <a href="http://www.quickfixengine.org/">QuickFIX</a> XML form:</p>
+
+<table><thead>
+<tr>
+<th>Environment</th>
+<th>File</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Production</td>
+<td><a href="https://docs.gemini.com/files/gemini-fix-dictionary.xml.zip">https://docs.gemini.com/files/gemini-fix-dictionary.xml.zip</a></td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td><a href="https://docs.sandbox.gemini.com/files/gemini-fix-dictionary.xml.zip">https://docs.sandbox.gemini.com/files/gemini-fix-dictionary.xml.zip</a></td>
+</tr>
+</tbody></table>
+
+          <h1 id="connecting">Connecting</h1>
+
+<p>Gemini&#39;s primary trading platform and network point of presence (PoP) is housed in the Equinix NY5 data center in Secaucus, New Jersey. Customers can cross connect from their NY2/NY4/NY5 infrastructure or leverage an approved extranet provider to access Gemini production Market Data feeds, Drop Copy, and Order Entry sessions.  </p>
+
+<p>We are also nearing completion of a PoP in Equinix CH3 which will be available via cross connects from the Equinix family of data centers in Chicago and approved extranet providers.</p>
+
+<p>Steps to get connected to our FIX infrastructure:</p>
+
+<h2 id="complete-account-verification">Complete Account Verification</h2>
+
+<p>If your firm has not done so already, please complete the <a href="https://exchange.gemini.com/register/institution/admin">Institutional Account Verification Process</a></p>
+
+<h2 id="get-connected">Get connected</h2>
+
+<p>Once on-boarded as a Gemini customer, email <a href="mailto:connectivity@gemini.com">connectivity@gemini.com</a> with a brief description of your business and your preferred connectivity method.  There are 3 options for production FIX connectivity to Gemini:</p>
+
+<h3 id="cross-connect">Cross-connect</h3>
+
+<p>For customers with applications in the same data center as Gemini.  If you would like to cross-connect, please include the legal entity name that we should include in our LOA (letter of authorization).</p>
+
+<h3 id="extranet-connectivity">Extranet connectivity</h3>
+
+<p>Customers who are not in the Equinix family of data centers can leverage an extranet provider to connect to Gemini.  If your firm wishes to leverage an extranet provider or third party to connect, please specify that in your email including the providers name.</p>
+
+<h3 id="third-party-order-management-system-provider">Third Party Order Management System Provider</h3>
+
+<p>There are a number of Service providers that allow Gemini customers to leverage their trading platforms to connect to Gemini for trading. If you would like to cross-connect, please include the legal entity name that we should include in our LOA (letter of authorization).  If your firm wishes to leverage an extranet provider or third party to connect, please specify that in your email including the providers name.</p>
+
+<h2 id="sandbox-and-testing">Sandbox and Testing</h2>
+
+<p>Gemini operates a Sandbox environment which acts as a replica of our production environment.  Gemini strongly recommends that all FIX customers create a Sandbox account to test their workflows.  Please follow these steps to get a FIX Sandbox environment setup:</p>
+
+<h3 id="setup-a-sandbox-account">Setup a Sandbox Account</h3>
+
+<p>Create a Sandbox account by going to: <a href="https://sandbox.gemini.com">https://sandbox.gemini.com</a></p>
+
+<h3 id="permission-your-test-ip">Permission Your Test IP</h3>
+
+<p>E-mail <a href="mailto:connectivity@gemini.com">connectivity@gemini.com</a> and specify the email address used to setup your Sandbox account and the Source IP that you will be using to connect to the FIX Sandbox.  We will respond back once the IP addresses have been enabled. We will also provide you with the Sender and Target CompId that should be used to connect to the test environment.</p>
+
+<h3 id="test-your-workflow-thoroughly">Test Your Workflow Thoroughly</h3>
+
+<p>Test all messaging workflows specified in our FIX API documentation. <em>(Gemini currently only supports FIX 4.4)</em></p>
+
+          <h1 id="workflow">Workflow</h1>
+
+<p>Gemini will report all trades on the exchange using <a href="#trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</a>.</p>
+
+<p>Trades can occur via orders placed using:</p>
+
+<ul>
+<li>a FIX API session</li>
+<li>a REST API session</li>
+<li>user logged in to the website</li>
+</ul>
+
+<p>Drop Copy reports on trades from <em>all</em> of these sources, distinguished by the value supplied in the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_448.html">PartyID &lt;448&gt;</a> field.</p>
+
+          <h2 id="precision-on-the-exchange">Precision on the exchange</h2>
+
+<p>Quantity and price on incoming orders are strictly held to the minimums and increments on the table shown above.</p>
+
+<p>However, once on the exchange, quantities and notional values may exhibit additional precision down to two decimal places past the &quot;minimum order increment&quot; listed above.  For instance, it is possible that a <code class="prettyprint">btcusd</code> trade could execute for a quantity of 0.0000000001 (1e-10) BTC.  This is due to:</p>
+
+<ul>
+<li>incoming market orders that may result in partial fills</li>
+<li>fees</li>
+<li>holds</li>
+</ul>
+
+<p>This additional precision is marketable once on the exchange.</p>
+
+<p>Your account balances are maintained to full fractional precision in each currency.</p>
+
+          <h2 id="understanding-price-and-quantity">Understanding price and quantity</h2>
+
+<p>In a <a href="#trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</a>, the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_31.html">LastQty &lt;32&gt;</a> field is denominated in BTC and the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_31.html">LastPx &lt;31&gt;</a> field is denominated in USD.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=236|35=AE|34=17|49=GEMINI|52=20160301-21:38:35.688|56=CLIENT-DC|31=301.42|32=0.02|55=BTCUSD|60=20160301-21:38:35.591|75=20160301|570=N|571=40987|552=1|54=1|37=40979|11=ORD1|453=1|448=CLIENT-OE|447=D|452=11|12=0.120568|13=3|479=USD|58=TAKER|10=085|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 236
+       34                     MsgSeqNum: 17
+       35                       MsgType: TradeCaptureReport (AE)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20160301-21:38:35.688
+       56                  TargetCompID: CLIENT-DC
+BODY
+       31                        LastPx: 301.42
+       32                       LastQty: 0.02
+       55                        Symbol: BTCUSD
+       60                  TransactTime: 20160301-21:38:35.591
+       75                     TradeDate: 20160301
+      570            PreviouslyReported: N
+      571                 TradeReportID: 40987
+    NoSides: count = 1
+           11                       ClOrdID: ORD1
+           12                    Commission: 0.120568
+           13                      CommType: ABSOLUTE (3)
+           37                       OrderID: 40979
+           54                          Side: BUY (1)
+           58                          Text: TAKER
+          479                  CommCurrency: USD
+        NoPartyIDs: count = 1
+              447                 PartyIDSource: PROPRIETARY_CUSTOM_CODE (D)
+              448                       PartyID: CLIENT-OE
+              452                     PartyRole: ORDER_ORIGINATION_TRADER (11)
+TRAILER
+       10                      CheckSum: 085
+
+</code></pre>
+
+<h2 id="currency-based-messages-and-fields">Currency-based messages and fields</h2>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Message</li>
+<li>Fields denominated in price currency</li>
+<li>Fields denominated in quantity currency</li>
+</ul></li>
+<li>
+
+<ul>
+<li><a href="#trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</a></li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_31.html">LastPx &lt;31&gt;</a></li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_32.html">LastQty &lt;32&gt;</a></li>
+</ul></li>
+</ul>
+
+<h3 id="fees">Fees</h3>
+
+<p>The amount in <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_12.html">Commission &lt;12&gt;</a> is denominated in the currency specified by the <a href="http://www.onixs.biz/fix-dictionary/4.4/app_6_a.html">currency code</a> value in <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_479.html">CommCurrency &lt;479&gt;</a>.  </p>
+
+          <h1 id="identifiers">Identifiers</h1>
+
+<p>Client supplied FIX identifier field values must contain between at least one and up to one hundred allowed characters.</p>
+
+<p>Any exchange-bound message containing an invalid identifier will be rejected.</p>
+
+<h2 id="allowed-characters">Allowed characters</h2>
+
+<p>Client supplied identifier values should match against this PCRE regular expression: <code class="prettyprint">[:\-_\.#a-zA-Z0-9]{1,100}</code>.</p>
+
+<table><thead>
+<tr>
+<th>Characters</th>
+<th>Description</th>
+<th>ASCII Codes (Dec)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">A-Z</code></td>
+<td>Uppercase A-Z</td>
+<td>65 - 90</td>
+</tr>
+<tr>
+<td><code class="prettyprint">a-z</code></td>
+<td>Lowercase a-z</td>
+<td>97 - 122</td>
+</tr>
+<tr>
+<td><code class="prettyprint">0-9</code></td>
+<td>Digits</td>
+<td>48 - 57</td>
+</tr>
+<tr>
+<td><code class="prettyprint">#</code></td>
+<td>Hash, octothorpe, number sign</td>
+<td>35</td>
+</tr>
+<tr>
+<td><code class="prettyprint">-</code></td>
+<td>Hyphen</td>
+<td>45</td>
+</tr>
+<tr>
+<td><code class="prettyprint">.</code></td>
+<td>Period</td>
+<td>46</td>
+</tr>
+<tr>
+<td><code class="prettyprint">:</code></td>
+<td>Colon</td>
+<td>58</td>
+</tr>
+<tr>
+<td><code class="prettyprint">_</code></td>
+<td>Underscore</td>
+<td>95</td>
+</tr>
+</tbody></table>
+
+          <h2 id="client-supplied-identifiers">Client supplied identifiers</h2>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Defined in</li>
+<li>Echoed back</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>11</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdID</a></li>
+<li><a href="/fix-api/#new-order-single-lt-d-gt-limit">New Order Single &lt;D&gt;</a></li>
+<li><a href="#trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</a></li>
+<li>The client&#39;s request identifier for an order.</li>
+</ul></li>
+</ul>
+
+<h2 id="identifiers-assigned-by-gemini">Identifiers assigned by Gemini</h2>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Defined in</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>49</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID</a></li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Assigned value used to identify the message is sent from Gemini to the client, <code class="prettyprint">GEMINI</code></li>
+</ul></li>
+<li>
+
+<ul>
+<li>56</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_56.html">TargetCompID</a></li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Assigned value used to identify the firm receiving the message, e.g. <code class="prettyprint">CLIENT-DC</code></li>
+</ul></li>
+<li>
+
+<ul>
+<li>571</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_571.html">TradeReportID</a></li>
+<li><a href="#trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</a></li>
+<li>Globally unique event identifier</li>
+</ul></li>
+<li>
+
+<ul>
+<li>448</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_448.html">PartyID</a></li>
+<li><a href="#trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</a></li>
+<li><span>
+The party that placed the trade.<br/><br/><ul>
+<li>For FIX sessions, the CompID of the sender</li>
+<li>For API sessions, the session identifier (which is the API key of the sender)</li>
+<li>For orders placed on the website, <code class="prettyprint">UI</code></li>
+</ul></span></li>
+</ul></li>
+</ul>
+
+          <h1 id="standard-header">Standard header</h1>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/compBlock_StandardHeader.html"><strong>Standard Header</strong></a> is required on every message.</p>
+
+<p><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_97.html">PossResend <97></a> is not supported.  Gemini will report the last sequence number that the exchange received in the header of the <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message.  The client should assume that any events that the server requests to be replayed have not been acted upon: see <a href="#beginning-a-session">Beginning a session</a> for details.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li> 
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>8</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_8.html">BeginString</a></li>
+<li>Y</li>
+<li>Identifies the beginning of new message and protocol version. Always the first tag in the message.<br/><br/>Valid value:<br/><ul><li>FIX.4.4</li></ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>9</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_9.html">BodyLength</a></li>
+<li>Y</li>
+<li>Message length, in bytes, forward to the CheckSum <10> field. Always the second tag in the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>35</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType</a></li>
+<li>Y</li>
+<li>Defines message type. Always the third tag in the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>34</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum</a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>49</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID</a></li>
+<li>Y</li>
+<li>Assigned value used to identify the firm sending the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>43</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_43.html">PossDupFlag</a></li>
+<li>N*</li>
+<li>Indicates possible retransmission of message with this sequence number.<br/><br/>Valid values:<br/><ul><li>Y = Possible duplicate</li><li>N = Original transmission</li></ul><br/><em>*Required for a re-transmitted message.</em></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>52</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_52.html">SendingTime</a></li>
+<li>Y</li>
+<li>Time of message transmission (always expressed in UTC).</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>56</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_56.html">TargetCompID</a></li>
+<li>Y</li>
+<li>Assigned value used to identify the firm receiving the message.</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>115</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID</a></li>
+<li>N*</li>
+<li>Assigned value used to identify firm originating message if the message was delivered by a third party such as an OMS or OEMS: <em>required</em> when an OMS/OEMS submits or cancels orders on behalf of another Gemini account.<br/> <ul> <li><em>Not used or supported</em> in Market Data or single party Order Entry or Drop Copy</li> <li>Third party order entry header usage as follows: <ul> <li>the customer&#39;s Gemini account identifier is used in the <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID <115></a> field</li> <li>the third party firm identifier is used in the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID <49></a> field</li> <li>See <a href="/fix-api/#third-party-support">Order Entry: Third Party Support</a> for further details.</ul><li>Third party support for Drop Copy does not use <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID <115></a> in the header - see <a href="/fix-dropcopy/#third-party-support">Drop Copy: Third Party Support</a> for details.</li></ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>128</li>
+<li><a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_128.html">DeliverToCompID</a></li>
+<li>N*</li>
+<li>Used in Execution Reports only. <br/> <ul> <li><em>Not used or supported</em> in Market Data or single party Order Entry or Drop Copy</li> <li>The customer&#39;s Gemini account identifier is returned in the <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_128.html">DeliverToCompID <128></a> field on Execution Reports</li><li>Third party support for Drop Copy does not use <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_128.html">DeliverToCompID <128></a> in the header - see <a href="/fix-dropcopy/#third-party-support">Drop Copy: Third Party Support</a> for details.</li></ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>122</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_122.html">OrigSendingTime</a></li>
+<li>N*</li>
+<li>Original time of message transmission (always expressed in UTC) when transmitting orders as the result of a resend request.<br/><br/><em>*Required for a re-transmitted message.</em></li>
+</ul></li>
+</ul>
+
+          <h1 id="standard-trailer">Standard Trailer</h1>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/compBlock_StandardTrailer.html">Standard Trailer</a> is required on every message.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li> 
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li> 
+
+<ul>
+<li>10</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_10.html">CheckSum</a></li>
+<li>Y</li>
+<li>Three byte, simple checksum. Always the last tag in the message.</li>
+</ul></li>
+</ul>
+
+          <h1 id="session-level-messages">Session-Level Messages</h1>
+
+<h2 id="establishing-a-connection">Establishing a connection</h2>
+
+<ol>
+<li>Client sends server &rarr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message</li>
+<li>Is client <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag &lt;141&gt;</a> to <code class="prettyprint">Y</code>?
+
+<ul>
+<li>Yes, reset sequence numbers and proceed
+
+<ul>
+<li>server resets next expected client sequence number</li>
+<li>server resets its own sequence number</li>
+<li>server responds with &larr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message with reset sequence number</li>
+<li>client sends server &rarr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+<li>No, negotiate sequence numbers on both sides
+
+<ol>
+<li>Is client <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> value what the server is expecting?
+
+<ul>
+<li>No, value is greater than expected
+
+<ul>
+<li>server responds with &larr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message</li>
+<li>server sends client &larr; <a href="#resend-request">Resend Request &lt;2&gt;</a></li>
+<li>client sends server &rarr; <a href="#sequence-reset">Sequence Reset &lt;4&gt;</a> (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> = <code class="prettyprint">Y</code>)</li>
+</ul></li>
+<li>No, value is less than expected
+
+<ul>
+<li>server disconnects</li>
+<li>after checking what happened, client re-sends <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message with <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag &lt;141&gt;</a> field set to <code class="prettyprint">Y</code></li>
+</ul></li>
+<li>Otherwise
+
+<ul>
+<li>server sends client &larr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+</ul></li>
+<li>Is server <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> value what the client is expecting?
+
+<ul>
+<li>No, value is greater than expected
+
+<ul>
+<li>server responds with &larr; <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> message</li>
+<li>client sends server &rarr; <a href="#resend-request">Resend Request &lt;2&gt;</a></li>
+<li>replay from server to client proceeds</li>
+<li>server responds with &larr; message <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_43.html">PossDupFlag &lt;43&gt;</a> = <code class="prettyprint">Y</code></li>
+<li>&hellip;</li>
+<li>server responds with &larr; message <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_43.html">PossDupFlag &lt;43&gt;</a> = <code class="prettyprint">Y</code></li>
+<li>replay from server to client is complete</li>
+<li>server responds with &larr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+<li>No, value is less than expected
+
+<ul>
+<li>client disconnects or sends server &rarr; <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a></li>
+<li>Gemini coordinates with the client to triage so the FIX connection can be re-established</li>
+</ul></li>
+<li>Otherwise
+
+<ul>
+<li>client sends server &rarr; <a href="#heartbeat">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+</ul></li>
+</ol></li>
+</ul></li>
+<li>Success!  Your FIX connection is established.</li>
+</ol>
+
+<h2 id="when-can-sequence-numbers-be-reset">When can sequence numbers be reset?</h2>
+
+<p>Gemini runs the server side of the FIX connection (&quot;acceptor&quot;).  Gemini never resets sequence numbers on the server side during the logon workflow unless the client explicitly requests it.</p>
+
+<p>The client (&quot;initiator&quot;) can reset sequence numbers during <a href="#logon-lt-a-gt">Logon &lt;A&gt;</a> by setting <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag &lt;141&gt;</a> to <code class="prettyprint">Y</code>.</p>
+
+<p>Gemini recommends that client consider configuring the FIX initiator to automatically reset sequence numbers under the following conditions:</p>
+
+<ul>
+<li>logon</li>
+<li>logout</li>
+<li>disconnect</li>
+<li>error</li>
+</ul>
+
+<p>While synchronizing sequence numbers after a replay, the client may send a <a href="#sequence-reset">Sequence Reset &lt;4&gt;</a> with <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> = <code class="prettyprint">Y</code> in lieu of a replay.</p>
+
+<h2 id="ending-a-connection">Ending a connection</h2>
+
+          <p>The client may send the server an optional <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a> message but the exchange will not interpret its absence as being an abnormal condition.</p>
+
+<p>Under certain conditions, the server may send the client a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a> message where the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text &lt;58&gt;</a> field contains the reason, such as scheduled maintenance.</p>
+
+          <h2 id="logon-lt-a-gt">Logon &lt;A&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message must be the first message sent by the application requesting to initiate a FIX session.  The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message authenticates an institution establishing a connection to Gemini.</p>
+
+<p>Upon receipt of a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message, Gemini will authenticate the institution requesting connection by validating the source IP Address, <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_49.html">SenderCompID &lt;49&gt;</a>, and <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_56.html">TargetCompID &lt;56&gt;</a> identifying the institution. The server will then issue a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message as acknowledgment that the connection request has been accepted. The acknowledgment <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> can also be used by the institution to validate that the connection was established with the correct party. If validation fails, the connection will be dropped without a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_3_3.html">Reject &lt;3&gt;</a>.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = A</li>
+</ul></li>
+<li>
+
+<ul>
+<li>141</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_141.html">ResetSeqNumFlag</a></li>
+<li>N</li>
+<li>Should be set to <code class="prettyprint">Y</code> when the client wants to indicates that the both sides of the FIX session should reset sequence numbers.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>98</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_98.html">EncryptMethod</a></li>
+<li>Y</li>
+<li>Gemini does not support encryption.<br/><br/>Valid value:<ul><li>0 = None</li></ul></li>
+</ul></li>
+<li><ul>
+<li>108</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt</a></li>
+<li>Y</li>
+<li><p>Heartbeat interval in seconds.
+Valid value:</p>
+
+<ul>
+<li>30 = 30 seconds</li>
+</ul></li>
+</ul></li>
+<li><ul>
+<li>9001</li>
+<li><a href="#custom-tags">CancelOnDisconnect</a></li>
+<li>N</li>
+<li><p>Only used for <a href="/fix-api/">Order Entry</a>. When present and true, orders will be cancelled on disconnect.  When present and false, orders will not be cancelled on disconnect. When absent, orders will not be cancelled on disconnect.
+Valid value:</p>
+
+<ul>
+<li>Y = Enable cancel on disconnect for this session</li>
+<li>N = Disable cancel on disconnect for this session</li>
+</ul></li>
+</ul></li>
+<li><ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="heartbeat-lt-0-gt">Heartbeat &lt;0&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> monitors the status of the communication link and identifies when the last of a string of messages was not received.  <em>The only supported heartbeat interval, as specified by the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_A_65.html">Logon &lt;A&gt;</a> message, is 30 seconds.</em></p>
+
+<p>When either end of a FIX connection has not sent any data for <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a> seconds, it will transmit a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> message. When either end of the connection has not received any data for (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a> + &quot;some reasonable transmission time&quot;) seconds, it will transmit a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message. If there is still no <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> message received after (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a> + &quot;some reasonable transmission time&quot;) seconds then the connection should be considered lost and corrective action be initiated.</p>
+
+<p>Note that a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message can still be sent independent of the value of the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_108.html">HeartBtInt &lt;108&gt;</a>, which will force a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> message.</p>
+
+<p>Heartbeats issued as the result of <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> must contain the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> transmitted in the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message. This is useful to verify that the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> is the result of the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> and not as the result of a regular timeout.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 0</li>
+</ul></li>
+<li>
+
+<ul>
+<li>112</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID</a></li>
+<li>N*</li>
+<li>Required when the heartbeat is the result of a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request (1)</a> message</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="test-request-lt-1-gt">Test Request &lt;1&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message forces a heartbeat from the opposing application. The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message checks sequence numbers or verifies communication line status. The opposite application responds to the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> with a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> containing the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a>.</p>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> verifies that the opposite application is generating the heartbeat as the result of <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> and not a normal timeout. The opposite application includes the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> in the resulting <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a>. Any string can be used as the <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID &lt;112&gt;</a> (one suggestion is to use a timestamp string).</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 1</li>
+</ul></li>
+<li><ul>
+<li>112</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_112.html">TestReqID</a></li>
+<li>Y</li>
+<li>Identifier included in <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a> message to be returned in resulting <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a></li>
+</ul></li>
+<li><ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="resend-request-lt-2-gt">Resend Request &lt;2&gt;</h2>
+
+<p>The resend request is sent by the receiving application to initiate the retransmission of messages. This function is utilized if a sequence number gap is detected, if the receiving application lost a message, or as a function of the initialization process.</p>
+
+<p>The resend request can be used to request a single message, a range of messages or all messages subsequent to a particular message.</p>
+
+<p>Note: the sending application may wish to consider the message type when resending messages; e.g. if a new order is in the resend series and a significant time period has elapsed since its original inception, the sender may not wish to retransmit the order given the potential for changed market conditions. (The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_4_4.html">Sequence Reset &lt;4&gt;</a> - Gap Fill message is used to skip messages that a sender does not wish to resend.)</p>
+
+<p>Note: it is imperative that the receiving application process messages in sequence order, e.g. if message number 7 is missed and 8-9 received, the application should ignore 8 and 9 and ask for a resend of 7-9, or, preferably, 7-0 (0 represents infinity). This latter approach is strongly recommended to recover from out of sequence conditions as it allows for faster recovery in the presence of certain race conditions when both sides are simultaneously attempting to recover a gap.</p>
+
+<ul>
+<li>To request a single message: <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo &lt;7&gt;</a> = <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo &lt;16&gt;</a></li>
+<li>To request a range of messages: <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo &lt;7&gt;</a> = first message of range, <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo &lt;16&gt;</a> = last message of range&lt;</li>
+<li>To request all messages subsequent to a particular message: <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo &lt;7&gt;</a> = first message of range, <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo &lt;16&gt;</a> = 0 (represents infinity) .</li>
+</ul>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 2</li>
+</ul></li>
+<li>
+
+<ul>
+<li>7</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_7.html">BeginSeqNo</a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+<li>
+
+<ul>
+<li>16</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_16.html">EndSeqNo</a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="reject-lt-3-gt">Reject &lt;3&gt;</h2>
+
+<p>Gemini sends a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_3_3.html">Reject &lt;3&gt;</a> message when a message is received but cannot be properly processed due to a session-level rule violation.  A reject is typically a serious error in the trading application&#39;s session logic.
+A session reject would also be generated if client message rate has exceeded the allocated throttle. </p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 3</li>
+</ul></li>
+<li>
+
+<ul>
+<li>45</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_45.html">RefSeqNum</a></li>
+<li>Y</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>58</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text</a></li>
+<li>N</li>
+<li>Explanation for rejection</li>
+</ul></li>
+<li>
+
+<ul>
+<li>371</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_371.html">RefTagID</a> </li>
+<li>N</li>
+<li>The tag number of the FIX field being referenced.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>372</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_372.html">RefMsgType</a></li>
+<li>N</li>
+<li>The <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>373</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_373.html">SessionRejectReason</a></li>
+<li>N</li>
+<li>Code to identify the reason for the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_3_3.html">Reject &lt;3&gt;</a> message.<br/><br/>Valid values:<br/><ul><li>0 = Invalid tag number</li><li>1 = Required tag missing</li><li>2 = Tag not defined for this message type</li><li>3 = Undefined Tag</li><li>4 = Tag specified without a value</li><li>5 = Value is incorrect (out of range) for this tag</li><li>6 = Incorrect data format for value</li><li>10 = <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_52.html">SendingTime &lt;52&gt;</a> accuracy problem</li><li>11 = Invalid <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a></li><li>99 = Other</a></li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="sequence-reset-lt-4-gt">Sequence Reset &lt;4&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_4_4.html">Sequence Reset &lt;4&gt;</a> message is used in response to a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_2_2.html">Resend Request &lt;2&gt;</a> message when one or more messages must be skipped over for the following reasons:</p>
+
+<ul>
+<li>During normal resend processing, the sending application may choose not to send a message (e.g. an aged order).</li>
+<li>During normal resend processing, a number of administrative messages are skipped and not resent (such as <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_0_0.html">Heartbeat &lt;0&gt;</a> and <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_1_1.html">Test Request &lt;1&gt;</a>).</li>
+</ul>
+
+<p>Gemini does not support Reset mode (<a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag &lt;123&gt;</a> not present or equal to <code class="prettyprint">N</code>).</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 4</li>
+</ul></li>
+<li>
+
+<ul>
+<li>36</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_36.html">NewSeqNo</a></li>
+<li>Y</li>
+<li>New sequence number. The receiver should expect this to be the sequence number of the following message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>123</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_123.html">GapFillFlag</a></li>
+<li>Y</li>
+<li>Indicates that the sender is skipping messages rather than resending them.<br/><br/>Valid value:<ul><li>Y = Gap Fill message</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="logout-lt-5-gt">Logout &lt;5&gt;</h2>
+
+<p>The <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_5_5.html">Logout &lt;5&gt;</a> message initiates or confirms the termination of a FIX session.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = 5</li>
+</ul></li>
+<li>
+
+<ul>
+<li>58</li>
+<li>Text</li>
+<li>N</li>
+<li>Reason for logging out.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+<h2 id="business-message-reject-lt-j-gt">Business Message Reject &lt;j&gt;</h2>
+
+<p>Gemini sends <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_j_106.html">Business Message Reject &lt;j&gt;</a> when the exchange receives a valid FIX message which cannot be processed.</p>
+
+<p>Examples include:</p>
+
+<ul>
+<li>receiving a market data request on an order entry channel, or vice versa</li>
+</ul>
+
+<p>Gemini does not use <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_j_106.html">Business Message Reject &lt;j&gt;</a> to handle invalid <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_D_68.html">New Order Single &lt;D&gt;</a> messages.  Rejected orders are handled with an <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_8_8.html">Execution Report &lt;8&gt;</a> message with an <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_39.html">OrdStatus &lt;39&gt;</a> field with a value of <code class="prettyprint">8 - Rejected</code>.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>Tag</li>
+<li>Name</li>
+<li>Req</li>
+<li>Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>Y</li>
+<li>MsgType = j</li>
+</ul></li>
+<li>
+
+<ul>
+<li>45</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_45.html">RefSeqNum</a></li>
+<li>Y</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_34.html">MsgSeqNum &lt;34&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>58</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text</a></li>
+<li>N</li>
+<li>Explanation for rejection.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>372</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_372.html">RefMsgType</a></li>
+<li>N </li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_35.html">MsgType &lt;35&gt;</a> of the rejected message.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>379</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_379.html">BusinessRejectRefID</a></li>
+<li>N</li>
+<li>The value of the business level ID field being referenced.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>380</li>
+<li><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_380.html">BusinessRejectReason</a></li>
+<li>Y</li>
+<li>Code to identify the reason for the <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_j_106.html">Business Message Reject &lt;j&gt;</a> message<br/><br/>Valid values:<br/><ul><li>0 = Other</li><li>1 = Unknown ID</li><li>2 = Unknown Security</li><li>3 = Unsupported Message Type</li><li>4 = Application not available</li><li>5 = Conditionally Required Field Missing</li></ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>&nbsp;</li>
+<li><a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>Y</li>
+<li>&nbsp;</li>
+</ul></li>
+</ul>
+
+          <h1 id="party-ids-and-roles">Party IDs and Roles</h1>
+
+<p>Trade capture reports for trades placed by your own account use <em>one</em> party ID with the following <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_452.html">PartyRole <452></a> value:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Tag</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_453.html">NoPartyIDs</a></td>
+<td>453</td>
+<td><code class="prettyprint">1</code></td>
+</tr>
+<tr>
+<td><em>First Group</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_448.html">PartyID</a></td>
+<td>448</td>
+<td>The API session key of the REST or FIX session that placed the order; &quot;UI&quot; when placed using the website.</td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_452.html">PartyRole</a></td>
+<td>452</td>
+<td><code class="prettyprint">11 = Order Origination Trader</code></td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_447.html">PartyIDSource</a></td>
+<td>447</td>
+<td><code class="prettyprint">D = Proprietary/Custom Code</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="third-party-support">Third Party Support</h2>
+
+<p>When an OMS/OEMS account is set up to place orders on behalf of one or more other accounts, this account will receive trade capture reports for:</p>
+
+<ul>
+<li>all their own trades</li>
+<li>all the orders placed by the other accounts
+
+<ul>
+<li>orders placed by the OMS/OEMS on behalf of the other account</li>
+<li>orders placed by the other account on Gemini outside the OMS/OEMS, using the UI or any other API</li>
+</ul></li>
+</ul>
+
+<p>When an order is placed, the trade capture report will contain <em>two</em> party IDs with the following <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_452.html">PartyRole <452></a> values:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Tag</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_453.html">NoPartyIDs</a></td>
+<td>453</td>
+<td><code class="prettyprint">2</code></td>
+</tr>
+<tr>
+<td><em>First Group</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_448.html">PartyID</a></td>
+<td>448</td>
+<td>The API session key of the REST or FIX session that placed the order; &quot;UI&quot; when placed using the website.</td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_452.html">PartyRole</a></td>
+<td>452</td>
+<td><code class="prettyprint">11 = Order Origination Trader</code></td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_447.html">PartyIDSource</a></td>
+<td>447</td>
+<td><code class="prettyprint">D = Proprietary/Custom Code</code></td>
+</tr>
+<tr>
+<td><em>Second Group</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_448.html">PartyID</a></td>
+<td>448</td>
+<td>The <a href="https://www.onixs.biz/fix-dictionary/4.4/tagNum_115.html">OnBehalfOfCompID <115></a> assigned to the account the order was placed on behalf of</td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_452.html">PartyRole</a></td>
+<td>452</td>
+<td><code class="prettyprint">1 = Executing Firm</code></td>
+</tr>
+<tr>
+<td><a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_447.html">PartyIDSource</a></td>
+<td>447</td>
+<td><code class="prettyprint">D = Proprietary/Custom Code</code></td>
+</tr>
+</tbody></table>
+
+          <h1 id="client-bound-messages">Client-Bound Messages</h1>
+
+<h2 id="trade-capture-report-lt-ae-gt">Trade Capture Report &lt;AE&gt;</h2>
+
+<p>Gemini will send a <a href="http://www.onixs.biz/fix-dictionary/4.4/msgType_AE_6569.html">Trade Capture Report &lt;AE&gt;</a> for all fills against orders placed by the client.</p>
+
+<p>This includes orders from all FIX sessions, REST sessions, and orders entered through the UI.  See <a href="#party-ids-and-roles">Party IDs and Roles</a> and <a href="#third-party-support">Third Party Support</a> for a detailed explanation of how party IDs and roles are used.</p>
+
+<p class="mytable"></p>
+
+<ul>
+<li>
+
+<ul>
+<li>  Tag</li>
+<li>  Name</li>
+<li>  Description</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  &nbsp;</li>
+<li>  <a href="#standard-header"><strong>Standard Header</strong></a></li>
+<li>  MsgType = &quot;AE&quot;</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  571</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_571.html">TradeReportID</a></li>
+<li>  The TradeID.  This is compatible with the trade ids returned through the REST API as well as the ExecID returned in the ExecutionReports in the Order FIX channel.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  570</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_570.html">PreviouslyReported</a></li>
+<li>  Will always be &quot;N&quot;.  Client should use the MsgSeqNum, which will be globally unique.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  75</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_75.html">TradeDate</a></li>
+<li>  Required by the FIX spec; will be the date associated with the TransactTime below</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  60</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_60.html">TransactTime</a></li>
+<li>  The time that the trade was executed</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  552</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_552.html">NoSides</a></li>
+<li>  The number of sides, always 1</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;32</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_32.html">LastQty</a></li>
+<li>  The quantity executed</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;31</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_31.html">LastPx</a></li>
+<li>  The price of the execution</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;11</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdID</a></li>
+<li>  The client-assigned order ID.  Tag will not be sent for UI-based orders.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;37</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_37.html">OrderID</a></li>
+<li>  The Gemini-assigned order ID.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;54</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_54.html">Side</a></li>
+<li>  The side of the order
+
+<ul>
+<li>  1 = Buy</li>
+<li>  2 = Sell</li>
+</ul></li>
+</ul></li>
+<li> 
+
+<ul>
+<li>  =&gt;&nbsp;58</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_58.html">Text</a></li>
+<li>  Used to store the liquidity code.  Will be the literal string
+
+<ul>
+<li>  MAKER = Added Liquidity</li>
+<li>  TAKER = Removed Liquidity</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;12</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_12.html">Commission</a></li>
+<li>  Fee charged for trade.  Negative for rebates.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;13</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_13.html">CommType</a></li>
+<li>  Type of commission.  Allowed values:
+
+<ul>
+<li>3 = absolute (total monetary amount)</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;479</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_479.html">CommCurrency</a></li>
+<li>  The currency of the fee</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;453</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_453.html">NoPartyIDs</a></li>
+<li>  The number of parties: 
+
+<ul>
+<li><code class="prettyprint">1</code> signifies an order placed by your own account - see <a href="#party-ids-and-roles">Party IDs and Roles</a></li>
+<li><code class="prettyprint">2</code> or <code class="prettyprint">3</code> signifies third-party support - see <a href="#third-party-support">Third Party Support</a></li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;=&gt;&nbsp;448</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_448.html">PartyID</a></li>
+<li>  This will be the CompID of the session that placed the trade.  For UI-based orders, this will be the string &quot;UI&quot;.  For orders placed through the REST API, this will be the session identifier.</li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;=&gt;&nbsp;447</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_447.html">PartyIDSource</a></li>
+<li>  The source of the party ID.  Values
+
+<ul>
+<li>   D = Proprietary/Custom Code</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>  =&gt;&nbsp;=&gt;&nbsp;452</li>
+<li>  <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_452.html">PartyRole</a></li>
+<li>  The role of the party.  Values:
+
+<ul>
+<li>   11 = Order Origination Trader (See <a href="#party-ids-and-roles">Party IDs and Roles</a> and/or <a href="#third-party-support">Third Party Support</a>)</li>
+<li>   1 = Executing Firm (used for <a href="#third-party-support">Third Party Support</a>)</li>
+<li>   24 = Customer Account (used for <a href="#third-party-support">Third Party Support</a>)</li>
+<li>   16 = Executing System (used for <a href="#third-party-support">Third Party Support</a>)</li>
+</ul></li>
+</ul></li>
+<li>
+
+<ul>
+<li>  &nbsp;</li>
+<li>  <a href="#standard-trailer"><strong>Standard Trailer</strong></a></li>
+<li>  &nbsp;</li>
+</ul></li>
+</ul>
+
+          <h1 id="examples">Examples</h1>
+
+<p>These are examples of drop copy messages sent to the client.</p>
+
+<h2 id="buy-limit-order">Buy Limit Order</h2>
+
+<p>In this example, <code class="prettyprint">TRADEBOTDC002</code> receives a trade capture report showing that a limit order identified by <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_11.html">ClOrdID &lt;11&gt;</a> <code class="prettyprint">KsL0nZY2gLLJSvuY6Z</code> was filled for 0.001 BTC at 8490.50 USD.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=270|35=AE|34=2|49=GEMINI|52=20180425-18:08:42.445|56=TRADEBOTDC002|31=8490.50|32=0.001|55=BTCUSD|60=20180425-18:08:42.444|75=20180425|570=N|571=335278183|552=1|54=1|37=335278181|11=KsL0nZY2gLLJSvuY6Z|453=1|448=TRADEBOTOE002|447=D|452=11|12=0.008490500|13=3|479=USD|58=TAKER|10=217|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 270
+       34                     MsgSeqNum: 2
+       35                       MsgType: TradeCaptureReport (AE)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180425-18:08:42.445
+       56                  TargetCompID: TRADEBOTDC002
+BODY
+       31                        LastPx: 8490.50
+       32                       LastQty: 0.001
+       55                        Symbol: BTCUSD
+       60                  TransactTime: 20180425-18:08:42.444
+       75                     TradeDate: 20180425
+      570            PreviouslyReported: N
+      571                 TradeReportID: 335278183
+    NoSides: count = 1
+           11                       ClOrdID: KsL0nZY2gLLJSvuY6Z
+           12                    Commission: 0.008490500
+           13                      CommType: ABSOLUTE (3)
+           37                       OrderID: 335278181
+           54                          Side: BUY (1)
+           58                          Text: TAKER
+          479                  CommCurrency: USD
+        NoPartyIDs: count = 1
+              447                 PartyIDSource: PROPRIETARY_CUSTOM_CODE (D)
+              448                       PartyID: TRADEBOTOE002
+              452                     PartyRole: ORDER_ORIGINATION_TRADER (11)
+TRAILER
+       10                      CheckSum: 217
+
+</code></pre>
+
+<h2 id="buy-limit-order-on-behalf-of-third-party">Buy Limit Order on Behalf of Third Party</h2>
+
+<p>In this example, <code class="prettyprint">TRADEBOTDC001</code>, an OMS, has placed a third-party order on behalf of an account identified by <code class="prettyprint">AA1AA1AAA1</code>.</p>
+<pre class="highlight plaintext"><code>RAW
+8=FIX.4.4|9=297|35=AE|34=2|49=GEMINI|52=20180425-17:50:34.508|56=TRADEBOTDC001|31=8490.68|32=0.001|55=BTCUSD|60=20180425-17:50:34.506|75=20180425|570=N|571=335278079|552=1|54=1|37=335278077|11=opFrFzIMQksPhSVfvx|453=2|448=TRADEBOTOE001|447=D|452=11|448=AA1AA1AAA1|447=D|452=1|12=0.021226700|13=3|479=USD|58=TAKER|10=028|
+
+HEADER
+        8                   BeginString: FIX.4.4
+        9                    BodyLength: 297
+       34                     MsgSeqNum: 2
+       35                       MsgType: TradeCaptureReport (AE)
+       49                  SenderCompID: GEMINI
+       52                   SendingTime: 20180425-17:50:34.508
+       56                  TargetCompID: TRADEBOTDC001
+BODY
+       31                        LastPx: 8490.68
+       32                       LastQty: 0.001
+       55                        Symbol: BTCUSD
+       60                  TransactTime: 20180425-17:50:34.506
+       75                     TradeDate: 20180425
+      570            PreviouslyReported: N
+      571                 TradeReportID: 335278079
+    NoSides: count = 1
+           11                       ClOrdID: opFrFzIMQksPhSVfvx
+           12                    Commission: 0.021226700
+           13                      CommType: ABSOLUTE (3)
+           37                       OrderID: 335278077
+           54                          Side: BUY (1)
+           58                          Text: TAKER
+          479                  CommCurrency: USD
+        NoPartyIDs: count = 2
+              447                 PartyIDSource: PROPRIETARY_CUSTOM_CODE (D)
+              448                       PartyID: TRADEBOTOE001
+              452                     PartyRole: ORDER_ORIGINATION_TRADER (11)
+            ----
+              447                 PartyIDSource: PROPRIETARY_CUSTOM_CODE (D)
+              448                       PartyID: AA1AA1AAA1
+              452                     PartyRole: EXECUTING_FIRM (1)
+TRAILER
+       10                      CheckSum: 028
+
+</code></pre>
+
+          <h1 id="revision-history">Revision History</h1>
+
+<table><thead>
+<tr>
+<th>Date</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>2016/03/23</td>
+<td>Initial FIX Drop Copy API documentation</td>
+</tr>
+<tr>
+<td>2018/02/22</td>
+<td><strong>New Feature:</strong> Document <a href="#third-party-support">Third Party Support</a>.  Clarify usage of <a href="#party-ids-and-roles">Party IDs and Roles</a>.</td>
+</tr>
+<tr>
+<td>2018/04/06</td>
+<td><strong>New Feature:</strong> Document block trading support.</td>
+</tr>
+<tr>
+<td>2018/05/18</td>
+<td>Add additional examples of Drop Copy messages.</td>
+</tr>
+<tr>
+<td>2018/09/21</td>
+<td>Updated OMS third party trade capture report example.</td>
+</tr>
+<tr>
+<td>2022/06/23</td>
+<td>Deprecating documentation for Auction and Block trading support</td>
+</tr>
+</tbody></table>
+
+          <ul style="list-style-type: none; padding-left: 28px;">
+    <li>Trust is Our Product™</li>
+    <li>For trademarks and patents, please see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+    <li>NMLS #1518126</li>
+    <li>© Copyright 2022 Gemini Trust Company, LLC.</li>
+</ul>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

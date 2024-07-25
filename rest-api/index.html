@@ -11,7 +11,7 @@ This was built with https://github.com/lord/slate
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Gemini REST API Reference</title>
+    <title>XFT REST API Reference</title>
 
     <link href="../stylesheets/screen-5619571e.css" rel="stylesheet" media="screen" />
     <link href="../stylesheets/print-f82aaaf9.css" rel="stylesheet" media="print" />
@@ -34,24 +34,24 @@ This was built with https://github.com/lord/slate
       </span>
     </a>
     <div class="tocify-wrapper">
-      <a id="logo" href="https://gemini.com"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
+      <a id="logo" href="https://xft.framer.website/"><img src="../images/gemini_api_dark_bg-ead2d197.svg" width="128" height="27" alt="" /></a>
         <div class="lang-selector">
               <a href="#" data-language-name="python">python</a>
               <a href="#" data-language-name="shell">shell</a>
         </div>
 
       <div id="menu">
-        <p id="sandbox-message">You are viewing the Gemini sandbox documentation</p>
+        <p id="sandbox-message">You are viewing the XFT sandbox documentation</p>
         <div class="nav-label">Select an API Document:</div>
         <ul>
-          <li id="gemini-clearing"><a href="/gemini-clearing/" >Gemini Clearing™</a></li>
+          <li id="gemini-clearing"><a href="/gemini-clearing/" >XFT Clearing™</a></li>
           <li id="rest"><a href="/rest-api/" >REST</a></li>
           <li id="oauth"><a href="/oauth/" >OAuth</a></li>
           <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
           <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
           <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
           <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
-          <li id="instant"><a href="/instant/" >Gemini Instant</a></li>
+          <li id="instant"><a href="/instant/" >XFT Instant</a></li>
         </ul>
       </div>
         <div class="search">
@@ -62,9 +62,9 @@ This was built with https://github.com/lord/slate
       </div>
         <ul class="toc-footer">
             <li>Trust is Our Product™</li>
-            <li>For trademarks and patents, please <br> see the <a href="https://gemini.com/legal-notice">Legal Notice</a>.</li>
+            <li>For trademarks and patents, please <br> see the <a href="https://linktr.ee/xft.reed">Legal Notice</a>.</li>
             <li>NMLS <span>#1518126</span></li>
-            <li>© Copyright 2022 Gemini Trust <br> Company, LLC.</li>
+            <li>© Copyright 2024 X Financial Technologies. All rights reserved.</li>
         </ul>
     </div>
     <div class="page-wrapper">
@@ -94,11 +94,11 @@ This was built with https://github.com/lord/slate
 
 <h2 id="survey">Survey</h2>
 
-<p>Please complete our <a href="https://geminiapi.typeform.com/to/Ryq6yl">API Use Survey</a> to help us improve your experience using the Gemini APIs.</p>
+<p>Please complete our <a href="https://docs.google.com/forms/d/e/1FAIpQLScZWcXgldayOc0iocUeNGCheTtHJFZ7ysKBFWujFuj8DEZ9Pw/viewform">API Use Survey</a> to help us improve your experience using the Gemini APIs.</p>
 
           <h1 id="sandbox">Sandbox</h1>
 
-<p>Gemini&#39;s <a href="https://exchange.sandbox.gemini.com">sandbox site</a> is an instance of the Gemini Exchange that offers full exchange functionality using test funds.  </p>
+<p>Gemini&#39;s <a href="https://x-ledger.replit.app/">sandbox site</a> is an instance of the Gemini Exchange that offers full exchange functionality using test funds.  </p>
 
 <ul>
 <li>Gemini has an automated system that makes trades on the exchange to simulate normal exchange activity</li>
@@ -109,27 +109,27 @@ This was built with https://github.com/lord/slate
 
 <p><strong>Website</strong>
 <br/>
-<a href="https://exchange.sandbox.gemini.com">https://exchange.sandbox.gemini.com</a></p>
+<a href="https://x-ledger.replit.app/">https://exchange.sandbox.gemini.com</a></p>
 
 <p><strong>REST API</strong>
 <br/>
-<a href="https://api.sandbox.gemini.com">https://api.sandbox.gemini.com</a></p>
+<a href="https://x-ledger.replit.app/">https://api.sandbox.gemini.com</a></p>
 
 <p><strong>WebSocket Feed</strong>
 <br/>
-<a href="wss://api.sandbox.gemini.com">wss://api.sandbox.gemini.com</a></p>
+<a href="https://x-ledger.replit.app/">wss://api.sandbox.gemini.com</a></p>
 
 <p><strong>Documentation</strong>
 <br/>
-<a href="https://docs.sandbox.gemini.com">https://docs.sandbox.gemini.com</a></p>
+<a href="https://x-ledger.replit.app/">https://docs.sandbox.gemini.com</a></p>
 
 <h2 id="create-your-account">Create your account</h2>
 
-<p>Go to the <a href="https://exchange.sandbox.gemini.com">sandbox site</a> to register for a test account to begin trading.  </p>
+<p>Go to the <a href="https://x-ledger.replit.app/">sandbox site</a> to register for a test account to begin trading.  </p>
 
 <ul>
-<li>use the website to get comfortable trading on Gemini </li>
-<li>use the API to validate your trading systems before deploying them against the real Gemini exchange</li>
+<li>use the website to get comfortable trading on XFT </li>
+<li>use the API to validate your trading systems before deploying them against the real XFT exchange</li>
 </ul>
 
 <p>Your account will automatically be credited with USD, BTC, ETH, BCH, LTC, OXT, LINK, BAT and DAI.  You may use these funds to trade, both through the web site and through the API.  </p>
@@ -151,7 +151,7 @@ This was built with https://github.com/lord/slate
 
           <h1 id="rate-limits">Rate Limits</h1>
 
-<p>To prevent abuse, Gemini imposes rate limits on incoming requests as described in the <a href="https://gemini.com/api-agreement/">Gemini API Agreement</a>.  </p>
+<p>To prevent abuse, Gemini imposes rate limits on incoming requests as described in the <a href="https://x-ledger.replit.app/">XFT API Agreement</a>.  </p>
 
 <p>For public API entry points, we limit requests to 120 requests per minute, and recommend that you do not exceed 1 request per second.</p>
 

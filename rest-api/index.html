@@ -2906,11 +2906,11 @@ XFT strongly recommends using milliseconds instead of seconds for timestamps.
 </span></code></pre>
 
           <h2 id="current-order-book">Current Order Book</h2>
-<pre class="highlight shell"><code>curl <span class="s2">"https://api.gemini.com/v1/book/btcusd"</span>
+<pre class="highlight shell"><code>curl <span class="s2">"https://api.xft.com/v1/book/btcusd"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/book/btcusd"</span><span class="p">)</span>
 <span class="n">btc_book</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -2945,7 +2945,7 @@ XFT strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/book/:symbol</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/book/:symbol</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
@@ -3024,11 +3024,11 @@ XFT strongly recommends using milliseconds instead of seconds for timestamps.
 </tbody></table>
 
           <h2 id="trade-history">Trade History</h2>
-<pre class="highlight shell"><code>curl <span class="s2">"https://api.gemini.com/v1/trades/btcusd?since=</span><span class="k">$(</span>date -d 2014-01-01 +%s<span class="k">)</span><span class="s2">"</span>
+<pre class="highlight shell"><code>curl <span class="s2">"https://api.xft.com/v1/trades/btcusd?since=</span><span class="k">$(</span>date -d 2014-01-01 +%s<span class="k">)</span><span class="s2">"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/trades/btcusd"</span><span class="p">)</span>
 <span class="n">btcusd_trades</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -3067,7 +3067,7 @@ Timestamps are either seconds or milliseconds since the epoch (1970-01-01).  See
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/trades/:symbol</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/trades/:symbol</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
@@ -3160,13 +3160,13 @@ Timestamps are either seconds or milliseconds since the epoch (1970-01-01).  See
           <h2 id="price-feed">Price feed</h2>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/pricefeed"</span><span class="p">)</span>
 <span class="n">prices</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">prices</span><span class="p">)</span>
 </code></pre>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/pricefeed"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/pricefeed"</span>
 </code></pre>
 
 <blockquote>
@@ -3198,7 +3198,7 @@ Timestamps are either seconds or milliseconds since the epoch (1970-01-01).  See
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/pricefeed</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/pricefeed</code></p>
 
 <h3 id="sanbox">Sanbox</h3>
 
@@ -3237,11 +3237,11 @@ Timestamps are either seconds or milliseconds since the epoch (1970-01-01).  See
 </tbody></table>
 
           <h2 id="funding-amount">Funding Amount</h2>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/fundingamount/:symbol"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/fundingamount/:symbol"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/fundingamount/:symbol"</span><span class="p">)</span>
 <span class="n">symbols</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -3252,7 +3252,7 @@ Timestamps are either seconds or milliseconds since the epoch (1970-01-01).  See
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/fundingamount/:symbol</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/fundingamount/:symbol</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
@@ -3338,7 +3338,7 @@ Timestamps are either seconds or milliseconds since the epoch (1970-01-01).  See
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/fundingamountreport/records.xlsx?symbol=&lt;symbol&gt;&amp;fromDate=&lt;date&gt;&amp;toDate=&lt;date&gt;&amp;numRows=&lt;rows&gt;</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/fundingamountreport/records.xlsx?symbol=&lt;symbol&gt;&amp;fromDate=&lt;date&gt;&amp;toDate=&lt;date&gt;&amp;numRows=&lt;rows&gt;</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -3406,7 +3406,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com"</span>
 <span class="n">endpoint</span> <span class="o">=</span> <span class="s">"/v1/order/new"</span>
 <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">endpoint</span>
 
@@ -3535,7 +3535,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/order/new</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/order/new</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -3703,7 +3703,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/order/cancel</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/order/cancel</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -3831,7 +3831,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/wrap/:symbol</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/wrap/:symbol</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -3973,7 +3973,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/order/cancel/session</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/order/cancel/session</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -4055,7 +4055,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/order/cancel/all</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/order/cancel/all</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -4161,7 +4161,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards. Trade info f
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/order/status</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/order/status</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -4458,7 +4458,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/orders</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/orders</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -4564,7 +4564,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards. Trade info f
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/mytrades</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/mytrades</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -4744,7 +4744,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards. Trade info f
 <p>To retrieve your full trade history walking backwards,</p>
 
 <ol>
-<li>Initial request: <code class="prettyprint">POST</code> to https://api.gemini.com/v1/mytrades with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">0</code> and a <code class="prettyprint">limit_trades</code> key with value <code class="prettyprint">500</code></li>
+<li>Initial request: <code class="prettyprint">POST</code> to https://api.xft.com/v1/mytrades with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">0</code> and a <code class="prettyprint">limit_trades</code> key with value <code class="prettyprint">500</code></li>
 <li>When you receive the list of trades, it will be sorted by <code class="prettyprint">timestamp</code> descending - so the first element in the list will have the highest <code class="prettyprint">timestamp</code> value.  For this example, say that value is <code class="prettyprint">X</code>.</li>
 <li>Create a second <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">X+1</code> and a <code class="prettyprint">limit_trades</code> key with value <code class="prettyprint">500</code>.</li>
 <li>Take the first element of the list returned with highest <code class="prettyprint">timestamp</code> value <code class="prettyprint">Y</code> and create a third <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">Y+1</code> and a <code class="prettyprint">limit_trades</code> key with value <code class="prettyprint">500</code>.</li>
@@ -4783,7 +4783,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards. Trade info f
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/orders/history</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/orders/history</code></p>
 
 <blockquote>
 <p>Sample payload
@@ -5039,7 +5039,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards. Trade info f
 <p>To retrieve your full order history walking backwards,</p>
 
 <ol>
-<li>Initial request: <code class="prettyprint">POST</code> to https://api.gemini.com/v1/orders/history with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">0</code> and a <code class="prettyprint">limit_orders</code> key with value <code class="prettyprint">500</code></li>
+<li>Initial request: <code class="prettyprint">POST</code> to https://api.xft.com/v1/orders/history with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">0</code> and a <code class="prettyprint">limit_orders</code> key with value <code class="prettyprint">500</code></li>
 <li>When you receive the list of orders, it will be sorted by <code class="prettyprint">timestamp</code> descending - so the first element in the list will have the highest <code class="prettyprint">timestamp</code> value.  For this example, say that value is <code class="prettyprint">X</code>.</li>
 <li>Create a second <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">X+1</code> and a <code class="prettyprint">limit_orders</code> key with value <code class="prettyprint">500</code>.</li>
 <li>Take the first element of the list returned with highest <code class="prettyprint">timestamp</code> value <code class="prettyprint">Y</code> and create a third <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">timestamp</code> key with value <code class="prettyprint">Y+1</code> and a <code class="prettyprint">limit_orders</code> key with value <code class="prettyprint">500</code>.</li>
@@ -5078,7 +5078,7 @@ Enabled for perpetuals accounts from July 10th, 0100hrs ET onwards. Trade info f
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/notionalvolume</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/notionalvolume</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -5237,7 +5237,7 @@ across all pairs over a period of 30 days.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/tradevolume</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/tradevolume</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -5445,7 +5445,7 @@ across all pairs over a period of 30 days.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v2/fxrate/:symbol/:timestamp</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v2/fxrate/:symbol/:timestamp</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -5533,7 +5533,7 @@ across all pairs over a period of 30 days.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/positions</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/positions</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -5650,7 +5650,7 @@ across all pairs over a period of 30 days.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/margin</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/margin</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -5796,11 +5796,11 @@ across all pairs over a period of 30 days.</p>
 <h3 id="roles">Roles</h3>
 
 <h3 id="http-request">HTTP Request</h3>
-<pre class="highlight shell"><code>curl <span class="s2">"https://api.gemini.com/v1/riskstats/BTCGUSDPERP"</span>
+<pre class="highlight shell"><code>curl <span class="s2">"https://api.xft.com/v1/riskstats/BTCGUSDPERP"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1/"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1/"</span>
 <span class="n">riskstat_symbol</span> <span class="o">=</span> <span class="s">"riskstats/BTCGUSDPERP"</span>
 
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">riskstat_symbol</span><span class="p">)</span>
@@ -5891,7 +5891,7 @@ more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/perpetuals/fundingPayment?since=&lt;since&gt;&amp;to=&lt;to&gt;</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/perpetuals/fundingPayment?since=&lt;since&gt;&amp;to=&lt;to&gt;</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -6027,7 +6027,7 @@ more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/perpetuals/fundingpaymentreport/records.xlsx?fromDate=&lt;date&gt;&amp;toDate=&lt;date&gt;&amp;numRows=&lt;rows&gt;</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/perpetuals/fundingpaymentreport/records.xlsx?fromDate=&lt;date&gt;&amp;toDate=&lt;date&gt;&amp;numRows=&lt;rows&gt;</code></p>
 
 <blockquote>
 <p>Sample Request Header. More info: <a href="#private-api-invocation">Private API Invocation</a></p>
@@ -6106,7 +6106,7 @@ more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/perpetuals/fundingpaymentreport/records.xlsx?fromDate=&lt;date&gt;&amp;toDate=&lt;date&gt;&amp;numRows=&lt;rows&gt;</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/perpetuals/fundingpaymentreport/records.xlsx?fromDate=&lt;date&gt;&amp;toDate=&lt;date&gt;&amp;numRows=&lt;rows&gt;</code></p>
 
 <blockquote>
 <p>Sample Request Header. More info: <a href="#private-api-invocation">Private API Invocation</a></p>
@@ -6227,9 +6227,9 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 </tr>
 </tbody></table>
 
-          <h1 id="gemini-clearing">Gemini Clearing</h1>
+          <h1 id="gemini-clearing">XFT Clearing</h1>
 
-<p>Gemini Clearing allows two parties to settle a trade off the order book. The initiator enters the trade details for any supported <a href="#symbols-and-minimums">symbol</a> and generates a <code class="prettyprint">trade_id</code>. If a <code class="prettyprint">counterparty_id</code> is supplied, only the specified counterparty can confirm the order. If a <code class="prettyprint">counterparty_id</code> is not supplied, the ticket will generate a <code class="prettyprint">trade_id</code> that can filled by any counterparty.</p>
+<p>XFT Clearing allows two parties to settle a trade off the order book. The initiator enters the trade details for any supported <a href="#symbols-and-minimums">symbol</a> and generates a <code class="prettyprint">trade_id</code>. If a <code class="prettyprint">counterparty_id</code> is supplied, only the specified counterparty can confirm the order. If a <code class="prettyprint">counterparty_id</code> is not supplied, the ticket will generate a <code class="prettyprint">trade_id</code> that can filled by any counterparty.</p>
 
 <h2 id="new-clearing-order">New Clearing Order</h2>
 
@@ -6241,11 +6241,11 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/new</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/new</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base url can be changed to <code class="prettyprint">https://api.sandbox.gemini.com</code> for test purposes. Please reach out to trading@gemini.com to enable Gemini Clearing on your sandbox account and test workflows.</p>
+<p>Base url can be changed to <code class="prettyprint">https://api.sandbox.gemini.com</code> for test purposes. Please reach out to alex@alexandros-securities.com to enable XFT Clearing on your sandbox account and test workflows.</p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -6313,7 +6313,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com"</span>
 <span class="n">endpoint</span> <span class="o">=</span> <span class="s">"/v1/clearing/new"</span>
 <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">endpoint</span>
 
@@ -6401,7 +6401,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h2 id="new-broker-order">New Broker Order</h2>
 
-<p>Gemini Clearing also allows for brokers to facilitate trades between two Gemini customers. A broker can submit a new Gemini Clearing order that must then be confirmed by each counterparty before settlement.</p>
+<p>XFT Clearing also allows for brokers to facilitate trades between two Gemini customers. A broker can submit a new XFT Clearing order that must then be confirmed by each counterparty before settlement.</p>
 
 <blockquote>
 <p>Sample payload for broker order initiation</p>
@@ -6516,7 +6516,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/status</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/status</code></p>
 
 <blockquote>
 <p>Sample order status payload</p>
@@ -6645,7 +6645,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/cancel</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/cancel</code></p>
 
 <blockquote>
 <p>Sample order cancel payload</p>
@@ -6733,7 +6733,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/confirm</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/confirm</code></p>
 
 <blockquote>
 <p>Sample order confirmation payload</p>
@@ -6850,7 +6850,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/list</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/list</code></p>
 
 <blockquote>
 <p>Sample clearing list payload</p>
@@ -7066,7 +7066,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/broker/list</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/broker/list</code></p>
 
 <blockquote>
 <p>Sample clearing broker list payload</p>
@@ -7261,7 +7261,7 @@ Fetch maximum 8760 records starting from Now to a historical date</p></li>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/clearing/trades</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/clearing/trades</code></p>
 
 <blockquote>
 <p>Sample clearing trades payload</p>
@@ -7452,7 +7452,7 @@ It is recommended that users floor the values returned from this endpoint to the
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/balances</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/balances</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -7579,7 +7579,7 @@ It is recommended that users floor the values returned from this endpoint to the
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/notionalbalances/:currency</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/notionalbalances/:currency</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -7718,7 +7718,7 @@ Under the terms of the <a href="https://gemini.com/api-agreement/">Gemini API Ag
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/transfers</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/transfers</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -8014,7 +8014,7 @@ Due to current limitations with the v1/transactions endpoint, historical data ca
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/transactions</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/transactions</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -8314,7 +8314,7 @@ Due to current limitations with the v1/transactions endpoint, historical data ca
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/custodyaccountfees</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/custodyaccountfees</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -8445,7 +8445,7 @@ Under the terms of the <a href="https://gemini.com/api-agreement/">Gemini API Ag
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/addresses/:network</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/addresses/:network</code></p>
 
 <blockquote>
 <p>Sample payload to return Bitcoin addresses</p>
@@ -8550,7 +8550,7 @@ Under the terms of the <a href="https://gemini.com/api-agreement/">Gemini API Ag
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/deposit/:network/newAddress</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/deposit/:network/newAddress</code></p>
 
 <blockquote>
 <p>Sample payload for BTC address generation</p>
@@ -8672,7 +8672,7 @@ Under the terms of the <a href="https://gemini.com/api-agreement/">Gemini API Ag
 <li>An API key with the Fund Manager role added</li>
 </ol>
 
-<p>If you would like to withdraw via API to addresses that are not on your approved address list, please reach out to <a href="mailto:trading@gemini.com">trading@gemini.com</a>. We can enable this feature for you provide a set of approved IP addresses. This functionality is only available for exchange accounts. Pre-approved IP addresses and addresses added to your approved address list are required to enable withdrawal APIs for custody accounts.</p>
+<p>If you would like to withdraw via API to addresses that are not on your approved address list, please reach out to <a href="mailto:alex@alexandros-securities.com">alex@alexandros-securities.com</a>. We can enable this feature for you provide a set of approved IP addresses. This functionality is only available for exchange accounts. Pre-approved IP addresses and addresses added to your approved address list are required to enable withdrawal APIs for custody accounts.</p>
 
 <p>See <a href="#roles">Roles</a> for more information on how to add the Fund Manager role to the API key you want to use.</p>
 
@@ -8708,7 +8708,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/withdraw/:currency</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/withdraw/:currency</code></p>
 
 <p>where <code class="prettyprint">:currency</code> is a supported cryptocurrency, e.g. <code class="prettyprint">btc</code> or <code class="prettyprint">eth</code>.</p>
 
@@ -8881,7 +8881,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/withdraw/{currencyCodeLowerCase}/feeEstimate</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/withdraw/{currencyCodeLowerCase}/feeEstimate</code></p>
 
 <p>where <code class="prettyprint">:currencyCodeLowerCase</code> is a supported cryptocurrency, e.g. <code class="prettyprint">eth</code>.</p>
 
@@ -9041,7 +9041,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <p>Gemini Custody account withdrawals will not occur until the daily custody run occurs. In the case of funds moving from a Gemini Custody account to a Gemini Exchange account, the exchange account will get a precredit for the amount to be received. The exchange account will be able to trade these funds but will be unable to withdraw until the funds are processed on the blockchain and received.</p>
 
-<p>Gemini Custody accounts request withdrawals to approved addresses in all cases and require the request to come from an approved IP address. Please reach out to <a href="mailto:trading@gemini.com">trading@gemini.com</a> to enable API withdrawals for custody accounts.</p>
+<p>Gemini Custody accounts request withdrawals to approved addresses in all cases and require the request to come from an approved IP address. Please reach out to <a href="mailto:alex@alexandros-securities.com">alex@alexandros-securities.com</a> to enable API withdrawals for custody accounts.</p>
 
 <p>Gemini Custody accounts do not support fiat currency transfers.</p>
 
@@ -9068,7 +9068,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 </span></code></pre>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/account/transfer/:currency</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/account/transfer/:currency</code></p>
 
 <p>where <code class="prettyprint">:currency</code> is either a fiat currency, e.g. <code class="prettyprint">usd</code> or <code class="prettyprint">gbp</code>, or a supported crypto-currency, e.g. <code class="prettyprint">gusd</code>, <code class="prettyprint">btc</code>, <code class="prettyprint">eth</code>, <code class="prettyprint">aave</code>, etc.</p>
 
@@ -9203,7 +9203,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/payments/addbank</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/payments/addbank</code></p>
 
 <blockquote>
 <p>Sample Payload</p>
@@ -9296,7 +9296,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/payments/addbank/cad</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/payments/addbank/cad</code></p>
 
 <blockquote>
 <p>Sample Payload</p>
@@ -9402,7 +9402,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/payments/methods</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/payments/methods</code></p>
 
 <blockquote>
 <p>Sample Payload</p>
@@ -9534,7 +9534,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/balances/earn</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/balances/earn</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -9659,7 +9659,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/earn/rates</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/earn/rates</code></p>
 
 <h3 id="response">Response</h3>
 
@@ -9741,7 +9741,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/earn/interest</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/earn/interest</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -9921,7 +9921,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/earn/history</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/earn/history</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -10070,7 +10070,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 <p>To retrieve your full Earn history walking backwards,</p>
 
 <ol>
-<li>Initial request: <code class="prettyprint">POST</code> to https://api.gemini.com/v1/earn/history with a JSON payload including <code class="prettyprint">sortAsc</code> set to <code class="prettyprint">false</code> and a limit key with value <code class="prettyprint">500</code>.</li>
+<li>Initial request: <code class="prettyprint">POST</code> to https://api.xft.com/v1/earn/history with a JSON payload including <code class="prettyprint">sortAsc</code> set to <code class="prettyprint">false</code> and a limit key with value <code class="prettyprint">500</code>.</li>
 <li>When you receive the list of Earn transactions, they will be sorted by <code class="prettyprint">datetime</code> descending - so the last element in the list will have the lowest <code class="prettyprint">timestamp</code> value. For this example, say that value is <code class="prettyprint">X</code>.</li>
 <li>Create a second <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">until</code> timestamp key with value <code class="prettyprint">X-1</code>, <code class="prettyprint">sortAsc</code> set to <code class="prettyprint">false</code>, and a limit key with value <code class="prettyprint">500</code>.</li>
 <li>Take the last element of the list returned with lowest <code class="prettyprint">datetime</code> value <code class="prettyprint">Y</code> and create a third <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">until</code> timestamp key with value <code class="prettyprint">Y-1</code>, <code class="prettyprint">sortAsc</code> set to false, and a <code class="prettyprint">limit</code> key with value <code class="prettyprint">500</code>.</li>
@@ -10091,7 +10091,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/balances/staking</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/balances/staking</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -10205,7 +10205,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/staking/rates</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/staking/rates</code></p>
 
 <h3 id="response">Response</h3>
 
@@ -10280,7 +10280,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/staking/rewards</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/staking/rewards</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -10461,7 +10461,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/staking/history</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/staking/history</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -10626,7 +10626,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 <p>To retrieve your full Staking history walking backwards,</p>
 
 <ol>
-<li>Initial request: <code class="prettyprint">POST</code> to https://api.gemini.com/v1/staking/history with a JSON payload including <code class="prettyprint">sortAsc</code> set to <code class="prettyprint">false</code> and a limit key with value <code class="prettyprint">500</code>.</li>
+<li>Initial request: <code class="prettyprint">POST</code> to https://api.xft.com/v1/staking/history with a JSON payload including <code class="prettyprint">sortAsc</code> set to <code class="prettyprint">false</code> and a limit key with value <code class="prettyprint">500</code>.</li>
 <li>When you receive the list of Staking transactions, they will be sorted by <code class="prettyprint">datetime</code> descending - so the last element in the list will have the lowest <code class="prettyprint">timestamp</code> value. For this example, say that value is <code class="prettyprint">X</code>.</li>
 <li>Create a second <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">until</code> timestamp key with value <code class="prettyprint">X-1</code>, <code class="prettyprint">sortAsc</code> set to <code class="prettyprint">false</code>, and a limit key with value <code class="prettyprint">500</code>.</li>
 <li>Take the last element of the list returned with lowest <code class="prettyprint">datetime</code> value <code class="prettyprint">Y</code> and create a third <code class="prettyprint">POST</code> request with a JSON payload including a <code class="prettyprint">until</code> timestamp key with value <code class="prettyprint">Y-1</code>, <code class="prettyprint">sortAsc</code> set to false, and a <code class="prettyprint">limit</code> key with value <code class="prettyprint">500</code>.</li>
@@ -10643,7 +10643,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/staking/stake</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/staking/stake</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -10758,7 +10758,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/staking/unstake</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/staking/unstake</code></p>
 
 <h3 id="parameters">Parameters</h3>
 
@@ -10864,7 +10864,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <p>If you add an address using an account-scoped API key, then the address will be added to your account specific approved address list. If you use a master-scoped API key, the address will be added to your group-level approved address list unless you specify an account.</p>
 
-<p>Please reach out to <a href="mailto:trading@gemini.com">trading@gemini.com</a> if you have any questions about approved addresses.</p>
+<p>Please reach out to <a href="mailto:alex@alexandros-securities.com">alex@alexandros-securities.com</a> if you have any questions about approved addresses.</p>
 
 <h3 id="roles">Roles</h3>
 
@@ -10872,7 +10872,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/approvedAddresses/:network/request</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/approvedAddresses/:network/request</code></p>
 
 <blockquote>
 <p>Sample Payload for Address Addition for Account-level approved address list</p>
@@ -10957,7 +10957,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/approvedAddresses/account/:network</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/approvedAddresses/account/:network</code></p>
 
 <blockquote>
 <p>Sample payload to view Approved Address list</p>
@@ -11088,7 +11088,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/approvedAddresses/:network/remove</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/approvedAddresses/:network/remove</code></p>
 
 <blockquote>
 <p>Sample Payload for Address Removal</p>
@@ -11163,7 +11163,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/account</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/account</code></p>
 
 <blockquote>
 <p>Sample Payload</p>
@@ -11316,7 +11316,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/account/create</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/account/create</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -11404,7 +11404,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/account/rename</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/account/rename</code></p>
 
 <blockquote>
 <p>Sample payload</p>
@@ -11500,7 +11500,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/account/list</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/account/list</code></p>
 
 <blockquote>
 <p>Sample Payload</p>
@@ -11573,7 +11573,7 @@ See <a href="#roles">Roles</a> for more information.</p>
 <tr>
 <td>counterparty_id</td>
 <td>string</td>
-<td>The Gemini clearing counterparty ID associated with the API key making the request. Will return <code class="prettyprint">None</code> for custody accounts</td>
+<td>The XFT Clearing counterparty ID associated with the API key making the request. Will return <code class="prettyprint">None</code> for custody accounts</td>
 </tr>
 <tr>
 <td>created</td>
@@ -11630,7 +11630,7 @@ The below is an example of a Master Level API key performing at an account level
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/balances</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/balances</code></p>
 
 <blockquote>
 <p>Sample payload for master API key - /v1/balances</p>
@@ -11691,7 +11691,7 @@ The below is an example of a Master Level API key performing at an account level
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/heartbeat</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/heartbeat</code></p>
 
 <h3 id="parameters">Parameters</h3>
 

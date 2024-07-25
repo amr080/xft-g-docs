@@ -43,14 +43,14 @@
         <p id="sandbox-message">You are viewing the XFT sandbox documentation</p>
         <div class="nav-label">Select an API Document:</div>
         <ul>
-          <li id="gemini-clearing"><a href="/gemini-clearing/" >XFT Clearing™</a></li>
+          <li id="gemini-clearing"><a href="https://x-ledger.replit.app/" >XFT Clearing™</a></li>
           <li id="rest"><a href="/rest-api/" >REST</a></li>
-          <li id="oauth"><a href="/oauth/" >OAuth</a></li>
-          <li id="websocket"><a href="/websocket-api/" >WebSocket</a></li>
-          <li id="fix-api"><a href="/fix-api/" >FIX Order Entry</a></li>
-          <li id="fix-marketdata"><a href="/fix-marketdata/" >FIX Market Data</a></li>
-          <li id="fix-dropcopy"><a href="/fix-dropcopy/" >FIX Drop Copy</a></li>
-          <li id="instant"><a href="/instant/" >XFT Instant</a></li>
+          <li id="oauth"><a href="https://x-ledger.replit.app/" >OAuth</a></li>
+          <li id="websocket"><a href="https://x-ledger.replit.app/" >WebSocket</a></li>
+          <li id="fix-api"><a href="https://x-ledger.replit.app/" >FIX Order Entry</a></li>
+          <li id="fix-marketdata"><a href="https://x-ledger.replit.app/" >FIX Market Data</a></li>
+          <li id="fix-dropcopy"><a href="https://x-ledger.replit.app/" >FIX Drop Copy</a></li>
+          <li id="instant"><a href="https://x-ledger.replit.app/" >XFT Instant</a></li>
         </ul>
       </div>
         <div class="search">
@@ -72,7 +72,7 @@
         
           <h1 id="introduction">Introduction</h1>
 
-<p>Gemini offers both public and private REST APIs.</p>
+<p>XFT offers both public and private REST APIs.</p>
 
 <p>Public REST APIs provide market data such as:</p>
 
@@ -93,7 +93,7 @@
 
 <h2 id="survey">Survey</h2>
 
-<p>Please complete our <a href="https://docs.google.com/forms/d/e/1FAIpQLScZWcXgldayOc0iocUeNGCheTtHJFZ7ysKBFWujFuj8DEZ9Pw/viewform">API Use Survey</a> to help us improve your experience using the Gemini APIs.</p>
+<p>Please complete our <a href="https://docs.google.com/forms/d/e/1FAIpQLScZWcXgldayOc0iocUeNGCheTtHJFZ7ysKBFWujFuj8DEZ9Pw/viewform">API Use Survey</a> to help us improve your experience using the XFT APIs.</p>
 
           <h1 id="sandbox">Sandbox</h1>
 
@@ -209,7 +209,7 @@
 
 <h2 id="batch-cancels">Batch cancels</h2>
 
-<p>If you want to cancel a group of orders, instead of making multiple <a href="#cancel-order">Cancel Order</a> requests, use one of Gemini&#39;s batch cancel endpoints:</p>
+<p>If you want to cancel a group of orders, instead of making multiple <a href="#cancel-order">Cancel Order</a> requests, use one of XFT&#39;s batch cancel endpoints:</p>
 
 <ul>
 <li><a href="#cancel-all-session-orders">Cancel All Session Orders</a></li>
@@ -271,21 +271,21 @@ CgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo=
 <pre class="highlight shell"><code><span class="nb">echo</span> -n <span class="s1">'ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo='</span> | openssl sha384 -hmac <span class="s2">"1234abcd"</span>
 <span class="o">(</span>stdin<span class="o">)=</span> 337cc8b4ea692cfe65b4a85fcc9f042b2e3f702ac956fd098d600ab15705775017beae402be773ceee10719ff70d710f
 </code></pre>
-<pre class="highlight python"><code><span class="n">gemini_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span>
-<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">gemini_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<pre class="highlight python"><code><span class="n">xft_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">xft_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 </code></pre>
 
 <blockquote>
 <p>The final request will look like this:</p>
 </blockquote>
 <pre class="highlight shell"><code>curl --request POST <span class="se">\</span>
-  --url https://api.gemini.com/v1/order/status <span class="se">\</span>
+  --url https://api.xft.com/v1/order/status <span class="se">\</span>
   --header <span class="s1">'Cache-Control: no-cache'</span> <span class="se">\</span>
   --header <span class="s1">'Content-Length: 0'</span> <span class="se">\</span>
   --header <span class="s1">'Content-Type: text/plain'</span> <span class="se">\</span>
-  --header <span class="s1">'X-GEMINI-APIKEY: mykey'</span> <span class="se">\</span>
-  --header <span class="s1">'X-GEMINI-PAYLOAD: ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo='</span> <span class="se">\</span>
-  --header <span class="s1">'X-GEMINI-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f702ac956fd098d600ab15705775017beae402be773ceee10719ff70d710f'</span>
+  --header <span class="s1">'X-XFT-APIKEY: mykey'</span> <span class="se">\</span>
+  --header <span class="s1">'X-XFT-PAYLOAD: ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo='</span> <span class="se">\</span>
+  --header <span class="s1">'X-XFT-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f702ac956fd098d600ab15705775017beae402be773ceee10719ff70d710f'</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -294,23 +294,23 @@ CgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo=
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1/mytrades"</span>
-<span class="n">gemini_api_key</span> <span class="o">=</span> <span class="s">"mykey"</span>
-<span class="n">gemini_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1/mytrades"</span>
+<span class="n">xft_api_key</span> <span class="o">=</span> <span class="s">"mykey"</span>
+<span class="n">xft_api_secret</span> <span class="o">=</span> <span class="s">"1234abcd"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 
 <span class="n">payload_nonce</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
 <span class="n">payload</span> <span class="o">=</span>  <span class="p">{</span><span class="s">"request"</span><span class="p">:</span> <span class="s">"/v1/mytrades"</span><span class="p">,</span> <span class="s">"nonce"</span><span class="p">:</span> <span class="n">payload_nonce</span><span class="p">}</span>
 <span class="n">encoded_payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 <span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">encoded_payload</span><span class="p">)</span>
-<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">gemini_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">xft_api_secret</span><span class="p">,</span> <span class="n">b64</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 
 <span class="n">request_headers</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">"text/plain"</span><span class="p">,</span>
     <span class="s">'Content-Length'</span><span class="p">:</span> <span class="s">"0"</span><span class="p">,</span>
-    <span class="s">'X-GEMINI-APIKEY'</span><span class="p">:</span> <span class="n">gemini_api_key</span><span class="p">,</span>
-    <span class="s">'X-GEMINI-PAYLOAD'</span><span class="p">:</span> <span class="n">b64</span><span class="p">,</span>
-    <span class="s">'X-GEMINI-SIGNATURE'</span><span class="p">:</span> <span class="n">signature</span><span class="p">,</span>
+    <span class="s">'X-XFT-APIKEY'</span><span class="p">:</span> <span class="n">xft_api_key</span><span class="p">,</span>
+    <span class="s">'X-XFT-PAYLOAD'</span><span class="p">:</span> <span class="n">b64</span><span class="p">,</span>
+    <span class="s">'X-XFT-SIGNATURE'</span><span class="p">:</span> <span class="n">signature</span><span class="p">,</span>
     <span class="s">'Cache-Control'</span><span class="p">:</span> <span class="s">"no-cache"</span>
     <span class="p">}</span>
 
@@ -326,18 +326,18 @@ CgogICAgIm9yZGVyX2lkIjogMTg4MzQKfQo=
 <pre class="highlight http"><code><span class="err">POST /v1/mytrades
 Content-Type: text/plain
 Content-Length: 0
-X-GEMINI-APIKEY: mykey
-X-GEMINI-PAYLOAD:ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N
+X-XFT-APIKEY: mykey
+X-XFT-PAYLOAD:ewogICAgInJlcXVlc3QiOiAiL3YxL29yZGVyL3N
     0YXR1cyIsCiAgICAibm9uY2UiOiAxMjM0NTYsCgogICAgIm9yZGV
     yX2lkIjogMTg4MzQKfQo=
-X-GEMINI-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f
+X-XFT-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f
     702ac956fd098d600ab15705775017beae402be773ceee10719f
     f70d710f
 </span></code></pre>
 
           <h3 id="authentication">Authentication</h3>
 
-<p>Gemini uses API keys to allow access to private APIs.  You can obtain these by logging on and creating a key in <a href="https://exchange.gemini.com/settings/api">Settings/API</a>. This will give you both an &quot;API Key&quot; that will serve as your user name, and an &quot;API Secret&quot; that you will use to sign messages.</p>
+<p>XFT uses API keys to allow access to private APIs.  You can obtain these by logging on and creating a key in <a href="https://exchange.xft.com/settings/api">Settings/API</a>. This will give you both an &quot;API Key&quot; that will serve as your user name, and an &quot;API Secret&quot; that you will use to sign messages.</p>
 
 <p>All requests must contain a nonce. When provisioning a session key, you have the option of selecting &quot;Uses a time based nonce&quot;.  If this option is selected, the nonce has to be within +/- 30 seconds of Unix Epoch timestamp to be deemed valid. </p>
 
@@ -367,7 +367,7 @@ X-GEMINI-SIGNATURE: 337cc8b4ea692cfe65b4a85fcc9f042b2e3f
 in the documentation below.  Rather than being sent as the body of the POST
 request, it will be base-64 encoded and stored as a header in the request.</p>
 
-<aside type="warning">Authenticated APIs do <b>not</b> submit their payload as POSTed data, but instead put it in the X-GEMINI-PAYLOAD header</aside>
+<aside type="warning">Authenticated APIs do <b>not</b> submit their payload as POSTed data, but instead put it in the X-XFT-PAYLOAD header</aside>
 
 <p>All of them will include the request name and the nonce associated with the
 request.</p>
@@ -387,15 +387,15 @@ request.</p>
 <td><code class="prettyprint">text/plain</code></td>
 </tr>
 <tr>
-<td>X-GEMINI-APIKEY</td>
-<td>Your Gemini API key</td>
+<td>X-XFT-APIKEY</td>
+<td>Your XFT API key</td>
 </tr>
 <tr>
-<td>X-GEMINI-PAYLOAD</td>
+<td>X-XFT-PAYLOAD</td>
 <td>The base64-encoded JSON payload</td>
 </tr>
 <tr>
-<td>X-GEMINI-SIGNATURE</td>
+<td>X-XFT-SIGNATURE</td>
 <td><code class="prettyprint">hex(HMAC_SHA384(base64(payload), key=api_secret))</code></td>
 </tr>
 <tr>
@@ -440,7 +440,7 @@ request.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>Gemini uses a role-based system for private API endpoints so that you can separate privileges for your API keys.</p>
+<p>XFT uses a role-based system for private API endpoints so that you can separate privileges for your API keys.</p>
 
 <p>By assigning different roles to different API keys, you can create</p>
 
@@ -450,7 +450,7 @@ request.</p>
 <li>an API key to have access to read-only endpoints</li>
 </ol>
 
-<p>You can configure which roles are assigned to your API keys by logging in to the Gemini Exchange website and going to API Settings to configure your API keys.</p>
+<p>You can configure which roles are assigned to your API keys by logging in to the XFT Exchange website and going to API Settings to configure your API keys.</p>
 
 <aside type="warning">When you create an API key, the Trader role is assigned by default.</aside>
 
@@ -879,14 +879,14 @@ The Auditor role is read-only and cannot be combined with other roles.
 </tbody></table>
 
 <aside>
-Master level API keys can access Account level endpoints if the proper role is assigned. The account will need to be passed in the payload of the request as detailed <a href="https://docs.gemini.com/#using-master-api-keys"> Account Administration APIs</a>.
+Master level API keys can access Account level endpoints if the proper role is assigned. The account will need to be passed in the payload of the request as detailed <a href="https://x-ledger.replit.app/"> Account Administration APIs</a>.
 </aside>
 
           <h2 id="roles-api">Roles API</h2>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://api.gemini.com/v1/roles</code></p>
+<p><code class="prettyprint">POST https://api.xft.com/v1/roles</code></p>
 
 <p>The <code class="prettyprint">v1/roles</code> endpoint will return a string of the role of the current API key. The response fields will be different for account-level and master-level API keys.</p>
 
@@ -956,7 +956,7 @@ Master level API keys can access Account level endpoints if the proper role is a
 <tr>
 <td>counterparty_id</td>
 <td>string</td>
-<td><em>Only returned for master-level API keys.</em> The Gemini clearing counterparty ID associated with the API key making the request.</td>
+<td><em>Only returned for master-level API keys.</em> The XFT clearing counterparty ID associated with the API key making the request.</td>
 </tr>
 <tr>
 <td>isAuditor</td>
@@ -994,17 +994,17 @@ Master level API keys can access Account level endpoints if the proper role is a
 
 <p>Make sure that you are not sending the JSON as the <code class="prettyprint">POST</code> body.</p>
 
-<p>If you receive a <code class="prettyprint">400</code> error that you are missing required data, then copy the base64 encoded string in <code class="prettyprint">X-GEMINI-PAYLOAD</code> to a base64 decoder such as <a href="https://www.base64decode.org/">https://www.base64decode.org/</a> and decode it.  Compare the decoded JSON to the documentation for the endpoint you are trying to access.</p>
+<p>If you receive a <code class="prettyprint">400</code> error that you are missing required data, then copy the base64 encoded string in <code class="prettyprint">X-XFT-PAYLOAD</code> to a base64 decoder such as <a href="https://www.base64decode.org/">https://www.base64decode.org/</a> and decode it.  Compare the decoded JSON to the documentation for the endpoint you are trying to access.</p>
 
 <p>If you are receiving a <code class="prettyprint">429</code> response, then see <a href="#rate-limits">Rate Limits</a>.</p>
 
 <h2 id="support">Support</h2>
 
 <aside type="warning">
-If you are an institutional trader, please contact your Gemini account manager for institutional support.
+If you are an institutional trader, please contact your XFT account manager for institutional support.
 </aside>
 
-<p>If you still have a problem then contact <a href="mailto:trading@gemini.com">trading@gemini.com</a> with the following information:</p>
+<p>If you still have a problem then contact <a href="mailto:alex@alexandros-securities.com">alex@alexandros-securities.com</a> with the following information:</p>
 
 <ol>
 <li>Which environment did you try to make the request in, production or sandbox?</li>
@@ -1054,7 +1054,7 @@ If you are an institutional trader, please contact your Gemini account manager f
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"avg_execution_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"client_order_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"20170208_example"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"exchange"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gemini"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"exchange"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xft"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"executed_amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"372456298"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"is_cancelled"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
@@ -1073,19 +1073,19 @@ If you are an institutional trader, please contact your Gemini account manager f
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>Client order ID is a client-supplied order identifier that Gemini will echo back to you in all subsequent messages about that order.</p>
+<p>Client order ID is a client-supplied order identifier that XFT will echo back to you in all subsequent messages about that order.</p>
 
-<p>Although this identifier is optional, Gemini strongly recommends supplying <code class="prettyprint">client_order_id</code> when placing orders using the <a href="/rest-api/#new-order">New Order</a> endpoint.  </p>
+<p>Although this identifier is optional, XFT strongly recommends supplying <code class="prettyprint">client_order_id</code> when placing orders using the <a href="/rest-api/#new-order">New Order</a> endpoint.  </p>
 
 <p>This makes it easy to track the <a href="/websocket-api/#accepted">Order Events: Accepted</a> and <a href="/websocket-api/#booked">Order Events: Booked</a> responses in your <a href="/websocket-api/#order-events">Order Events</a> WebSocket subscription.</p>
 
 <h2 id="visibility">Visibility</h2>
 
-<p>Your client order ids are only visible to the Gemini exchange and you.  They are never visible on any public API endpoints.</p>
+<p>Your client order ids are only visible to the XFT exchange and you.  They are never visible on any public API endpoints.</p>
 
 <h2 id="uniqueness">Uniqueness</h2>
 
-<p>Gemini recommends that your client order IDs should be unique per trading session.</p>
+<p>XFT recommends that your client order IDs should be unique per trading session.</p>
 
 <h2 id="allowed-characters">Allowed characters</h2>
 
@@ -1194,7 +1194,7 @@ are collected here for reference</p>
 <h3 id="requests">Requests</h3>
 
 <aside type="warning">
-Gemini strongly recommends using milliseconds instead of seconds for timestamps.
+XFT strongly recommends using milliseconds instead of seconds for timestamps.
 </aside>
 
 <p>When timestamp is supplied as a request parameter, the following two values are supported in order of preference:</p>
@@ -1239,7 +1239,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <p>If the <code class="prettyprint">timestamp</code> parameter is not present, the default behavior is to return the most recent items in the list.  For example, the public <a href="/rest-api/#trade-history">Trade History</a> endpoint will return the most recent trades without a <code class="prettyprint">timestamp</code> parameter.</p>
 
-<p>The first trade on Gemini occurred at <code class="prettyprint">1444311607801</code> milliseconds.  Any request for a timestamp value <em>before</em> this is the same as requesting the very first item in the list.</p>
+<p>The first trade on XFT occurred at <code class="prettyprint">1444311607801</code> milliseconds.  Any request for a timestamp value <em>before</em> this is the same as requesting the very first item in the list.</p>
 
 <p>You may choose to supply a timestamp of <code class="prettyprint">0</code> to get the first trade in the list when retrieving trades historically.</p>
 
@@ -1260,7 +1260,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <p>We calculate fees as a fraction of the notional value of each trade (i.e., price × amount). We use units of basis points (“bps”), which represent 1/100th of a percent of notional value. For example, a fee of 25 bps means that 0.25% of the denominated value of the trade will be kept by our exchange, either deducted from the gross proceeds of a trade or charged to the account at the time a trade is executed. Any fees will be applied at the time an order is placed. For partially filled orders, only the executed portion is subject to trading fees.</p>
 
-<p>For more information see <a href="https://gemini.com/trading-fee-schedule/#fee-calculation">Fee Calculation</a>.</p>
+<p>For more information see <a href="https://x-ledger.replit.app/">Fee Calculation</a>.</p>
 
           <h1 id="symbols-and-minimums">Symbols and minimums</h1>
 
@@ -1965,11 +1965,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
           <h1 id="public-apis">Public APIs</h1>
 
           <h2 id="symbols">Symbols</h2>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/symbols"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/symbols"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/symbols"</span><span class="p">)</span>
 <span class="n">symbols</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -1980,11 +1980,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/symbols</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/symbols</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v1</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v1</code> for test purposes.</p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2121,11 +2121,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 </span></code></pre>
 
           <h2 id="symbol-details">Symbol Details</h2>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/symbols/details/:symbol"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/symbols/details/:symbol"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/symbols/details/:symbol"</span><span class="p">)</span>
 <span class="n">symbols</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -2136,11 +2136,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/symbols/details/:symbol</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/symbols/details/:symbol</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v1</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v1</code> for test purposes.</p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2209,7 +2209,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 <tr>
 <td>wrap_enabled</td>
 <td>boolean</td>
-<td>When <code class="prettyprint">True</code>, symbol can be wrapped using this endpoint: <code class="prettyprint">POST https://api.gemini.com/v1/wrap/:symbol</code></td>
+<td>When <code class="prettyprint">True</code>, symbol can be wrapped using this endpoint: <code class="prettyprint">POST https://api.xft.com/v1/wrap/:symbol</code></td>
 </tr>
 <tr>
 <td>product_type</td>
@@ -2266,11 +2266,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 </span></code></pre>
 
           <h2 id="network">Network</h2>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/network/rbn"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/network/rbn"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/nework/rbn"</span><span class="p">)</span>
 <span class="n">network</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -2281,11 +2281,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/network/:token</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/network/:token</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v1</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v1</code> for test purposes.</p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2342,13 +2342,13 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
           <h2 id="ticker">Ticker</h2>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/pubticker/btcusd"</span><span class="p">)</span>
 <span class="n">btc_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">btc_data</span><span class="p">)</span>
 </code></pre>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/pubticker/btcusd"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/pubticker/btcusd"</span>
 </code></pre>
 
 <blockquote>
@@ -2370,7 +2370,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/pubticker/:symbol</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/pubticker/:symbol</code></p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2378,7 +2378,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v1</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v1</code> for test purposes.</p>
 
 <h3 id="response">Response</h3>
 
@@ -2442,13 +2442,13 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
           <h2 id="ticker-v2">Ticker V2</h2>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v2"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v2"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/ticker/btcusd"</span><span class="p">)</span>
 <span class="n">btc_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">btc_data</span><span class="p">)</span>
 </code></pre>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v2/ticker/btcusd"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v2/ticker/btcusd"</span>
 </code></pre>
 
 <blockquote>
@@ -2495,7 +2495,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v2/ticker/:symbol</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v2/ticker/:symbol</code></p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2503,7 +2503,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base url can be changed to <code class="prettyprint">api.sandbox.gemini.com/v2</code> for test purposes.</p>
+<p>Base url can be changed to <code class="prettyprint">api.sandbox.xft.com/v2</code> for test purposes.</p>
 
 <h3 id="response">Response</h3>
 
@@ -2566,13 +2566,13 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
           <h2 id="candles">Candles</h2>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v2"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v2"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/candles/btcusd/15m"</span><span class="p">)</span>
 <span class="n">btc_candle_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">btc_candle_data</span><span class="p">)</span>
 </code></pre>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v2/candles/btcusd/15m"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v2/candles/btcusd/15m"</span>
 </code></pre>
 
 <blockquote>
@@ -2601,7 +2601,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v2/candles/:symbol/:time_frame</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v2/candles/:symbol/:time_frame</code></p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2667,7 +2667,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v2</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v2</code> for test purposes.</p>
 
 <h3 id="response">Response</h3>
 
@@ -2720,13 +2720,13 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
           <h2 id="derivatives-candles">Derivatives Candles</h2>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v2"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v2"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/derivatives/candles/BTCGUSDPERP/1m"</span><span class="p">)</span>
 <span class="n">btc_perps_candle_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">btc_perps_candle_data</span><span class="p">)</span>
 </code></pre>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v2/derivatives/candles/BTCGUSDPERP/1m"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v2/derivatives/candles/BTCGUSDPERP/1m"</span>
 </code></pre>
 
 <blockquote>
@@ -2757,7 +2757,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v2/derivatives/candles/:symbol/:time_frame</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v2/derivatives/candles/:symbol/:time_frame</code></p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
@@ -2787,7 +2787,7 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v2</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v2</code> for test purposes.</p>
 
 <h3 id="response">Response</h3>
 
@@ -2838,11 +2838,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 </tbody></table>
 
           <h2 id="fee-promos">Fee Promos</h2>
-<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.gemini.com/v1/feepromos"</span>
+<pre class="highlight shell"><code><span class="gp">$ </span>curl <span class="s2">"https://api.xft.com/v1/feepromos"</span>
 </code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.gemini.com/v1"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s">"https://api.xft.com/v1"</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="s">"/feepromos"</span><span class="p">)</span>
 <span class="n">feepromos</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -2853,11 +2853,11 @@ Gemini strongly recommends using milliseconds instead of seconds for timestamps.
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://api.gemini.com/v1/feepromos</code></p>
+<p><code class="prettyprint">GET https://api.xft.com/v1/feepromos</code></p>
 
 <h3 id="sandbox">Sandbox</h3>
 
-<p>Base URL can be changed to <code class="prettyprint">api.sandbox.gemini.com/v1</code> for test purposes.</p>
+<p>Base URL can be changed to <code class="prettyprint">api.sandbox.xft.com/v1</code> for test purposes.</p>
 
 <h3 id="url-parameters">URL Parameters</h3>
 
